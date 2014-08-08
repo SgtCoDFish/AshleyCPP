@@ -1,0 +1,6 @@
+.settings/
+.cproject
+.project
+.README*
+*.o
+*.a
