@@ -14,31 +14,48 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef COMPONENT_HPP_
-#define COMPONENT_HPP_
+#ifndef SIGNAL_HPP_
+#define SIGNAL_HPP_
 
-#include <typeinfo>
-#include <typeindex>
+#include <vector>
+#include <algorithm>
+
+#include "Ashley/signals/Listener.hpp"
 
 namespace ashley {
 /**
- * <strong>Java Description</strong>
- * Base class for all Components. A Component is intended as a data holder and provides data to be processed
- * in an {@link EntitySystem}.
+ * <p>A Signal is a basic event class then can dispatch an event to multiple listeners. It uses
+ * templates to allow any type of object to be passed around on dispatch.</p>
  *
  * <em>Java author: Stefan Bachmann</em>
  * @author Ashley Davis (SgtCoDFish)
  */
-class Component {
+template<typename T>
+class Signal {
 public:
-	Component() {}
-	virtual ~Component() {
+	Signal() {
 	}
 
-	virtual std::type_index identify() {
-		return std::type_index(typeid(*this));
+	~Signal() {
+		listeners.clear();
 	}
+
+	void add(ashley::Listener<T> &listener) {
+		listeners.push_back(listener);
+	}
+	void remove(ashley::Listener<T> &listener) {
+		std::remove_if(listeners.begin(), listeners.end(),
+				[&](Listener<T> found) {return listener == found;});
+	}
+
+	void dispatch(const T &object) const {
+		std::for_each(listeners.begin(), listeners.end(),
+				[&](ashley::Listener<T> *listener) {listener->receive(*this, object);});
+	}
+
+private:
+	std::vector<ashley::Listener<T> *> listeners;
 };
 }
 
-#endif /* COMPONENT_HPP_ */
+#endif /* SIGNAL_HPP_ */

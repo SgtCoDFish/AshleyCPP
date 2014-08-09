@@ -17,10 +17,6 @@
 #ifndef ASHLEY_HPP_
 #define ASHLEY_HPP_
 
-#ifndef ASHLEY_MAX_COMPONENT_COUNT
-#define ASHLEY_MAX_COMPONENT_COUNT 64
-#endif
-
 // include all AshleyCPP files here
 #include "core/Component.hpp"
 #include "core/ComponentMapper.hpp"
@@ -29,5 +25,8 @@
 #include "core/Entity.hpp"
 #include "core/EntityListener.hpp"
 #include "core/Family.hpp"
+
+#include "signals/Signal.hpp"
+#include "signals/Listener.hpp"
 
 #endif /* ASHLEY_HPP_ */

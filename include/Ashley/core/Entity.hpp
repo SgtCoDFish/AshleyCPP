@@ -22,16 +22,18 @@
 #include <vector>
 #include <bitset>
 #include <typeindex>
+#include <memory>
 
-#include "Ashley/AshleyCore.hpp"
+#include "Ashley/AshleyConstants.hpp"
+#include "Ashley/signals/Signal.hpp"
 
 namespace ashley {
 
 class Component;
+class ComponentType;
 
 /**
- * <strong>Java Description</strong>
- * Simple containers of {@link Component}s that give them "data". The component's data
+ * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
  *
  * <em>Java author: Stefan Bachmann</em>
@@ -39,23 +41,63 @@ class Component;
  */
 class Entity {
 public:
+	/** A flag that can be used to bit mask this entity. Up to the user to manage. */
 	uint64_t flags = 0;
 
-	//TODO: Implement signals here
+	/** Will dispatch an event when a component is added. */
+	ashley::Signal<ashley::Entity> componentAdded;
 
+	/** Will dispatch an event when a component is removed. */
+	ashley::Signal<ashley::Entity> componentRemoved;
+
+	/**
+	 * Creates an empty Entity.
+	 */
 	Entity();
 
 	~Entity();
 
+	/**
+	 * Adds a {@link Component} to this Entity. If a {@link Component} of the same type already exists, it'll be replaced.
+	 * @return The Entity for easy chaining
+	 */
 	Entity& add(Component &component);
-	Entity& remove(std::type_index type);
 
+	/**
+	 * Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
+	 * don't need an instance, just the type.
+	 * @return A pointer to the removed {@link Component}, or nullptr if the Entity did no contain such a component.
+	 */
+	ashley::Component *remove(const std::type_index type);
+
+	/**
+	 * Removes all the {@link Component}'s from the Entity.
+	 */
+	void removeAll();
+
+	/**
+	 * @return const iteratove over all this Entity's {@link Component}s.
+	 */
+	std::vector<ashley::Component>::const_iterator getComponents() const;
+
+	/**
+	 * @return The Entity's unique index.
+	 */
 	inline uint64_t getIndex() const {
 		return index;
 	}
 
+	/**
+	 * @return Whether or not the Entity already has a {@link Component} for the specified type.
+	 */
+	bool hasComponent(ashley::ComponentType type) const;
+
+	/**
+	 * @return A const reference to this Entity's component bits, describing all the {@link Component}s it contains.
+	 */
+	const std::bitset<ASHLEY_MAX_COMPONENT_COUNT>& getComponentBits() const;
 private:
-	static uint_fast64_t nextIndex;
+	static uint64_t nextIndex;
 
 	uint64_t index;
 

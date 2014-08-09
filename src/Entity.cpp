@@ -17,16 +17,18 @@
 #include <cstdint>
 
 #include <algorithm>
-
 #include <typeindex>
+#include <memory>
 
+#include "Ashley/signals/Signal.hpp"
 #include "Ashley/core/Entity.hpp"
 #include "Ashley/core/Component.hpp"
+#include "Ashley/core/ComponentType.hpp"
 
 uint_fast64_t ashley::Entity::nextIndex = 0;
 
-ashley::Entity::Entity() {
-	index = nextIndex++;
+ashley::Entity::Entity() :
+		componentAdded(), componentRemoved(), index(nextIndex++) {
 }
 
 ashley::Entity::~Entity() {
@@ -34,24 +36,66 @@ ashley::Entity::~Entity() {
 }
 
 ashley::Entity& ashley::Entity::add(ashley::Component &component) {
-	auto typeIndex = std::type_index(typeid(component));
+	auto typeIndex = component.identify();
 	auto componentType = ComponentType::getFor(typeIndex);
 	auto typeID = componentType.getIndex();
 
-	if (componentBits.test(typeID)) {
+	if (componentBits[typeID]) {
 		std::replace_if(components.begin(), components.end(),
 				[&](ashley::Component &c) {return std::type_index(typeid(c)) == typeIndex;},
 				component);
+	} else {
+		components.push_back(component);
 	}
 
-	componentBits.set(typeID, true);
+	componentBits[typeID] = true;
 
+	componentAdded.dispatch(*this);
 	return *this;
 }
 
-ashley::Entity& ashley::Entity::remove(std::type_index index) {
-	auto componentType = ComponentType::getFor(index);
-	//auto typeID = componentType.getIndex();
+ashley::Component* ashley::Entity::remove(const std::type_index index) {
+	ashley::Component *retVal = nullptr;
 
-	return *this;
+	auto componentType = ComponentType::getFor(index);
+	auto typeID = componentType.getIndex();
+
+	if (componentBits[typeID]) {
+		auto loc = components.begin();
+
+		for (auto it = components.begin(); it != components.end(); it++) {
+			ashley::Component vv = (*it);
+			if (index == vv.identify()) {
+				retVal = &vv;
+				loc = it;
+				break;
+			}
+		}
+
+		if (retVal != nullptr) {
+			components.erase(loc);
+			componentRemoved.dispatch(*this);
+			componentBits[typeID] = false;
+		}
+	}
+
+	return retVal;
+}
+
+void ashley::Entity::removeAll() {
+	while (components.size() > 0) {
+		remove(std::type_index(typeid(components[0])));
+	}
+}
+
+std::vector<ashley::Component>::const_iterator ashley::Entity::getComponents() const {
+	return components.cbegin();
+}
+
+bool ashley::Entity::hasComponent(ashley::ComponentType type) const {
+	return componentBits[type.getIndex()];
+}
+
+const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> &ashley::Entity::getComponentBits() const {
+	return componentBits;
 }

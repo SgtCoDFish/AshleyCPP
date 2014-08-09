@@ -14,31 +14,24 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef COMPONENT_HPP_
-#define COMPONENT_HPP_
-
-#include <typeinfo>
-#include <typeindex>
+#ifndef LISTENER_HPP_
+#define LISTENER_HPP_
 
 namespace ashley {
+template<typename T> class Signal;
 /**
- * <strong>Java Description</strong>
- * Base class for all Components. A Component is intended as a data holder and provides data to be processed
- * in an {@link EntitySystem}.
- *
+ * <p>A simple Listener interface used to listen to a {@link Signal}.</p>
  * <em>Java author: Stefan Bachmann</em>
  * @author Ashley Davis (SgtCoDFish)
  */
-class Component {
+template<typename T>
+class Listener {
 public:
-	Component() {}
-	virtual ~Component() {
+	virtual ~Listener() {
 	}
 
-	virtual std::type_index identify() {
-		return std::type_index(typeid(*this));
-	}
+	virtual void receive(const ashley::Signal<T> &signal, const T &object) = 0;
 };
 }
 
-#endif /* COMPONENT_HPP_ */
+#endif /* LISTENER_HPP_ */

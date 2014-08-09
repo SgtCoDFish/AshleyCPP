@@ -17,3 +17,22 @@ AshleyCPP has the same license as the original, as shown here:
 > get (non-mandatory) credit in case you release a game or app using Ashley!
 
 A mention if you find AshleyCPP useful would be very much appreciated!
+
+### Implementation Status
+- Core
+  - [x] Component
+  - [ ] ComponentMapper
+  - [x] ComponentType
+  - [ ] Engine
+  - [x] Entity
+  - [ ] EntityListener
+  - [ ] EntitySystem
+  - [ ] Family
+  - [ ] PooledEngine
+- Signals
+  - [x] Signal
+  - [x] Listener
+- Systems
+  - [ ] IteratingSystem
+  
+NB: Bag and ImmutableArray will not be implemented, there are better native C++ choices (std::vector and const iterators respectively).

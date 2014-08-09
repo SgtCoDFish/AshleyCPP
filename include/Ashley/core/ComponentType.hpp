@@ -19,15 +19,19 @@
 
 #include <cstdint>
 
+#include <bitset>
+#include <typeinfo>
 #include <typeindex>
 #include <unordered_map>
+
+#include "Ashley/AshleyConstants.hpp"
 
 namespace ashley {
 
 /**
- * <strong>Java Description</strong>
- * Uniquely identifies a {@link Component} sub-class.
- * It assigns them an index which is used internally for fast comparison and retrieval.
+ * <p>Uniquely identifies a {@link Component} sub-class, assigning them an index which is used internally for fast comparison and retrieval.</p>
+ * <p>Functions which accept a type are overloaded to accept both std::type_index (preferred) and std::type_info. This means that a {@link Component}, c, type can be passed as either std::type_index(typeid(c)) or just as typeid(c).</p>
+ * <p>Note that the std::type_info form is silently converted to a std::type_index anyway.</p>
  * See {@link Family} and {@link Entity}.
  *
  * <em>Java author: Stefan Bachmann</em>
@@ -42,7 +46,54 @@ public:
 		return index;
 	}
 
-	static ComponentType& getFor(std::type_index index);
+	/**
+	 * @param componentType The {@link Component} class's type.
+	 * @return A ComponentType matching the Component's class.
+	 */
+	static ComponentType& getFor(std::type_index componentType);
+
+	/**
+	 * <p>As with the std::type_index version.</p>
+	 */
+	static ComponentType& getFor(std::type_info componentType) {
+		return ComponentType::getFor(std::type_index(componentType));
+	}
+
+	/**
+	 * Quick helper method. The same could be done via {@link ComponentType.getFor()}.
+	 * @param componentType The {@link Component} class's type.
+	 * @return The index for the specified {@link Component} Class
+	 */
+	static uint64_t getIndexFor(std::type_index componentType);
+
+	/**
+	 * <p>As with the std::type_index version.</p>
+	 */
+	static uint64_t getIndexFor(std::type_info componentType) {
+		return ComponentType::getIndexFor(std::type_index(componentType));
+	}
+
+	/**
+	 * @param components Initializer list of {@link Component} class std::type_indexes.
+	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
+	 */
+	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
+			std::initializer_list<std::type_index> components);
+
+//	/**
+//	 * <p>As with the std::type_index version.</p>
+//	 */
+//	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
+//			std::initializer_list<std::type_info> components);
+
+	/**
+	 * @param components Beginning and ending const iterators over a collection of std::type_indexes.
+	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
+	 */
+	template<typename Iter, typename IterType=std::type_index> static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
+			Iter first, Iter last);
+
+
 private:
 	static uint64_t typeIndex;
 	static std::unordered_map<std::type_index, ComponentType> componentTypes;
