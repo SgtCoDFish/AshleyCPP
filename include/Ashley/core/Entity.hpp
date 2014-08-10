@@ -25,11 +25,10 @@
 #include <memory>
 
 #include "Ashley/AshleyConstants.hpp"
+#include "Ashley/core/Component.hpp"
 #include "Ashley/signals/Signal.hpp"
 
 namespace ashley {
-
-class Component;
 class ComponentType;
 
 /**
@@ -41,14 +40,25 @@ class ComponentType;
  */
 class Entity {
 public:
+	/** The type stored in the {@link Signal}s for added and removed {@link Component}s. */
+	using SignalStoreType = ashley::Entity *;
+
+	/** The type stored in the collection of all of this {@link Entity}'s {@link Component}s. */
+	using ComponentsStoreType = ashley::Component *;
+	/** The type used for the collection of all this entity's {@link Component}s. */
+	using ComponentsCollectionType = std::vector<ComponentsStoreType>;
+
+	/** The type used to store component bits. */
+	using BitsStoreType = std::bitset<ASHLEY_MAX_COMPONENT_COUNT>;
+
 	/** A flag that can be used to bit mask this entity. Up to the user to manage. */
 	uint64_t flags = 0;
 
 	/** Will dispatch an event when a component is added. */
-	ashley::Signal<ashley::Entity> componentAdded;
+	ashley::Signal<SignalStoreType> componentAdded;
 
 	/** Will dispatch an event when a component is removed. */
-	ashley::Signal<ashley::Entity> componentRemoved;
+	ashley::Signal<SignalStoreType> componentRemoved;
 
 	/**
 	 * Creates an empty Entity.
@@ -68,7 +78,7 @@ public:
 	 * don't need an instance, just the type.
 	 * @return A pointer to the removed {@link Component}, or nullptr if the Entity did no contain such a component.
 	 */
-	ashley::Component *remove(const std::type_index type);
+	ComponentsStoreType remove(const std::type_index &type);
 
 	/**
 	 * Removes all the {@link Component}'s from the Entity.
@@ -76,9 +86,9 @@ public:
 	void removeAll();
 
 	/**
-	 * @return const iteratove over all this Entity's {@link Component}s.
+	 * @return const vector over all this Entity's {@link Component} pointers.
 	 */
-	std::vector<ashley::Component>::const_iterator getComponents() const;
+	const ComponentsCollectionType getComponents() const;
 
 	/**
 	 * @return The Entity's unique index.
@@ -87,24 +97,26 @@ public:
 		return index;
 	}
 
+	ComponentsStoreType getComponent(ashley::ComponentType &type) const;
+
 	/**
 	 * @return Whether or not the Entity already has a {@link Component} for the specified type.
 	 */
-	bool hasComponent(ashley::ComponentType type) const;
+	bool hasComponent(ashley::ComponentType &type) const;
 
 	/**
 	 * @return A const reference to this Entity's component bits, describing all the {@link Component}s it contains.
 	 */
-	const std::bitset<ASHLEY_MAX_COMPONENT_COUNT>& getComponentBits() const;
+	const BitsStoreType& getComponentBits() const;
 private:
 	static uint64_t nextIndex;
 
 	uint64_t index;
 
-	std::vector<ashley::Component> components;
+	ComponentsCollectionType components;
 
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> componentBits;
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> familyBits;
+	BitsStoreType componentBits;
+	BitsStoreType familyBits;
 };
 
 }
