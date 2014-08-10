@@ -25,8 +25,8 @@ A mention if you find AshleyCPP useful would be very much appreciated!
   - [x] ComponentType
   - [ ] Engine
   - [x] Entity
-  - [ ] EntityListener
-  - [ ] EntitySystem
+  - [x] EntityListener
+  - [x] EntitySystem
   - [ ] Family
   - [ ] PooledEngine
 - Signals

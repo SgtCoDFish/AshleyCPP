@@ -27,6 +27,7 @@
 #include "Ashley/AshleyConstants.hpp"
 
 namespace ashley {
+class Component;
 
 /**
  * <p>Uniquely identifies a {@link Component} sub-class, assigning them an index which is used internally for fast comparison and retrieval.</p>
@@ -45,6 +46,12 @@ public:
 	inline uint64_t getIndex() const {
 		return index;
 	}
+
+	/**
+	 * @param component The {@link Component}-derived class to identify.
+	 * @return A ComponentType matching the Component's class.
+	 */
+	static ComponentType& getFor(ashley::Component &component);
 
 	/**
 	 * @param componentType The {@link Component} class's type.
@@ -80,20 +87,20 @@ public:
 	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
 			std::initializer_list<std::type_index> components);
 
+	/**
+	 * @param components Beginning and ending const iterators over a collection of std::type_indexes.
+	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
+	 */
+	template<typename Iter, typename IterType = std::type_index> static const std::bitset<
+			ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(Iter first, Iter last);
+
+	bool operator==(const ComponentType &other) const;
+
 //	/**
 //	 * <p>As with the std::type_index version.</p>
 //	 */
 //	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
 //			std::initializer_list<std::type_info> components);
-
-	/**
-	 * @param components Beginning and ending const iterators over a collection of std::type_indexes.
-	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
-	 */
-	template<typename Iter, typename IterType=std::type_index> static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
-			Iter first, Iter last);
-
-
 private:
 	static uint64_t typeIndex;
 	static std::unordered_map<std::type_index, ComponentType> componentTypes;

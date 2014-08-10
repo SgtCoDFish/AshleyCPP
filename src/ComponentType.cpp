@@ -36,6 +36,10 @@ ashley::ComponentType::ComponentType() {
 ashley::ComponentType::~ComponentType() {
 }
 
+ashley::ComponentType& ashley::ComponentType::getFor(ashley::Component &component) {
+	return ashley::ComponentType::getFor(component.identify());
+}
+
 ashley::ComponentType& ashley::ComponentType::getFor(std::type_index index) {
 	// if the given index doesn't exist it's created by the container
 	return componentTypes[index];
@@ -50,6 +54,20 @@ const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(
 	return ComponentType::getBitsFor(components.begin(), components.end());
 }
 
+
+template<typename Iter, typename IterType> const std::bitset<
+ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(Iter first, Iter last) {
+	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> retVal;
+	std::for_each(first, last,
+			[&](IterType i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
+
+	return retVal;
+}
+
+bool ashley::ComponentType::operator ==(const ashley::ComponentType &other) const {
+	return index == other.getIndex();
+}
+
 //const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(
 //		std::initializer_list<std::type_info> components) {
 //	std::vector<std::type_index> vec(components.size());
@@ -60,12 +78,3 @@ const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(
 //
 //	return ComponentType::getBitsFor(vec.begin(), vec.end());
 //}
-
-template<typename Iter, typename IterType> const std::bitset<
-ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(Iter first, Iter last) {
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> retVal;
-	std::for_each(first, last,
-			[&](IterType i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
-
-	return retVal;
-}

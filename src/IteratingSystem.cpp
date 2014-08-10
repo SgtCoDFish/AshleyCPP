@@ -14,27 +14,25 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ENTITYLISTENER_HPP_
-#define ENTITYLISTENER_HPP_
+#include <cassert>
+#include <vector>
+#include <algorithm>
 
-namespace ashley {
-class Entity;
+#include "Ashley/core/Engine.hpp"
+#include "Ashley/core/Entity.hpp"
+#include "Ashley/core/EntitySystem.hpp"
+#include "Ashley/core/Family.hpp"
+#include "Ashley/systems/IteratingSystem.hpp"
 
-/**
- * <p>Gets notified of {@link Entity} related events.</p>
- *
- * <em>Java author: David Saltares</em>
- * @author Ashley Davis (SgtCoDFish)
- */
-class EntityListener {
-public:
-	virtual ~EntityListener() {}
-
-	virtual void entityAdded(ashley::Entity &entity) = 0;
-	virtual void entityRemoved(ashley::Entity &entity) = 0;
-};
+void ashley::IteratingSystem::addedToEngine(ashley::Engine &engine) {
+	entities = engine.getEntitiesFor(family);
 }
 
+void ashley::IteratingSystem::removedFromEngine(ashley::Engine &engine) {
+	entities.clear();
+}
 
-
-#endif /* ENTITYLISTENER_HPP_ */
+void ashley::IteratingSystem::update(float deltaTime) {
+	std::for_each(entities.begin(), entities.end(),
+			[&](ashley::Entity *entity) {processEntity(*entity, deltaTime);});
+}

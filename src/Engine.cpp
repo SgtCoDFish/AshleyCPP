@@ -14,27 +14,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ENTITYLISTENER_HPP_
-#define ENTITYLISTENER_HPP_
+#include <vector>
 
-namespace ashley {
-class Entity;
+#include "Ashley/core/Family.hpp"
+#include "Ashley/core/Engine.hpp"
 
-/**
- * <p>Gets notified of {@link Entity} related events.</p>
- *
- * <em>Java author: David Saltares</em>
- * @author Ashley Davis (SgtCoDFish)
- */
-class EntityListener {
-public:
-	virtual ~EntityListener() {}
-
-	virtual void entityAdded(ashley::Entity &entity) = 0;
-	virtual void entityRemoved(ashley::Entity &entity) = 0;
-};
+const std::vector<ashley::Entity *> ashley::Engine::getEntitiesFor(ashley::Family &family) {
+	return std::vector<ashley::Entity *>();
 }
-
-
-
-#endif /* ENTITYLISTENER_HPP_ */

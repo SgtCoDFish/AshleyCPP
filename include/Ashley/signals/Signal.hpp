@@ -40,12 +40,12 @@ public:
 		listeners.clear();
 	}
 
-	void add(ashley::Listener<T> &listener) {
+	void add(ashley::Listener<T> *listener) {
 		listeners.push_back(listener);
 	}
-	void remove(ashley::Listener<T> &listener) {
+	void remove(ashley::Listener<T> *listener) {
 		std::remove_if(listeners.begin(), listeners.end(),
-				[&](Listener<T> found) {return listener == found;});
+				[&](ashley::Listener<T> *found) {return listener == found;});
 	}
 
 	void dispatch(const T &object) const {

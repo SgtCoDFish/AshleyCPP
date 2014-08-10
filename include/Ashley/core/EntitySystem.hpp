@@ -14,11 +14,74 @@
  * limitations under the License.
  ******************************************************************************/
 
+#include <cstdint>
+
 #ifndef ENTITYSYSTEM_HPP_
 #define ENTITYSYSTEM_HPP_
 
+namespace ashley {
+class Engine;
 
+/**
+ * <p>Abstract class for processing sets of {@link Entity} objects.</p>
+ *
+ * <em>Java author: Stefan Bachmann</em>
+ * @author Ashley Davis (SgtCoDFish)
+ */
+class EntitySystem {
+public:
+	/** The default priority when calling the empty constructor */
+	static const constexpr uint64_t DEFAULT_PRIORITY = 0;
 
+	/** Use this to set the priority of the system. Lower means it'll get executed first. */
+	uint64_t priority = DEFAULT_PRIORITY;
 
+	/**
+	 * Default constructor that will initialise an EntitySystem with priority 0.
+	 */
+	EntitySystem() :
+			EntitySystem(DEFAULT_PRIORITY) {
+	}
+
+	/**
+	 * Initialises the EntitySystem with the priority specified.
+	 * @param priority The priority to execute this system with (lower means higher priority).
+	 */
+
+	EntitySystem(uint64_t priority) :
+			priority(priority) {
+	}
+
+	virtual ~EntitySystem() {
+	}
+
+	/**
+	 * Called when this EntitySystem is added to an {@link Engine}.
+	 * @param engine The {@link Engine} this system was added to.
+	 */
+	virtual void addedToEngine(ashley::Engine &engine) {
+	}
+
+	/**
+	 * Called when this EntitySystem is removed from an {@link Engine}.
+	 * @param engine The {@link Engine} the system was removed from.
+	 */
+	virtual void removedFromEngine(ashley::Engine &engine) {
+	}
+
+	/**
+	 * The update method called every tick.
+	 * @param deltaTime The time passed since last frame in seconds.
+	 */
+	virtual void update(float deltaTime) = 0;
+
+	/**
+	 * @return Whether or not the system should be processed.
+	 */
+	virtual inline bool checkProcessing() {
+		return true;
+	}
+};
+}
 
 #endif /* ENTITYSYSTEM_HPP_ */
