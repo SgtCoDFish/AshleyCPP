@@ -14,9 +14,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include <cstdint>
 #include <cassert>
+#include <cstdint>
 
+#include <vector>
+#include <unordered_map>
 #include <algorithm>
 #include <typeindex>
 #include <memory>
@@ -29,7 +31,7 @@
 uint64_t ashley::Entity::nextIndex = 0;
 
 ashley::Entity::Entity() :
-		componentAdded(), componentRemoved(), index(nextIndex++) {
+		index(nextIndex++) {
 }
 
 ashley::Entity::~Entity() {
@@ -38,16 +40,9 @@ ashley::Entity::~Entity() {
 
 ashley::Entity& ashley::Entity::add(ashley::Component &component) {
 	auto typeIndex = component.identify();
-	auto componentType = ComponentType::getFor(typeIndex);
-	auto typeID = componentType.getIndex();
+	auto typeID = ComponentType::getIndexFor(typeIndex);
 
-	if (componentBits[typeID]) {
-		std::replace_if(components.begin(), components.end(),
-				[&](ashley::Entity::ComponentsStoreType c) {return std::type_index(typeid(c)) == typeIndex;},
-				&component);
-	} else {
-		components.push_back(&component);
-	}
+	components[typeIndex] = &component;
 
 	componentBits[typeID] = true;
 
@@ -55,58 +50,23 @@ ashley::Entity& ashley::Entity::add(ashley::Component &component) {
 	return *this;
 }
 
-ashley::Entity::ComponentsStoreType ashley::Entity::remove(const std::type_index &index) {
-	ashley::Entity::ComponentsStoreType retVal = nullptr;
-
-	auto componentType = ComponentType::getFor(index);
-	auto typeID = componentType.getIndex();
-
-	if (componentBits[typeID]) {
-		auto loc = components.begin();
-
-		for (auto it = components.begin(); it != components.end(); it++) {
-			ashley::Entity::ComponentsStoreType vv = (*it);
-			if (index == vv->identify()) {
-				retVal = vv;
-				loc = it;
-				break;
-			}
-		}
-
-		if (retVal != nullptr) {
-			components.erase(loc);
-			componentRemoved.dispatch(this);
-			componentBits[typeID] = false;
-		}
-	}
-
-	return retVal;
-}
-
 void ashley::Entity::removeAll() {
-	while (components.size() > 0) {
-		remove(std::type_index(typeid(components[0])));
-	}
-
-	assert(components.size() == 0 && "Entity component list size != 0 after removeAll().");
+	components.clear();
+	componentBits.reset();
+	familyBits.reset();
 }
 
-const ashley::Entity::ComponentsCollectionType ashley::Entity::getComponents() const {
+std::unordered_map<std::type_index, ashley::Component *> ashley::Entity::getComponents() const {
 	return components;
 }
 
-ashley::Entity::ComponentsStoreType ashley::Entity::getComponent(ashley::ComponentType &type) const {
-	auto it =
-			std::find_if(components.begin(), components.end(),
-					[&](ashley::Entity::ComponentsStoreType found) {return ashley::ComponentType::getFor(found->identify()) == type;});
-
-	return (it == components.end() ? nullptr : *it);
+const std::vector<ashley::Component *> ashley::Entity::getComponentsVector() const {
+	std::vector<ashley::Component *> retVal;
+	std::for_each(components.begin(), components.end(),
+			[&](std::pair<std::type_index, Component *> vals) {retVal.push_back(vals.second);});
+	return retVal;
 }
 
-bool ashley::Entity::hasComponent(ashley::ComponentType &type) const {
-	return componentBits[type.getIndex()];
-}
-
-const ashley::Entity::BitsStoreType &ashley::Entity::getComponentBits() const {
+const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> &ashley::Entity::getComponentBits() const {
 	return componentBits;
 }

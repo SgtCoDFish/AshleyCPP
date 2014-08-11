@@ -19,6 +19,7 @@
 
 #include <cstdint>
 
+#include <unordered_map>
 #include <vector>
 #include <bitset>
 #include <typeindex>
@@ -26,11 +27,10 @@
 
 #include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/Component.hpp"
+#include "Ashley/core/ComponentType.hpp"
 #include "Ashley/signals/Signal.hpp"
 
 namespace ashley {
-class ComponentType;
-
 /**
  * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
@@ -40,23 +40,14 @@ class ComponentType;
  */
 class Entity {
 public:
-	/** The type stored in the {@link Signal}s for added and removed {@link Component}s. */
-	using SignalStoreType = ashley::Entity *;
-
-	/** The type used for the collection of all this entity's {@link Component}s. */
-	using ComponentsCollectionType = std::vector<ashley::Component *>;
-
-	/** The type used to store component bits. */
-	using BitsStoreType = std::bitset<ASHLEY_MAX_COMPONENT_COUNT>;
-
 	/** A flag that can be used to bit mask this entity. Up to the user to manage. */
 	uint64_t flags = 0;
 
 	/** Will dispatch an event when a component is added. */
-	ashley::Signal<SignalStoreType> componentAdded;
+	ashley::Signal<Entity *> componentAdded;
 
 	/** Will dispatch an event when a component is removed. */
-	ashley::Signal<SignalStoreType> componentRemoved;
+	ashley::Signal<Entity *> componentRemoved;
 
 	/**
 	 * Creates an empty Entity.
@@ -76,7 +67,21 @@ public:
 	 * don't need an instance, just the type.
 	 * @return A pointer to the removed {@link Component}, or nullptr if the Entity did no contain such a component.
 	 */
-	ashley::Component * remove(const std::type_index &type);
+	template<typename C> C *remove() {
+		C *retVal = nullptr;
+
+		auto typeIndex = std::type_index(typeid(C));
+		auto id = ashley::ComponentType::getIndexFor(typeIndex);
+
+		if (componentBits[id] == true) {
+			retVal = dynamic_cast<C*>(components[typeIndex]);
+			components.erase(typeIndex);
+			componentBits[id] = false;
+			componentRemoved.dispatch(this);
+		}
+
+		return retVal;
+	}
 
 	/**
 	 * Removes all the {@link Component}'s from the Entity.
@@ -84,9 +89,14 @@ public:
 	void removeAll();
 
 	/**
-	 * @return const vector over all this Entity's {@link Component} pointers.
+	 * @return const version of the map of all this Entity's {@link Component} pointers.
 	 */
-	const ComponentsCollectionType getComponents() const;
+	std::unordered_map<std::type_index, ashley::Component *> getComponents() const;
+
+	/**
+	 * @return const vector of all components; this requires converting the stored map implementation into a vector, so could be slow. Don't call every frame!
+	 */
+	const std::vector<ashley::Component *> getComponentsVector() const;
 
 	/**
 	 * @return The Entity's unique index.
@@ -95,26 +105,37 @@ public:
 		return index;
 	}
 
-	ashley::Component * getComponent(ashley::ComponentType &type) const;
+	template<typename C> C *getComponent() const {
+		return components.at(std::type_index(typeid(C)));
+	}
 
 	/**
 	 * @return Whether or not the Entity already has a {@link Component} for the specified type.
 	 */
-	bool hasComponent(ashley::ComponentType &type) const;
+	template<typename C> bool hasComponent() const {
+		return componentBits[ashley::ComponentType::getIndexFor(std::type_index(typeid(C)))];
+	}
 
 	/**
 	 * @return A const reference to this Entity's component bits, describing all the {@link Component}s it contains.
 	 */
-	const BitsStoreType& getComponentBits() const;
+	const std::bitset<ASHLEY_MAX_COMPONENT_COUNT>& getComponentBits() const;
+
+//	/**
+//	 * @return The number of components attached to this Entity.
+//	 */
+//	inline unsigned int countComponents() const {
+//		return components.size();
+//	}
 private:
 	static uint64_t nextIndex;
 
 	uint64_t index;
 
-	ComponentsCollectionType components;
+	std::unordered_map<std::type_index, ashley::Component *> components;
 
-	BitsStoreType componentBits;
-	BitsStoreType familyBits;
+	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> componentBits;
+	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> familyBits;
 };
 
 }
