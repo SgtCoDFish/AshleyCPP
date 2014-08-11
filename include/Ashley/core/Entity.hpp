@@ -76,9 +76,10 @@ public:
 		if (componentBits[id] == true) {
 			retVal = dynamic_cast<C*>(components[typeIndex]);
 			components.erase(typeIndex);
-			componentBits[id] = false;
 			componentRemoved.dispatch(this);
 		}
+
+		componentBits[id] = false;
 
 		return retVal;
 	}
@@ -106,7 +107,7 @@ public:
 	}
 
 	template<typename C> C *getComponent() const {
-		return components.at(std::type_index(typeid(C)));
+		return dynamic_cast<C*>(components.at(std::type_index(typeid(C))));
 	}
 
 	/**
