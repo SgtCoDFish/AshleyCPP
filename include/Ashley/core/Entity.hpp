@@ -43,10 +43,8 @@ public:
 	/** The type stored in the {@link Signal}s for added and removed {@link Component}s. */
 	using SignalStoreType = ashley::Entity *;
 
-	/** The type stored in the collection of all of this {@link Entity}'s {@link Component}s. */
-	using ComponentsStoreType = ashley::Component *;
 	/** The type used for the collection of all this entity's {@link Component}s. */
-	using ComponentsCollectionType = std::vector<ComponentsStoreType>;
+	using ComponentsCollectionType = std::vector<ashley::Component *>;
 
 	/** The type used to store component bits. */
 	using BitsStoreType = std::bitset<ASHLEY_MAX_COMPONENT_COUNT>;
@@ -78,7 +76,7 @@ public:
 	 * don't need an instance, just the type.
 	 * @return A pointer to the removed {@link Component}, or nullptr if the Entity did no contain such a component.
 	 */
-	ComponentsStoreType remove(const std::type_index &type);
+	ashley::Component * remove(const std::type_index &type);
 
 	/**
 	 * Removes all the {@link Component}'s from the Entity.
@@ -97,7 +95,7 @@ public:
 		return index;
 	}
 
-	ComponentsStoreType getComponent(ashley::ComponentType &type) const;
+	ashley::Component * getComponent(ashley::ComponentType &type) const;
 
 	/**
 	 * @return Whether or not the Entity already has a {@link Component} for the specified type.
