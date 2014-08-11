@@ -3,10 +3,14 @@ AshleyCPP
 
 AshleyCPP is an (unimaginatively named) C++ port of the Java entity framework [Ashley](https://github.com/libgdx/ashley/).
 
-It prioritises speed and ease of use, and mirrors the public API of the original where possible.
+It prioritises speed, simplicity and ease of use, and mirrors the public API of the original where possible.
 
 The original is inspired by the [Ash](http://www.ashframework.org/) and
 [Artemis](http://gamadu.com/artemis/) frameworks.
+
+A test suite is included, designed for the googletest platform (works on Eclipse).
+
+Note that for now, AshleyCPP is a for-fun project and is not even guaranteed to compile. It may be stabilised when more is complete.
 
 ### License
 
@@ -19,19 +23,20 @@ AshleyCPP has the same license as the original, as shown here:
 A mention if you find AshleyCPP useful would be very much appreciated!
 
 ### Implementation Status
+Ticked classes have both their implementation and tests complete.
 - Core
-  - [x] Component
+  - [ ] Component
   - [ ] ComponentMapper
-  - [x] ComponentType
+  - [ ] ComponentType
   - [ ] Engine
-  - [x] Entity
-  - [x] EntityListener
-  - [x] EntitySystem
+  - [ ] Entity
+  - [ ] EntityListener
+  - [ ] EntitySystem
   - [ ] Family
   - [ ] PooledEngine
 - Signals
-  - [x] Signal
-  - [x] Listener
+  - [ ] Signal
+  - [ ] Listener
 - Systems
   - [ ] IteratingSystem
   
