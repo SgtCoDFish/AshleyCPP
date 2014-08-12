@@ -12,6 +12,33 @@ A test suite is included, designed for the googletest platform (works on Eclipse
 
 Note that for now, AshleyCPP is a for-fun project and is not even guaranteed to compile. It may be stabilised when more is complete.
 
+
+
+### API Changes
+While AshleyCPP strives to match the exported public API of the Java original, differences in languages mean that some changes must be made. Such changes are listed below:
+
+- None so far
+
+### Implementation Status
+Ticked classes have both their implementation and tests complete.
+- Core
+  - [x] Component
+  - [ ] ComponentMapper
+  - [ ] ComponentType
+  - [ ] Engine
+  - [x] Entity
+  - [ ] EntityListener
+  - [ ] EntitySystem
+  - [ ] Family
+  - [ ] PooledEngine
+- Signals
+  - [x] Signal
+  - [x] Listener
+- Systems
+  - [ ] IteratingSystem
+  
+NB: Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
+
 ### License
 
 AshleyCPP has the same license as the original, as shown here:
@@ -21,23 +48,3 @@ AshleyCPP has the same license as the original, as shown here:
 > get (non-mandatory) credit in case you release a game or app using Ashley!
 
 A mention if you find AshleyCPP useful would be very much appreciated!
-
-### Implementation Status
-Ticked classes have both their implementation and tests complete.
-- Core
-  - [ ] Component
-  - [ ] ComponentMapper
-  - [ ] ComponentType
-  - [ ] Engine
-  - [ ] Entity
-  - [ ] EntityListener
-  - [ ] EntitySystem
-  - [ ] Family
-  - [ ] PooledEngine
-- Signals
-  - [ ] Signal
-  - [ ] Listener
-- Systems
-  - [ ] IteratingSystem
-  
-NB: Bag and ImmutableArray will not be implemented, there are better native C++ choices (std::vector and const iterators respectively).
