@@ -41,8 +41,6 @@ protected:
 	}
 
 	virtual void SetUp() {
-//		std::cout << "SetUp()\n";
-
 		onlyPosition.add<ashley::test::PositionComponent>(initialXPos, initialYPos);
 		onlyVelocity.add<ashley::test::VelocityComponent>(initialXVel, initialXVel);
 		positionAndVelocity.add<ashley::test::PositionComponent>(initialXPos, initialYPos).add<
@@ -50,7 +48,6 @@ protected:
 	}
 
 	virtual void TearDown() {
-//		std::cout << "TearDown()\n";
 		emptyEntity.removeAll();
 		onlyPosition.removeAll();
 		onlyVelocity.removeAll();
@@ -80,13 +77,11 @@ public:
 	void receive(const ashley::Signal<ashley::Entity> &signal, const ashley::Entity &object)
 			override {
 		++counter;
-		std::cout << counter << " = counter\n";
 	}
 };
 
 // Ensure that all entities obtain different IDs.
 TEST_F(EntityTest, UniqueIndex) {
-//	std::cout << "In UniqueIndex\n";
 	const int numEntities = 1000;
 
 	std::vector<ashley::Entity> entities(numEntities);
@@ -102,7 +97,6 @@ TEST_F(EntityTest, UniqueIndex) {
 
 // Ensure that an empty entity is treated correctly by various functions.
 TEST_F(EntityTest, NoComponents) {
-//	std::cout << "In NoComponents\n";
 	ashley::test::assertValidComponentAndBitSize(emptyEntity, 0);
 
 	//TODO: Add more functions here testing interaction with ComponentMapper, see java original
@@ -110,7 +104,6 @@ TEST_F(EntityTest, NoComponents) {
 
 // Ensure that adding and removing components works correctly.
 TEST_F(EntityTest, AddAndRemoveComponents) {
-//	std::cout << "In AddAndRemoveComponents\n";
 	ashley::test::assertValidComponentAndBitSize(onlyPosition, 1);
 	ashley::test::assertValidComponentAndBitSize(onlyVelocity, 1);
 	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 2);
@@ -160,6 +153,7 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 
 }
 
+// Ensure the removeAll() function works
 TEST_F(EntityTest, AddAndRemoveAllComponents) {
 	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 2);
 
@@ -186,6 +180,7 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 	}
 }
 
+// Ensure the hasComponent<>() and getComponent<>() functions work correctly.
 TEST_F(EntityTest, HasAndGetComponent) {
 	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>())
 			<< "hasComponent failed.";
@@ -214,6 +209,7 @@ TEST_F(EntityTest, HasAndGetComponent) {
 	EXPECT_TRUE(onlyVelocity.getComponent<ashley::test::PositionComponent>() == nullptr);
 }
 
+// Ensure that adding the same type of component a second time overwrites correctly.
 TEST_F(EntityTest, AddSameComponent) {
 	auto posComp = positionAndVelocity.getComponent<ashley::test::PositionComponent>();
 	auto velComp = positionAndVelocity.getComponent<ashley::test::VelocityComponent>();
@@ -250,6 +246,7 @@ TEST_F(EntityTest, AddSameComponent) {
 	EXPECT_TRUE(velComp->y == (initialYVel * 2)) << "Invalid y velocity.";
 }
 
+// Ensure the component listener signals work as intended
 TEST_F(EntityTest, ComponentListener) {
 	ashley::Entity e;
 	EntityListenerMock added, removed;
