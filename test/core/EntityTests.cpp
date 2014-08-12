@@ -21,9 +21,13 @@
 #include <bitset>
 #include <typeinfo>
 #include <typeindex>
+#include <memory>
 
 #include "Ashley/core/Entity.hpp"
 #include "Ashley/core/ComponentType.hpp"
+
+#include "Ashley/signals/Signal.hpp"
+#include "Ashley/signals/Listener.hpp"
 
 #include "AshleyTestCommon.hpp"
 
@@ -38,12 +42,11 @@ protected:
 
 	virtual void SetUp() {
 //		std::cout << "SetUp()\n";
-		ashley::test::PositionComponent p(5, 6);
-		ashley::test::VelocityComponent v(10, 2);
 
-		onlyPosition.add(p);
-		onlyVelocity.add(v);
-		positionAndVelocity.add(p).add(v);
+		onlyPosition.add<ashley::test::PositionComponent>(initialXPos, initialYPos);
+		onlyVelocity.add<ashley::test::VelocityComponent>(initialXVel, initialXVel);
+		positionAndVelocity.add<ashley::test::PositionComponent>(initialXPos, initialYPos).add<
+				ashley::test::VelocityComponent>(initialXVel, initialYVel);
 	}
 
 	virtual void TearDown() {
@@ -54,12 +57,32 @@ protected:
 		positionAndVelocity.removeAll();
 	}
 
+	int initialXPos = 5;
+	int initialYPos = 6;
+	int initialXVel = 10;
+	int initialYVel = 2;
+
 	ashley::Entity emptyEntity;
 	ashley::Entity onlyPosition;
 	ashley::Entity onlyVelocity;
 	ashley::Entity positionAndVelocity;
 };
 }
+
+class EntityListenerMock : public ashley::Listener<ashley::Entity> {
+public:
+	uint64_t counter;
+
+	EntityListenerMock() :
+			counter(0) {
+	}
+
+	void receive(const ashley::Signal<ashley::Entity> &signal, const ashley::Entity &object)
+			override {
+		++counter;
+		std::cout << counter << " = counter\n";
+	}
+};
 
 // Ensure that all entities obtain different IDs.
 TEST_F(EntityTest, UniqueIndex) {
@@ -114,6 +137,27 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 	}
 
 	// TODO: ComponentMapper functions
+
+	positionAndVelocity.remove<ashley::test::VelocityComponent>();
+	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 1);
+	ASSERT_FALSE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>());
+	ASSERT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>());
+
+	bits = positionAndVelocity.getComponentBits();
+	for (unsigned int i = 0; i < bits.size(); i++) {
+		ASSERT_EQ(i == positionIndex, bits[i])<< "i = " << i << ".";
+	}
+
+	positionAndVelocity.remove<ashley::test::PositionComponent>();
+	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 0);
+	ASSERT_FALSE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>());
+	ASSERT_FALSE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>());
+
+	bits = positionAndVelocity.getComponentBits();
+	for (unsigned int i = 0; i < bits.size(); i++) {
+		ASSERT_EQ(0, bits[i])<< "i = " << i << ".";
+	}
+
 }
 
 TEST_F(EntityTest, AddAndRemoveAllComponents) {
@@ -143,15 +187,96 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 }
 
 TEST_F(EntityTest, HasAndGetComponent) {
-	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>())<< "hasComponent failed.";
-	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>())<< "hasComponent failed.";
-	EXPECT_TRUE(positionAndVelocity.getComponent<ashley::test::PositionComponent>() != nullptr)<< "getComponent failed.";
-	EXPECT_TRUE(positionAndVelocity.getComponent<ashley::test::VelocityComponent>() != nullptr)<< "getComponent failed.";
+	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>())
+			<< "hasComponent failed.";
+	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>())
+			<< "hasComponent failed.";
+	EXPECT_TRUE(onlyPosition.hasComponent<ashley::test::PositionComponent>())
+			<< "hasComponent failed.";
+	EXPECT_TRUE(onlyVelocity.hasComponent<ashley::test::VelocityComponent>())
+			<< "hasComponent failed.";
 
-	EXPECT_TRUE(onlyPosition.hasComponent<ashley::test::PositionComponent>());
-	EXPECT_TRUE(onlyPosition.getComponent<ashley::test::PositionComponent>() != nullptr)<< "getComponent failed.";
+	EXPECT_FALSE(onlyPosition.hasComponent<ashley::test::VelocityComponent>())
+			<< "hasComponent failed.";
+	EXPECT_FALSE(onlyVelocity.hasComponent<ashley::test::PositionComponent>())
+			<< "hasComponent failed.";
 
-	EXPECT_TRUE(onlyVelocity.hasComponent<ashley::test::VelocityComponent>());
-	EXPECT_TRUE(onlyVelocity.getComponent<ashley::test::VelocityComponent>() != nullptr)<< "getComponent failed.";
+	EXPECT_FALSE((onlyPosition.getComponent<ashley::test::PositionComponent>()) == nullptr)
+			<< "getComponent failed.";
+	EXPECT_FALSE(onlyVelocity.getComponent<ashley::test::VelocityComponent>() == nullptr)
+			<< "getComponent failed.";
+	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::PositionComponent>() == nullptr)
+			<< "getComponent failed.";
+	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::VelocityComponent>()== nullptr)
+			<< "getComponent failed.";
 
+	EXPECT_TRUE(onlyPosition.getComponent<ashley::test::VelocityComponent>() == nullptr);
+	EXPECT_TRUE(onlyVelocity.getComponent<ashley::test::PositionComponent>() == nullptr);
+}
+
+TEST_F(EntityTest, AddSameComponent) {
+	auto posComp = positionAndVelocity.getComponent<ashley::test::PositionComponent>();
+	auto velComp = positionAndVelocity.getComponent<ashley::test::VelocityComponent>();
+
+	ASSERT_FALSE(posComp == nullptr);
+	ASSERT_FALSE(velComp == nullptr);
+
+	EXPECT_TRUE(posComp->x == initialXPos) << "Invalid x position.";
+	EXPECT_TRUE(posComp->y == initialYPos) << "Invalid y position.";
+
+	EXPECT_TRUE(velComp->x == initialXVel) << "Invalid x velocity.";
+	EXPECT_TRUE(velComp->y == initialYVel) << "Invalid y velocity.";
+
+	positionAndVelocity.add<ashley::test::PositionComponent>(initialXPos * 2, initialYPos * 2);
+
+	posComp = positionAndVelocity.getComponent<ashley::test::PositionComponent>();
+
+	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 2);
+	EXPECT_FALSE(posComp->x == initialXPos) << "x position unchanged.";
+	EXPECT_FALSE(posComp->y == initialYPos) << "y position unchanged.";
+
+	EXPECT_TRUE(posComp->x == (initialXPos * 2)) << "Invalid x position.";
+	EXPECT_TRUE(posComp->y == (initialYPos * 2)) << "Invalid y position.";
+
+	positionAndVelocity.add<ashley::test::VelocityComponent>(initialXVel * 2, initialYVel * 2);
+	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 2);
+
+	velComp = positionAndVelocity.getComponent<ashley::test::VelocityComponent>();
+
+	EXPECT_FALSE(velComp->x == initialXVel) << "Unchanged x velocity.";
+	EXPECT_FALSE(velComp->y == initialYVel) << "Unchanged y velocity.";
+
+	EXPECT_TRUE(velComp->x == (initialXVel * 2)) << "Invalid x velocity.";
+	EXPECT_TRUE(velComp->y == (initialYVel * 2)) << "Invalid y velocity.";
+}
+
+TEST_F(EntityTest, ComponentListener) {
+	ashley::Entity e;
+	EntityListenerMock added, removed;
+
+	e.componentAdded.add(&added);
+	e.componentRemoved.add(&removed);
+
+	ASSERT_EQ(0, added.counter);
+	ASSERT_EQ(0, removed.counter);
+
+	e.add<ashley::test::PositionComponent>(5, 2);
+
+	ASSERT_EQ(1, added.counter);
+	ASSERT_EQ(0, removed.counter);
+
+	e.remove<ashley::test::PositionComponent>();
+
+	ASSERT_EQ(1, added.counter);
+	ASSERT_EQ(1, removed.counter);
+
+	e.add<ashley::test::VelocityComponent>(5, 222);
+
+	ASSERT_EQ(2, added.counter);
+	ASSERT_EQ(1, removed.counter);
+
+	e.remove<ashley::test::VelocityComponent>();
+
+	ASSERT_EQ(2, added.counter);
+	ASSERT_EQ(2, removed.counter);
 }

@@ -19,6 +19,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <memory>
+
+#include <iostream>
 
 #include "Ashley/signals/Listener.hpp"
 
@@ -40,21 +43,23 @@ public:
 		listeners.clear();
 	}
 
-	void add(ashley::Listener<T> *listener) {
+	void add(Listener<T> *listener) {
 		listeners.push_back(listener);
 	}
-	void remove(ashley::Listener<T> *listener) {
+
+	void remove(Listener<T> *listener) {
 		std::remove_if(listeners.begin(), listeners.end(),
-				[&](ashley::Listener<T> *found) {return listener == found;});
+				[&](Listener<T> *found) {return listener == found;});
 	}
 
 	void dispatch(const T &object) const {
-		std::for_each(listeners.begin(), listeners.end(),
-				[&](ashley::Listener<T> *listener) {listener->receive(*this, object);});
+		for (auto &p : listeners) {
+			p->receive(*this, object);
+		}
 	}
 
 private:
-	std::vector<ashley::Listener<T> *> listeners;
+	std::vector<Listener<T> *> listeners;
 };
 }
 

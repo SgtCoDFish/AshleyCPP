@@ -19,11 +19,12 @@
 
 #include <cstdint>
 
-#include <unordered_map>
 #include <vector>
 #include <bitset>
+#include <typeinfo>
 #include <typeindex>
 #include <memory>
+#include <utility>
 
 #include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/Component.hpp"
@@ -44,10 +45,10 @@ public:
 	uint64_t flags = 0;
 
 	/** Will dispatch an event when a component is added. */
-	ashley::Signal<Entity *> componentAdded;
+	ashley::Signal<Entity> componentAdded;
 
 	/** Will dispatch an event when a component is removed. */
-	ashley::Signal<Entity *> componentRemoved;
+	ashley::Signal<Entity> componentRemoved;
 
 	/**
 	 * Creates an empty Entity.
@@ -57,47 +58,59 @@ public:
 	~Entity();
 
 	/**
-	 * Adds a {@link Component} to this Entity. If a {@link Component} of the same type already exists, it'll be replaced.
-	 * @return The Entity for easy chaining
+	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>
+	 *
+	 * <p>If a {@link Component} of the same type already exists, it'll be replaced without being retrievable from this class again.</p>
+	 * @return This Entity for easy chaining
 	 */
-	Entity& add(Component &component);
+	template<typename C, typename ...Args> Entity &add(Args&&... args) {
+		auto type = std::type_index(typeid(C));
+		auto typeID = ashley::ComponentType::getIndexFor(type);
+
+		auto mapPtr = std::make_shared<C>(args...);
+
+		if (componentBits[typeID]) {
+			componentMap[type] = nullptr;
+		}
+
+		componentBits[typeID] = true;
+		componentMap[type] = mapPtr;
+
+		componentAdded.dispatch(*this);
+		return *this;
+	}
 
 	/**
-	 * Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
-	 * don't need an instance, just the type.
-	 * @return A pointer to the removed {@link Component}, or nullptr if the Entity did no contain such a component.
+	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
+	 * don't need an instance, just the type.</p>
+	 * @return A shared_ptr to the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
 	 */
-	template<typename C> C *remove() {
-		C *retVal = nullptr;
-
+	template<typename C> std::shared_ptr<C> remove() {
 		auto typeIndex = std::type_index(typeid(C));
 		auto id = ashley::ComponentType::getIndexFor(typeIndex);
 
 		if (componentBits[id] == true) {
-			retVal = dynamic_cast<C*>(components[typeIndex]);
-			components.erase(typeIndex);
-			componentRemoved.dispatch(this);
+			componentBits[id] = false;
+			std::shared_ptr<C> retVal = std::dynamic_pointer_cast<C>(componentMap[typeIndex]);
+			componentMap[typeIndex] = nullptr;
+			componentMap.erase(typeIndex);
+
+			componentRemoved.dispatch(*this);
+			return retVal;
+		} else {
+			return std::shared_ptr<C>();
 		}
-
-		componentBits[id] = false;
-
-		return retVal;
 	}
 
 	/**
-	 * Removes all the {@link Component}'s from the Entity.
+	 * <p>Removes all the {@link Component}'s from the Entity.</p>
 	 */
 	void removeAll();
 
 	/**
 	 * @return const version of the map of all this Entity's {@link Component} pointers.
 	 */
-	std::unordered_map<std::type_index, ashley::Component *> getComponents() const;
-
-	/**
-	 * @return const vector of all components; this requires converting the stored map implementation into a vector, so could be slow. Don't call every frame!
-	 */
-	const std::vector<ashley::Component *> getComponentsVector() const;
+	const std::vector<std::shared_ptr<ashley::Component>> getComponents() const;
 
 	/**
 	 * @return The Entity's unique index.
@@ -106,8 +119,27 @@ public:
 		return index;
 	}
 
-	template<typename C> C *getComponent() const {
-		return dynamic_cast<C*>(components.at(std::type_index(typeid(C))));
+	/**
+	 * @return a shared_ptr to the specified component type in this object, or a null shared_ptr if the Entity has no such component.
+	 */
+	template<typename C> std::shared_ptr<C> getComponent() {
+		auto type = std::type_index(typeid(C));
+		auto id = ashley::ComponentType::getIndexFor(type);
+
+		return (componentBits[id] ?
+				std::dynamic_pointer_cast<C>(componentMap[type]) : std::shared_ptr<C>());
+	}
+
+	/**
+	 * @return a weak_ptr to the specified component type in this object, or a null weak_ptr if the Entity has no such component.
+	 */
+	template<typename C> std::weak_ptr<C> getComponentWeak() {
+		auto type = std::type_index(typeid(C));
+		auto id = ashley::ComponentType::getIndexFor(type);
+
+		return (componentBits[id] ?
+				std::weak_ptr<C>(std::dynamic_pointer_cast<C>(componentMap[type])) :
+				std::weak_ptr<C>());
 	}
 
 	/**
@@ -122,18 +154,18 @@ public:
 	 */
 	const std::bitset<ASHLEY_MAX_COMPONENT_COUNT>& getComponentBits() const;
 
-//	/**
-//	 * @return The number of components attached to this Entity.
-//	 */
-//	inline unsigned int countComponents() const {
-//		return components.size();
-//	}
+	/**
+	 * @return The number of components attached to this Entity.
+	 */
+	inline unsigned int countComponents() const {
+		return componentMap.size();
+	}
 private:
 	static uint64_t nextIndex;
 
 	uint64_t index;
 
-	std::unordered_map<std::type_index, ashley::Component *> components;
+	std::unordered_map<std::type_index, std::shared_ptr<ashley::Component>> componentMap;
 
 	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> componentBits;
 	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> familyBits;

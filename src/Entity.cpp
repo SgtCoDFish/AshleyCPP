@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <typeindex>
 #include <memory>
+#include <utility>
 
 #include "Ashley/signals/Signal.hpp"
 #include "Ashley/core/Entity.hpp"
@@ -35,35 +36,27 @@ ashley::Entity::Entity() :
 }
 
 ashley::Entity::~Entity() {
-	components.clear();
-}
-
-ashley::Entity& ashley::Entity::add(ashley::Component &component) {
-	auto typeIndex = component.identify();
-	auto typeID = ComponentType::getIndexFor(typeIndex);
-
-	components[typeIndex] = &component;
-
-	componentBits[typeID] = true;
-
-	componentAdded.dispatch(this);
-	return *this;
+	componentMap.clear();
 }
 
 void ashley::Entity::removeAll() {
-	components.clear();
 	componentBits.reset();
 	familyBits.reset();
+
+	for(auto &p : componentMap) {
+		p.second.reset();
+	}
+
+	componentMap.clear();
 }
 
-std::unordered_map<std::type_index, ashley::Component *> ashley::Entity::getComponents() const {
-	return components;
-}
+const std::vector<std::shared_ptr<ashley::Component>> ashley::Entity::getComponents() const {
+	std::vector<std::shared_ptr<ashley::Component>> retVal;
 
-const std::vector<ashley::Component *> ashley::Entity::getComponentsVector() const {
-	std::vector<ashley::Component *> retVal;
-	std::for_each(components.begin(), components.end(),
-			[&](std::pair<std::type_index, Component *> vals) {retVal.push_back(vals.second);});
+	for (auto &p : componentMap) {
+		retVal.emplace_back(std::shared_ptr<ashley::Component>(p.second));
+	}
+
 	return retVal;
 }
 
