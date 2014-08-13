@@ -24,7 +24,7 @@ Ticked classes have both their implementation and tests complete.
 - Core
   - [x] Component
   - [ ] ComponentMapper
-  - [ ] ComponentType
+  - [x] ComponentType
   - [ ] Engine
   - [x] Entity
   - [ ] EntityListener
