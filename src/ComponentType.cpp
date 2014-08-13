@@ -49,6 +49,10 @@ uint64_t ashley::ComponentType::getIndexFor(std::type_index index) {
 	return ashley::ComponentType::getFor(index).getIndex();
 }
 
+uint64_t ashley::ComponentType::getIndexFor(ashley::Component &component) {
+	return ashley::ComponentType::getIndexFor(std::type_index(typeid(component)));
+}
+
 const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> ashley::ComponentType::getBitsFor(
 		std::initializer_list<std::type_index> components) {
 	return ComponentType::getBitsFor(components.begin(), components.end());

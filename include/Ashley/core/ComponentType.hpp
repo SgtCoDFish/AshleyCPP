@@ -67,17 +67,33 @@ public:
 	}
 
 	/**
+	 * <p>As with std::type_index version but using a templated type instead.</p>
+	 */
+	template <typename C> static ComponentType &getFor() {
+		return ComponentType::getFor(std::type_index(typeid(C)));
+	}
+
+	/**
 	 * Quick helper method. The same could be done via {@link ComponentType.getFor()}.
 	 * @param componentType The {@link Component} class's type.
 	 * @return The index for the specified {@link Component} Class
 	 */
 	static uint64_t getIndexFor(std::type_index componentType);
 
+	static uint64_t getIndexFor(ashley::Component &component);
+
 	/**
-	 * <p>As with the std::type_index version.</p>
+	 * <p>As with the std::type_index version but only needs a typeid(Component).</p>
 	 */
 	static uint64_t getIndexFor(std::type_info componentType) {
 		return ComponentType::getIndexFor(std::type_index(componentType));
+	}
+
+	/**
+	 * <p>As with the std::type_index version but with a templated type instead of an argument</p>
+	 */
+	template <typename C> static uint64_t getIndexFor() {
+		return ComponentType::getIndexFor(std::type_index(typeid(C)));
 	}
 
 	/**
