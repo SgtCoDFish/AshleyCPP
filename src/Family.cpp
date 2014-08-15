@@ -27,15 +27,26 @@
 
 uint64_t ashley::Family::familyIndex = 0;
 std::unordered_map<ashley::Family::FamilyHashType, std::shared_ptr<ashley::Family>> ashley::Family::families;
-ashley::Family::use_getFor_not_constructor ashley::Family::__constructorHider;
+ashley::Family::use_getFor_not_constructor ashley::Family::constructorHider_;
+
+std::shared_ptr<ashley::Family> ashley::Family::getFor(std::type_index index) {
+	return getFor(ashley::ComponentType::getBitsFor(index), ashley::BitsType(), ashley::BitsType());
+}
+
+std::shared_ptr<ashley::Family> ashley::Family::getFor(std::initializer_list<std::type_index> list) {
+	ashley::BitsType bits = ashley::ComponentType::getBitsFor(list);
+
+	return getFor(bits, ashley::BitsType(), ashley::BitsType());
+}
 
 std::shared_ptr<ashley::Family> ashley::Family::getFor(ashley::BitsType all, ashley::BitsType one,
 		ashley::BitsType exclude) {
 	auto hash = ashley::Family::getFamilyHash(all, one, exclude);
-	auto family = families.at(hash);
 
-	if (family == nullptr) {
-		family = std::make_shared<ashley::Family>(__constructorHider, all, one, exclude);
+	try {
+		families.at(hash);
+	} catch(std::out_of_range &oor) {
+		auto family = std::make_shared<ashley::Family>(constructorHider_, all, one, exclude);
 		families[hash] = family;
 	}
 

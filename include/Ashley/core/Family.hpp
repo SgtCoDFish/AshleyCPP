@@ -48,23 +48,20 @@ private:
 	// used to hide the constructor as private while still allowing shared_ptr of Family.
 	struct use_getFor_not_constructor {
 	};
-	static use_getFor_not_constructor __constructorHider;
+	static use_getFor_not_constructor constructorHider_;
 
 public:
-	/**
-	 * @return The family matching the specified {@link Component} classes as a descriptor. Each set of component types will
-	 * always return the same Family instance. The types are specified in a list of template arguments.
-	 */
-	template<typename C, typename ... CRest> static std::shared_ptr<ashley::Family> getFor() {
-		ashley::BitsType bits = ashley::ComponentType::getBitsFor<C, CRest...>();
-		return getFor(bits, ashley::BitsType(), ashley::BitsType());
-	}
-
 	/**
 	 * @return The family matching the specified {@link Component} type_indexes. Each set of component types will
 	 * always return the same Family instance. The types are specified in an initializer_list of type_index types.
 	 */
 	static std::shared_ptr<ashley::Family> getFor(std::initializer_list<std::type_index> types);
+
+	/**
+	 * @return The family matching the specified {@link Component} type_index. Each component type will
+	 * always return the same Family instance.
+	 */
+	static std::shared_ptr<ashley::Family> getFor(std::type_index index);
 
 	/**
 	 * <p>Returns a family with the passed {@link Component} classes as a descriptor. Each set of component types will
@@ -113,8 +110,6 @@ private:
 	Family(ashley::BitsType all, ashley::BitsType one, ashley::BitsType exclude) :
 			all(all), one(one), exclude(exclude), index(familyIndex++) {
 	}
-
-	friend class std::shared_ptr<ashley::Family>;
 
 	static FamilyHashType getFamilyHash(ashley::BitsType all, ashley::BitsType one,
 			ashley::BitsType exclude);

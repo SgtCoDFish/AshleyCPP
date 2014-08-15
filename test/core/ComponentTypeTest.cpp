@@ -14,6 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
+#include <iostream>
 #include <typeindex>
 #include <typeinfo>
 
@@ -56,4 +57,22 @@ TEST(ComponentTypeTest, DifferentComponentType) {
 
 	ASSERT_NE(type1.getIndex(), type2.getIndex());
 	ASSERT_NE(type1, type2);
+}
+
+TEST(ComponentTypeTest, GetBitsFor) {
+	auto type1 = ashley::ComponentType::getBitsFor<ashley::test::PositionComponent,
+			ashley::test::VelocityComponent>();
+	auto type2 = ashley::ComponentType::getBitsFor(
+			{ typeid(ashley::test::PositionComponent),
+					typeid(ashley::test::VelocityComponent) });
+
+	auto type3 = ashley::ComponentType::getBitsFor(typeid(ashley::test::PositionComponent));
+	auto type4 = ashley::ComponentType::getBitsFor(
+				{ std::type_index(typeid(ashley::test::PositionComponent))});
+
+	ASSERT_EQ(type1, type2);
+	ASSERT_EQ(type3, type4);
+
+	std::cout << "(P, V) = (" << ashley::ComponentType::getIndexFor<ashley::test::PositionComponent>() << ", " << ashley::ComponentType::getIndexFor<ashley::test::VelocityComponent>() << ").\n";
+	std::cout << type1 << std::endl;
 }

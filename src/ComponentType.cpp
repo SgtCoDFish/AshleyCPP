@@ -27,6 +27,7 @@
 #include "Ashley/AshleyConstants.hpp"
 
 uint64_t ashley::ComponentType::typeIndex = 0;
+ashley::ComponentType::get_bits_dummy<0> ashley::ComponentType::dummy_base;
 std::unordered_map<std::type_index, ashley::ComponentType> ashley::ComponentType::componentTypes;
 
 ashley::ComponentType::ComponentType() {
@@ -45,16 +46,15 @@ uint64_t ashley::ComponentType::getIndexFor(std::type_index index) {
 	return ashley::ComponentType::getFor(index).getIndex();
 }
 
-const ashley::BitsType ashley::ComponentType::getBitsFor(
-		std::initializer_list<std::type_index> components) {
-	return ComponentType::getBitsFor(components.begin(), components.end());
+ashley::BitsType ashley::ComponentType::getBitsFor(std::type_index index) {
+	return ashley::BitsType().set(ashley::ComponentType::getIndexFor(index), true);
 }
 
-
-template<typename Iter, typename IterType> const ashley::BitsType ashley::ComponentType::getBitsFor(Iter first, Iter last) {
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> retVal;
-	std::for_each(first, last,
-			[&](IterType i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
+ashley::BitsType ashley::ComponentType::getBitsFor(
+		std::initializer_list<std::type_index> components) {
+	ashley::BitsType retVal;
+	std::for_each(components.begin(), components.end(),
+			[&](std::type_index i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
 
 	return retVal;
 }
