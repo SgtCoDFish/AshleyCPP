@@ -16,13 +16,14 @@
 
 #include <cstdint>
 
+#include "Ashley/core/Entity.hpp"
+#include "Ashley/core/Component.hpp"
 #include "gtest/gtest.h"
 
 #ifndef ASHLEYTESTCOMMON_HPP_
 #define ASHLEYTESTCOMMON_HPP_
 
 namespace ashley {
-class Component;
 namespace test {
 /**
  * Test component representing a position; will be used to implement a MovementSystem test and also to test component and entity related functions.
@@ -61,7 +62,7 @@ public:
 /**
  * Uses googletest asserts to check that a {@link Entity}'s getComponents() array and getComponentBits() bitset have the given size.
  */
-inline void assertValidComponentAndBitSize(Entity &e, size_t size) {
+inline void assertValidComponentAndBitSize(ashley::Entity &e, size_t size) {
 	auto bitsSize = e.getComponentBits().count();
 	auto componentsSize = e.getComponents().size();
 
