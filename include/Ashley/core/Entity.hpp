@@ -152,7 +152,7 @@ public:
 	/**
 	 * @return A const reference to this Entity's component bits, describing all the {@link Component}s it contains.
 	 */
-	const std::bitset<ASHLEY_MAX_COMPONENT_COUNT>& getComponentBits() const;
+	const ashley::BitsType& getComponentBits() const;
 
 	/**
 	 * @return The number of components attached to this Entity.
@@ -167,8 +167,8 @@ private:
 
 	std::unordered_map<std::type_index, std::shared_ptr<ashley::Component>> componentMap;
 
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> componentBits;
-	std::bitset<ASHLEY_MAX_COMPONENT_COUNT> familyBits;
+	ashley::BitsType componentBits;
+	ashley::BitsType familyBits;
 };
 
 }

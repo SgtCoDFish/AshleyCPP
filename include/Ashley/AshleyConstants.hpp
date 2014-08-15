@@ -12,4 +12,8 @@
 #define ASHLEY_MAX_COMPONENT_COUNT 64
 #endif
 
+namespace ashley {
+	using BitsType = std::bitset<ASHLEY_MAX_COMPONENT_COUNT>;
+}
+
 #endif /* ASHLEYCONSTANTS_HPP_ */

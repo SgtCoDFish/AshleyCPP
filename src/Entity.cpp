@@ -60,6 +60,6 @@ const std::vector<std::shared_ptr<ashley::Component>> ashley::Entity::getCompone
 	return retVal;
 }
 
-const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> &ashley::Entity::getComponentBits() const {
+const ashley::BitsType &ashley::Entity::getComponentBits() const {
 	return componentBits;
 }
