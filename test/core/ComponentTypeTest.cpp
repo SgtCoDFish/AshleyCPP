@@ -30,27 +30,23 @@ TEST(ComponentTypeTest, ValidComponentTypes) {
 	auto type1 = ashley::ComponentType::getFor(typeid(ashley::test::PositionComponent)); // std::type_info
 	auto type2 = ashley::ComponentType::getFor(
 			std::type_index(typeid(ashley::test::PositionComponent))); // std::type_index
-	auto type3 = ashley::ComponentType::getFor(pos); // pass by reference
-	auto type4 = ashley::ComponentType::getFor<ashley::test::PositionComponent>(); // pass by template type
+	auto type3 = ashley::ComponentType::getFor<ashley::test::PositionComponent>(); // pass by template type
 
 	ASSERT_EQ(type1, type2);
 	ASSERT_EQ(type2, type3);
-	ASSERT_EQ(type3, type4);
 }
 
 // Ensures a valid and consistent index is returned when a call is made to the various getIndexFor() functions
 TEST(ComponentTypeTest, ValidComponentIndexTypes) {
 	auto pos = ashley::test::PositionComponent(5, 2);
 
-	auto id1 = ashley::ComponentType::getIndexFor(pos);
-	auto id2 = ashley::ComponentType::getIndexFor(typeid(ashley::test::PositionComponent));
-	auto id3 = ashley::ComponentType::getIndexFor(
+	auto id1 = ashley::ComponentType::getIndexFor(typeid(ashley::test::PositionComponent));
+	auto id2 = ashley::ComponentType::getIndexFor(
 			std::type_index(typeid(ashley::test::PositionComponent)));
-	auto id4 = ashley::ComponentType::getIndexFor<ashley::test::PositionComponent>();
+	auto id3 = ashley::ComponentType::getIndexFor<ashley::test::PositionComponent>();
 
 	ASSERT_EQ(id1, id2);
 	ASSERT_EQ(id2, id3);
-	ASSERT_EQ(id3, id4);
 }
 
 // Ensure that two different component types generate different indices.

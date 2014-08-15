@@ -48,12 +48,6 @@ public:
 	}
 
 	/**
-	 * @param component The {@link Component}-derived class to identify.
-	 * @return A ComponentType matching the Component's class.
-	 */
-	static ComponentType& getFor(ashley::Component &component);
-
-	/**
 	 * @param componentType The {@link Component} class's type.
 	 * @return A ComponentType matching the Component's class.
 	 */
@@ -62,14 +56,14 @@ public:
 	/**
 	 * <p>As with the std::type_index version.</p>
 	 */
-	static ComponentType& getFor(std::type_info componentType) {
+	static ComponentType& getFor(std::type_info &componentType) {
 		return ComponentType::getFor(std::type_index(componentType));
 	}
 
 	/**
 	 * <p>As with std::type_index version but using a templated type instead.</p>
 	 */
-	template <typename C> static ComponentType &getFor() {
+	template<typename C> static ComponentType &getFor() {
 		return ComponentType::getFor(std::type_index(typeid(C)));
 	}
 
@@ -80,27 +74,33 @@ public:
 	 */
 	static uint64_t getIndexFor(std::type_index componentType);
 
-	static uint64_t getIndexFor(ashley::Component &component);
-
 	/**
 	 * <p>As with the std::type_index version but only needs a typeid(Component).</p>
 	 */
-	static uint64_t getIndexFor(std::type_info componentType) {
+	static uint64_t getIndexFor(std::type_info &componentType) {
 		return ComponentType::getIndexFor(std::type_index(componentType));
 	}
 
 	/**
 	 * <p>As with the std::type_index version but with a templated type instead of an argument</p>
 	 */
-	template <typename C> static uint64_t getIndexFor() {
+	template<typename C> static uint64_t getIndexFor() {
 		return ComponentType::getIndexFor(std::type_index(typeid(C)));
 	}
 
 	/**
-	 * @param components Initializer list of {@link Component} class std::type_indexes.
-	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
+	 * <p>Derives the bits for a list of component types passed as template arguments.</p>
+	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(BitsType, BitsType, BitsType)}.
 	 */
-	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
+	template<typename C, typename... CRest> ashley::BitsType getBitsFor() {
+		return (sizeof...(CRest) > 0 ? (getBitsFor<CRest...>()).set(ashley::ComponentType::getIndexFor<C>()) : ashley::BitsType().set(ashley::ComponentType::getIndexFor<C>()));
+	}
+
+	/**
+	 * @param components Initializer list of {@link Component} class std::type_indexes.
+	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(BitsType, BitsType, BitsType)}.
+	 */
+	static const ashley::BitsType getBitsFor(
 			std::initializer_list<std::type_index> components);
 
 	/**
@@ -108,15 +108,10 @@ public:
 	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(Bits, Bits, Bits)}.
 	 */
 	template<typename Iter, typename IterType = std::type_index> static const std::bitset<
-			ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(Iter first, Iter last);
+	ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(Iter first, Iter last);
 
 	bool operator==(const ComponentType &other) const;
-
-//	/**
-//	 * <p>As with the std::type_index version.</p>
-//	 */
-//	static const std::bitset<ASHLEY_MAX_COMPONENT_COUNT> getBitsFor(
-//			std::initializer_list<std::type_info> components);
+	bool operator!=(const ComponentType &other) const;
 private:
 	static uint64_t typeIndex;
 	static std::unordered_map<std::type_index, ComponentType> componentTypes;
