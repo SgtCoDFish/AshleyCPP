@@ -17,6 +17,7 @@
 #ifndef SIGNAL_HPP_
 #define SIGNAL_HPP_
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -43,17 +44,28 @@ public:
 		listeners.clear();
 	}
 
+	/**
+	 * <p>Add a Listener to this Signal</p>
+	 * @param listener The Listener to be added
+	 */
 	void add(Listener<T> *listener) {
-		listeners.push_back(listener);
+		listeners.emplace_back(listener);
 	}
 
 	void remove(Listener<T> *listener) {
-		std::remove_if(listeners.begin(), listeners.end(),
-				[&](Listener<T> *found) {return listener == found;});
+		std::cout << "asdasd\n";
+
+		for(auto it = listeners.begin(); it != listeners.end(); it++) {
+			if(*it == listener) {
+				std::cout << "found\n";
+				listeners.erase(it);
+				break;
+			}
+		}
 	}
 
-	void dispatch(const T &object) const {
-		for (auto &p : listeners) {
+	void dispatch(const T &object) {
+		for (Listener<T> *p : listeners) {
 			p->receive(*this, object);
 		}
 	}

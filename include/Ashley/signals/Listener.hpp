@@ -27,6 +27,7 @@ template<typename T> class Signal;
 template<typename T>
 class Listener {
 public:
+	Listener() {}
 	virtual ~Listener() {
 	}
 

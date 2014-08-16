@@ -14,7 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include <iostream>
 #include <typeindex>
 #include <typeinfo>
 
@@ -72,7 +71,4 @@ TEST(ComponentTypeTest, GetBitsFor) {
 
 	ASSERT_EQ(type1, type2);
 	ASSERT_EQ(type3, type4);
-
-	std::cout << "(P, V) = (" << ashley::ComponentType::getIndexFor<ashley::test::PositionComponent>() << ", " << ashley::ComponentType::getIndexFor<ashley::test::VelocityComponent>() << ").\n";
-	std::cout << type1 << std::endl;
 }
