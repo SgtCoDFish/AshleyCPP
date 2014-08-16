@@ -16,6 +16,7 @@
 
 #include <cstdint>
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <unordered_map>
@@ -33,7 +34,8 @@ std::shared_ptr<ashley::Family> ashley::Family::getFor(std::type_index index) {
 	return getFor(ashley::ComponentType::getBitsFor(index), ashley::BitsType(), ashley::BitsType());
 }
 
-std::shared_ptr<ashley::Family> ashley::Family::getFor(std::initializer_list<std::type_index> list) {
+std::shared_ptr<ashley::Family> ashley::Family::getFor(
+		std::initializer_list<std::type_index> list) {
 	ashley::BitsType bits = ashley::ComponentType::getBitsFor(list);
 
 	return getFor(bits, ashley::BitsType(), ashley::BitsType());
@@ -45,7 +47,7 @@ std::shared_ptr<ashley::Family> ashley::Family::getFor(ashley::BitsType all, ash
 
 	try {
 		families.at(hash);
-	} catch(std::out_of_range &oor) {
+	} catch (std::out_of_range &oor) {
 		auto family = std::make_shared<ashley::Family>(constructorHider_, all, one, exclude);
 		families[hash] = family;
 	}
@@ -60,8 +62,8 @@ bool ashley::Family::matches(Entity &e) const {
 		return false;
 	}
 
-	if ((all & entityComponentBits) != all || (one & entityComponentBits).none()
-			|| (exclude & entityComponentBits).any()) {
+	if ((all & entityComponentBits) != all || (one.any() && (one & entityComponentBits).none())
+			|| (exclude.any() && (exclude & entityComponentBits).any())) {
 		return false;
 	}
 
