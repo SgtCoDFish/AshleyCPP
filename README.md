@@ -14,10 +14,34 @@ Note that for now, AshleyCPP is a for-fun project and is not even guaranteed to 
 
 
 
-### API Changes
-While AshleyCPP strives to match the exported public API of the Java original, differences in languages mean that some changes must be made. Such changes are listed below:
+### Usage Notes and API Changes
+While AshleyCPP strives to match the exported public API of the Java original, differences in the languages mean that some changes must be made. Such changes are listed below.
 
-- None so far
+Note: In situations where you'd use .class to get the type of a Java class, in C++ you can use this instead:
+
+    // at the top with the rest of the includes
+    #include <typeinfo>
+    
+    // Equivalent to ComponentClass.class in Java.  
+    typeid(ComponentClass);
+    
+    // e.g. create a Family that matches Entity instances with ComponentA and ComponentB
+    ashley::Family::getFor({typeid(ComponentA), typeid(ComponentB)});
+     
+- General
+  - The whole library is enclosed in the `ashley` namespace. Use `using namespace ashley;` to save typing if you want.
+  - You can `#include` individual headers (organised in a similar way to the Java packages) or use `#include "AshleyCore.hpp"`
+  - Java generic functions that take vararg lists of `Class<? extends Component>` are replaced by
+    `std::initializer_list<std::type_index>`. Some functions also provide variadic template overloads which may be
+    easier to use; check the documentation for specific occurrences.
+- Component
+  - `virtual std::type_index identify();`  
+    Added to help with type identification; can be called by Component-derived types using a base class `Component *`
+    to identify the derived class polymorphically.
+- Family
+  - Constructor  
+    There is a visible constructor to make Family usable with std::shared_ptr. The first argument is a private dummy type
+    and you shouldn't try to use it; use a version of Family::getFor instead.
 
 ### Implementation Status
 Ticked classes have both their implementation and tests complete.
@@ -29,7 +53,7 @@ Ticked classes have both their implementation and tests complete.
   - [x] Entity
   - [ ] EntityListener
   - [ ] EntitySystem
-  - [ ] Family
+  - [x] Family
   - [ ] PooledEngine
 - Signals
   - [x] Signal
@@ -37,7 +61,7 @@ Ticked classes have both their implementation and tests complete.
 - Systems
   - [ ] IteratingSystem
   
-NB: Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
+*NB:* Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
 
 ### License
 
