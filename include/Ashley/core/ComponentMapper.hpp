@@ -17,7 +17,51 @@
 #ifndef COMPONENTMAPPER_HPP_
 #define COMPONENTMAPPER_HPP_
 
+#include <typeindex>
+#include <typeinfo>
+#include <memory>
 
+#include "Ashley/core/Entity.hpp"
+#include "Ashley/core/ComponentType.hpp"
+
+namespace ashley {
+
+/**
+ * <p>Provides super fast {@link Component} retrieval from {@Link Entity} objects.</p>
+ *
+ * @param <T> the class type of the {@link Component}.
+ *
+ * @author David Saltares
+ */
+template <typename T> class ComponentMapper {
+public:
+	/**
+	 * @param index Component class to be retrieved by the mapper.
+	 * @return New instance that provides fast access to the {@link Component} of the specified class.
+	 */
+	static const ComponentMapper<T> getFor() {
+		return ComponentMapper<T>(typeid(T));
+	}
+
+	/**
+	 * @return The {@link Component} of the specified class belonging to e.
+	 */
+	std::shared_ptr<T> get(ashley::Entity &e) {
+		return e.getComponent<T>();
+	}
+
+	/**
+	 * @return Whether or not entity has the component of the specified class.
+	 */
+	bool has(ashley::Entity &e) const {
+		return e.hasComponent<T>();
+	}
+
+private:
+	const ashley::ComponentType componentType;
+	ComponentMapper(std::type_index componentClass) : componentType(ashley::ComponentType::getFor(componentClass)) {}
+};
+}
 
 
 

@@ -1,7 +1,7 @@
 AshleyCPP
 =========
 
-AshleyCPP is an (unimaginatively named) C++ port of the Java entity framework [Ashley](https://github.com/libgdx/ashley/).
+AshleyCPP is an (unimaginatively named) C++11 port of the Java entity framework [Ashley](https://github.com/libgdx/ashley/).
 
 It prioritises speed, simplicity and ease of use, and mirrors the public API of the original where possible.
 
@@ -47,7 +47,7 @@ Note: In situations where you'd use .class to get the type of a Java class, in C
 Ticked classes have both their implementation and tests complete.
 - Core
   - [x] Component
-  - [ ] ComponentMapper
+  - [x] ComponentMapper
   - [x] ComponentType
   - [ ] Engine
   - [x] Entity
