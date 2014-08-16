@@ -25,15 +25,18 @@
 namespace {
 class ComponentMapperTest : public ::testing::Test {
 protected:
-	ComponentMapperTest() {}
-	virtual ~ComponentMapperTest() {}
+	ComponentMapperTest() {
+	}
+	virtual ~ComponentMapperTest() {
+	}
 
-	ashley::ComponentMapper<ashley::test::PositionComponent> positionMapper = ashley::ComponentMapper<ashley::test::PositionComponent>::getFor();
-	ashley::ComponentMapper<ashley::test::VelocityComponent> velocityMapper = ashley::ComponentMapper<ashley::test::VelocityComponent>::getFor();
+	ashley::ComponentMapper<ashley::test::PositionComponent> positionMapper =
+			ashley::ComponentMapper<ashley::test::PositionComponent>::getFor();
+	ashley::ComponentMapper<ashley::test::VelocityComponent> velocityMapper =
+			ashley::ComponentMapper<ashley::test::VelocityComponent>::getFor();
 };
 
 class FooComponent : public ashley::Component {
-
 };
 }
 
@@ -41,7 +44,7 @@ TEST_F(ComponentMapperTest, ValidGetAndHas) {
 	auto fooMapper = ashley::ComponentMapper<FooComponent>::getFor();
 
 	ashley::Entity e;
-	e.add<ashley::test::PositionComponent>(10,2).add<ashley::test::VelocityComponent>(5, 6);
+	e.add<ashley::test::PositionComponent>(10, 2).add<ashley::test::VelocityComponent>(5, 6);
 
 	ASSERT_TRUE(positionMapper.has(e));
 	ASSERT_TRUE(velocityMapper.has(e));

@@ -33,7 +33,7 @@ namespace ashley {
  *
  * @author David Saltares
  */
-template <typename T> class ComponentMapper {
+template<typename T> class ComponentMapper {
 public:
 	/**
 	 * @param index Component class to be retrieved by the mapper.
@@ -59,10 +59,10 @@ public:
 
 private:
 	const ashley::ComponentType componentType;
-	ComponentMapper(std::type_index componentClass) : componentType(ashley::ComponentType::getFor(componentClass)) {}
+	ComponentMapper(std::type_index componentClass) :
+			componentType(ashley::ComponentType::getFor(componentClass)) {
+	}
 };
 }
-
-
 
 #endif /* COMPONENTMAPPER_HPP_ */
