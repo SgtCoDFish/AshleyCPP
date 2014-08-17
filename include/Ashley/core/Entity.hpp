@@ -160,6 +160,10 @@ public:
 	inline unsigned int countComponents() const {
 		return componentMap.size();
 	}
+
+	inline ashley::BitsType &getFamilyBits() {
+		return familyBits;
+	}
 private:
 	static uint64_t nextIndex;
 
