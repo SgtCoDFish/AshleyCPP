@@ -172,6 +172,22 @@ public:
 	const bool operator!=(const ashley::Entity &other) const {
 		return this->index != other.index;
 	}
+
+	const bool operator<(const ashley::Entity &other) const {
+		return this->index < other.index;
+	}
+
+	const bool operator<=(const ashley::Entity &other) const {
+		return this->index <= other.index;
+	}
+
+	const bool operator>(const ashley::Entity &other) const {
+		return this->index > other.index;
+	}
+
+	const bool operator>=(const ashley::Entity &other) const {
+		return this->index >= other.index;
+	}
 private:
 	static uint64_t nextIndex;
 
