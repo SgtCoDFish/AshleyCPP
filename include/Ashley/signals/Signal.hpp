@@ -17,7 +17,6 @@
 #ifndef SIGNAL_HPP_
 #define SIGNAL_HPP_
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -53,11 +52,8 @@ public:
 	}
 
 	void remove(Listener<T> *listener) {
-		std::cout << "asdasd\n";
-
 		for(auto it = listeners.begin(); it != listeners.end(); it++) {
 			if(*it == listener) {
-				std::cout << "found\n";
 				listeners.erase(it);
 				break;
 			}
