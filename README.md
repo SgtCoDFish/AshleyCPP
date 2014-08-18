@@ -35,9 +35,12 @@ Note: In situations where you'd use .class to get the type of a Java class, in C
     `std::initializer_list<std::type_index>`. Some functions also provide variadic template overloads which may be
     easier to use; check the documentation for specific occurrences.
 - Component
-  - `virtual std::type_index identify();`  
+  - `virtual std::type_index identify() const;`  
     Added to help with type identification; can be called by Component-derived types using a base class `Component *`
     to identify the derived class polymorphically.
+- EntitySystem
+  - `virtual std::type_index identify() const;`  
+    Same reasons as with `Component::identify()`.
 - Family
   - Constructor  
     There is a visible constructor to make Family usable with std::shared_ptr. The first argument is a private dummy type
