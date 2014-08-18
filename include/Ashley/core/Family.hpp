@@ -25,6 +25,7 @@
 #include <unordered_map>
 #include <memory>
 #include <utility>
+#include <functional>
 
 #include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/Entity.hpp"
@@ -96,6 +97,14 @@ public:
 			Family(all, one, exclude) {
 	}
 
+	bool operator==(const ashley::Family &other) const {
+		return this->index == other.index;
+	}
+
+	bool operator!=(const ashley::Family &other) const {
+		return this->index != other.index;
+	}
+
 private:
 	using FamilyHashType = std::string;
 	static uint64_t familyIndex;
@@ -113,8 +122,55 @@ private:
 
 	static FamilyHashType getFamilyHash(ashley::BitsType all, ashley::BitsType one,
 			ashley::BitsType exclude);
+
+	// friend to allow hash function to be calculated
+	friend struct std::hash<ashley::Family>;
 };
 
+}
+
+namespace std {
+template<> struct hash<ashley::Family> {
+	std::size_t operator()(ashley::Family &family) const {
+		const std::size_t prime = 31;
+
+		auto bitsHash = std::hash<ashley::BitsType>();
+
+		auto allHash = bitsHash(family.all);
+		auto oneHash = bitsHash(family.one);
+		auto excludeHash = bitsHash(family.exclude);
+
+		std::size_t result = 1;
+
+		result = prime * result + allHash;
+		result = prime * result + oneHash;
+		result = prime * result + excludeHash;
+
+		result = prime * result + family.index;
+
+		return result;
+	}
+
+	std::size_t operator()(const ashley::Family &family) const {
+		const std::size_t prime = 31;
+
+		auto bitsHash = std::hash<ashley::BitsType>();
+
+		auto allHash = bitsHash(family.all);
+		auto oneHash = bitsHash(family.one);
+		auto excludeHash = bitsHash(family.exclude);
+
+		std::size_t result = 1;
+
+		result = prime * result + allHash;
+		result = prime * result + oneHash;
+		result = prime * result + excludeHash;
+
+		result = prime * result + family.index;
+
+		return result;
+	}
+};
 }
 
 #endif /* FAMILY_HPP_ */
