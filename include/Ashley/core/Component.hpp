@@ -22,7 +22,6 @@
 
 namespace ashley {
 /**
- * <strong>Java Description</strong>
  * Base class for all Components. A Component is intended as a data holder and provides data to be processed
  * in an {@link EntitySystem}.
  *
@@ -31,11 +30,12 @@ namespace ashley {
  */
 class Component {
 public:
-	Component() {}
+	Component() {
+	}
 	virtual ~Component() {
 	}
 
-	virtual std::type_index identify() {
+	virtual std::type_index identify() const {
 		return std::type_index(typeid(*this));
 	}
 };
