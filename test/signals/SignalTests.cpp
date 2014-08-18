@@ -14,7 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include <iostream>
 #include <vector>
 #include <memory>
 
@@ -109,7 +108,6 @@ TEST_F(SignalTest, AddListenerDispatchAndRemove) {
 	signal.add(lPtr);
 	signal.add(lBPtr);
 
-	std::cout << "sdasd\n";
 	const int numDispatches = 5;
 
 	for (int i = 0; i < numDispatches; i++) {
