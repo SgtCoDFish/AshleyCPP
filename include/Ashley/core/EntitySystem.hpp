@@ -16,6 +16,9 @@
 
 #include <cstdint>
 
+#include <typeinfo>
+#include <typeindex>
+
 #ifndef ENTITYSYSTEM_HPP_
 #define ENTITYSYSTEM_HPP_
 
@@ -80,6 +83,10 @@ public:
 	 */
 	virtual inline bool checkProcessing() {
 		return true;
+	}
+
+	virtual std::type_index identify() const {
+		return std::type_index(typeid(*this));
 	}
 
 	inline bool operator==(ashley::EntitySystem &other) const {
