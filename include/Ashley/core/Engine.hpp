@@ -17,14 +17,17 @@
 #ifndef ENGINE_HPP_
 #define ENGINE_HPP_
 
+#include "Ashley/core/Family.hpp"
+
 #include <typeinfo>
 #include <typeindex>
 #include <vector>
 #include <unordered_map>
 #include <memory>
 
+#include "Ashley/signals/Listener.hpp"
+
 namespace ashley {
-class Family;
 class Entity;
 class EntitySystem;
 class EntityListener;
@@ -92,7 +95,7 @@ public:
 	 * <p>Note that once added, ownership is transferred to the Engine. For access to the {@link EntitySystem} after
 	 * adding, use {@link Engine#addSystemAndGet}.</p>
 	 */
-	void addSystem(ashley::EntitySystem &system);
+	void addSystem(ashley::EntitySystem *system);
 
 	/**
 	 * Adds the {@link EntitySystem} to this Engine via an std::shared_ptr.
@@ -105,39 +108,35 @@ public:
 	/**
 	 * <p>Adds an {@link EntitySystem} to this Engine and returns an std::shared_ptr to it.</p>
 	 */
-	std::shared_ptr<ashley::EntitySystem> addSystemAndGet(ashley::EntitySystem &system);
+	std::shared_ptr<ashley::EntitySystem> addSystemAndGet(ashley::EntitySystem *system);
 
 	/**
-	 * <p>Removes the {@link EntitySystem} from this Engine.</p>
-	 * <p>Note that if no external pointers have been maintained, the {@link EntitySystem} will be destroyed
-	 * immediately. To preserve it, use {@link Engine#removeSystemAndGet}.</p>
+	 * <p>Removes the given {@link EntitySystem} from this Engine.</p>
+	 * <p>Note that the argument passed could be the only remaining reference to the system and if it is the last,
+	 * the system might be immediately destroyed.</p>
 	 */
-	void removeSystem(ashley::EntitySystem &system);
-
-	/**
-	 * Removes an {@link EntitySystem} from this {@link Engine} and returns it in a shared_ptr.
-	 */
-	std::shared_ptr<ashley::EntitySystem> removeSystemAndGet(ashley::EntitySystem &system);
+	void removeSystem(std::shared_ptr<ashley::EntitySystem> system);
 
 	/**
 	 * <p>Quick {@link EntitySystem} retrieval.</p>
+	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	std::weak_ptr<ashley::EntitySystem> getSystem(std::type_index &systemType) const;
+	std::shared_ptr<ashley::EntitySystem> getSystem(std::type_index &systemType) const;
 
 	/**
 	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
 	 */
-	const std::vector<std::shared_ptr<ashley::Entity>> getEntitiesFor(ashley::Family &family) const;
+	std::vector<std::shared_ptr<ashley::Entity>> getEntitiesFor(ashley::Family &family);
 
 	/**
 	 * Adds an {@link EntityListener}.
 	 */
-	void addEntityListener(ashley::EntityListener &listener);
+	void addEntityListener(ashley::EntityListener *listener);
 
 	/**
 	 * Removes an {@link EntityListener}.
 	 */
-	void removeEntityListener(ashley::EntityListener &listener);
+	void removeEntityListener(ashley::EntityListener *listener);
 
 	/**
 	 * Updates all the systems in this Engine.
@@ -149,21 +148,22 @@ private:
 	std::vector<std::shared_ptr<ashley::Entity>> entities;
 
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
-	std::unordered_map<std::type_index, std::vector<std::shared_ptr<ashley::EntitySystem>>>systemsByClass;
+	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>>systemsByClass;
 
 	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
-	std::unordered_map<ashley::Family, const std::vector<std::shared_ptr<ashley::Entity>>> immutableFamilies;
+//	std::unordered_map<ashley::Family, const std::vector<std::shared_ptr<ashley::Entity>>> immutableFamilies;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
 
-	bool notifying;
 
 	ashley::Listener<ashley::Entity> *componentAddedListener;
 	ashley::Listener<ashley::Entity> *componentRemovedListener;
 
-	void componentAdded(const ashley::Entity &entity);
-	void componentRemoved(const ashley::Entity &entity);
+	bool notifying;
+
+	void componentAdded(std::shared_ptr<ashley::Entity> entity);
+	void componentRemoved(std::shared_ptr<ashley::Entity> entity);
 	void removePendingListeners();
 
 //	class AddedListener : public ashley::Listener<Entity> {
