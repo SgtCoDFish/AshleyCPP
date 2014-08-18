@@ -80,6 +80,13 @@ public:
 	void removeEntity(ashley::Entity &entity);
 
 	/**
+	 * <p>Removes an {@link Entity} from this {@link Engine} via an shared_ptr.</p>
+	 *
+	 * <p>Note that if no external pointers are maintained, the {@link Entity} will be destroyed immediately.</p>
+	 */
+	void removeEntity(std::shared_ptr<ashley::Entity> ptr);
+
+	/**
 	 * Removes an {@link Entity} from this {@link Engine} and returns it in a shared_ptr.
 	 */
 	std::shared_ptr<ashley::Entity> removeEntityAndGet(ashley::Entity &entity);
@@ -94,6 +101,10 @@ public:
 	 *
 	 * <p>Note that once added, ownership is transferred to the Engine. For access to the {@link EntitySystem} after
 	 * adding, use {@link Engine#addSystemAndGet}.</p>
+	 *
+	 * <p>Passing the address of a heap-allocated {@link EntitySystem} will cause a segfault when the system is destroyed.
+	 * Use new EntitySystem() instead. For safety, pass an rvalue into this function and then use getSystem to get a
+	 * safe shared_ptr to it.</p>
 	 */
 	void addSystem(ashley::EntitySystem *system);
 
@@ -107,21 +118,42 @@ public:
 
 	/**
 	 * <p>Adds an {@link EntitySystem} to this Engine and returns an std::shared_ptr to it.</p>
+	 * <p>Passing the address of a heap-allocated {@link EntitySystem} will cause a segfault when the system is destroyed.
+	 * Use new EntitySystem() instead. For safety, pass an rvalue into this function and then use getSystem to get a
+	 * safe shared_ptr to it.</p>
 	 */
 	std::shared_ptr<ashley::EntitySystem> addSystemAndGet(ashley::EntitySystem *system);
 
 	/**
-	 * <p>Removes the given {@link EntitySystem} from this Engine.</p>
+	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
 	 * <p>Note that the argument passed could be the only remaining reference to the system and if it is the last,
 	 * the system might be immediately destroyed.</p>
 	 */
 	void removeSystem(std::shared_ptr<ashley::EntitySystem> system);
 
 	/**
-	 * <p>Quick {@link EntitySystem} retrieval.</p>
+	 * <p>Removes the system associated with the given type from this {@link Engine}.</p>
+	 * <p>Note that this could destroy the system if no shared_ptrs are maintained to it.</p>
+	 */
+	void removeSystem(std::type_index systemType);
+
+	/**
+	 * <p>Quick {@link EntitySystem} retrieval. Will require a type-cast on the returned {@link EntitySystem}.</p>
+	 * <p>To avoid a typecast, use the templated, argumentless version.</p>
 	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	std::shared_ptr<ashley::EntitySystem> getSystem(std::type_index &systemType) const;
+	std::shared_ptr<ashley::EntitySystem> getSystem(std::type_index systemType) const;
+
+	/**
+	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to templates.</p>
+	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
+	 */
+	template <typename ES> std::shared_ptr<ES> getSystem() {
+		// duplicates some code with the type_index version, but faster this way.
+		auto ret = systemsByClass.find(typeid(ES));
+		return (ret != systemsByClass.end() ?
+				std::dynamic_pointer_cast<ES>(std::shared_ptr<ashley::EntitySystem>((*ret).second)) : std::shared_ptr<ES>());
+	}
 
 	/**
 	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
