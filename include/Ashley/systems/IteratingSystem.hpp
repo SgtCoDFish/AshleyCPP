@@ -19,6 +19,8 @@
 
 #include <vector>
 
+#include "Ashley/core/EntitySystem.hpp"
+
 namespace ashley {
 class Entity;
 class Engine;
@@ -39,7 +41,7 @@ public:
 	 * @param family The family of entities iterated over in this System
 	 */
 	IteratingSystem(ashley::Family &family) :
-			IteratingSystem(family, DEFAULT_PRIORITY) {
+			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 
 	/**
@@ -63,7 +65,7 @@ public:
 	 * @param entity The current Entity being processed
 	 * @param deltaTime The delta in time between the last and current frame
 	 */
-	virtual void processEntity(ashley::Entity entity, float deltaTime) = 0;
+	virtual void processEntity(ashley::Entity &entity, float deltaTime) = 0;
 
 protected:
 	Family &family;

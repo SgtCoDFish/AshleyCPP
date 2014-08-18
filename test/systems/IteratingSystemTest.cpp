@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include "Ashley/core/Component.hpp"
+#include "AshleyTestCommon.hpp"
 #include "Ashley/systems/IteratingSystem.hpp"
 
 #include "gtest/gtest.h"
@@ -30,10 +31,11 @@ protected:
 
 class IteratingSystemMock : public ashley::IteratingSystem {
 public:
+	IteratingSystemMock(ashley::Family &family) : IteratingSystem(family), numUpdates(0) {}
+	virtual ~IteratingSystemMock() {}
+
 	int numUpdates;
 
-	IteratingSystemMock(ashley::Family &family) : numUpdates(0), IteratingSystem(family) {}
-	virtual ~IteratingSystemMock() {}
 
 	void processEntity(ashley::Entity &entity, float deltaTime) override {
 		++numUpdates;
