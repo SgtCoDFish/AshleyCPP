@@ -148,11 +148,13 @@ public:
 	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to templates.</p>
 	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	template <typename ES> std::shared_ptr<ES> getSystem() {
+	template<typename ES> std::shared_ptr<ES> getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
 		auto ret = systemsByClass.find(typeid(ES));
 		return (ret != systemsByClass.end() ?
-				std::dynamic_pointer_cast<ES>(std::shared_ptr<ashley::EntitySystem>((*ret).second)) : std::shared_ptr<ES>());
+				std::dynamic_pointer_cast<ES>(
+						std::shared_ptr<ashley::EntitySystem>((*ret).second)) :
+				std::shared_ptr<ES>());
 	}
 
 	/**
@@ -176,18 +178,20 @@ public:
 	 */
 	void update(float deltaTime);
 
+	static bool systemPriorityComparator(std::shared_ptr<ashley::EntitySystem> &one,
+			std::shared_ptr<ashley::EntitySystem> &other);
+
 private:
 	std::vector<std::shared_ptr<ashley::Entity>> entities;
 
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
-	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>>systemsByClass;
+	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
+	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
 //	std::unordered_map<ashley::Family, const std::vector<std::shared_ptr<ashley::Entity>>> immutableFamilies;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
-
 
 	ashley::Listener<ashley::Entity> *componentAddedListener;
 	ashley::Listener<ashley::Entity> *componentRemovedListener;
