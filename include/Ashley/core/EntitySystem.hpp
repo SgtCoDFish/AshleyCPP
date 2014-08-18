@@ -81,6 +81,30 @@ public:
 	virtual inline bool checkProcessing() {
 		return true;
 	}
+
+	inline bool operator==(ashley::EntitySystem &other) const {
+		return this->priority == other.priority;
+	}
+
+	inline bool operator!=(ashley::EntitySystem &other) const {
+		return this->priority != other.priority;
+	}
+
+	inline bool operator<(ashley::EntitySystem &other) const {
+		return this->priority < other.priority;
+	}
+
+	inline bool operator<=(ashley::EntitySystem &other) const {
+		return this->priority <= other.priority;
+	}
+
+	inline bool operator>(ashley::EntitySystem &other) const {
+		return this->priority > other.priority;
+	}
+
+	inline bool operator>=(ashley::EntitySystem &other) const {
+		return this->priority >= other.priority;
+	}
 };
 }
 
