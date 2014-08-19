@@ -22,8 +22,7 @@ Note: In situations where you'd use .class to get the type of a Java class, in C
     // at the top with the rest of the includes
     #include <typeinfo>
     
-    // Equivalent to ComponentClass.class in Java.  
-    typeid(ComponentClass);
+    typeid(ComponentClass); // Equivalent to ComponentClass.class in Java.  
     
     // e.g. create a Family that matches Entity instances with ComponentA and ComponentB
     ashley::Family::getFor({typeid(ComponentA), typeid(ComponentB)});
@@ -52,10 +51,10 @@ Ticked classes have both their implementation and tests complete.
   - [x] Component
   - [x] ComponentMapper
   - [x] ComponentType
-  - [ ] Engine
+  - [x] Engine
   - [x] Entity
-  - [ ] EntityListener
-  - [ ] EntitySystem
+  - [x] EntityListener
+  - [x] EntitySystem
   - [x] Family
   - [ ] PooledEngine
 - Signals
