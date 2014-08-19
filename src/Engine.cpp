@@ -214,7 +214,7 @@ std::shared_ptr<ashley::EntitySystem> ashley::Engine::getSystem(std::type_index 
 			std::shared_ptr<ashley::EntitySystem>((*ret).second) : std::shared_ptr<ashley::EntitySystem>());
 }
 
-std::vector<std::shared_ptr<ashley::Entity>> ashley::Engine::getEntitiesFor(
+std::vector<std::shared_ptr<ashley::Entity>> *ashley::Engine::getEntitiesFor(
 		ashley::Family &family) {
 	auto vecIt = families.find(family);
 
@@ -232,7 +232,7 @@ std::vector<std::shared_ptr<ashley::Entity>> ashley::Engine::getEntitiesFor(
 //		immutableFamilies[family] = entVec;
 	}
 
-	return families[family];
+	return &(families[family]);
 }
 
 void ashley::Engine::addEntityListener(ashley::EntityListener *listener) {

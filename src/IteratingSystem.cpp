@@ -29,10 +29,10 @@ void ashley::IteratingSystem::addedToEngine(ashley::Engine &engine) {
 }
 
 void ashley::IteratingSystem::removedFromEngine(ashley::Engine &engine) {
-	entities.clear();
+	entities->clear();
 }
 
 void ashley::IteratingSystem::update(float deltaTime) {
-	std::for_each(entities.begin(), entities.end(),
+	std::for_each(entities->begin(), entities->end(),
 			[&](std::shared_ptr<ashley::Entity> found) {processEntity(*found, deltaTime);});
 }

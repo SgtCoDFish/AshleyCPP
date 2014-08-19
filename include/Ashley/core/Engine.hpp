@@ -160,7 +160,7 @@ public:
 	/**
 	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
 	 */
-	std::vector<std::shared_ptr<ashley::Entity>> getEntitiesFor(ashley::Family &family);
+	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(ashley::Family &family);
 
 	/**
 	 * Adds an {@link EntityListener}.
@@ -187,7 +187,7 @@ private:
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
 	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
+	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
 //	std::unordered_map<ashley::Family, const std::vector<std::shared_ptr<ashley::Entity>>> immutableFamilies;
 
 	std::vector<ashley::EntityListener *> listeners;

@@ -69,7 +69,7 @@ public:
 
 protected:
 	Family &family;
-	std::vector<std::shared_ptr<ashley::Entity>> entities;
+	std::vector<std::shared_ptr<ashley::Entity>> *entities;
 };
 }
 
