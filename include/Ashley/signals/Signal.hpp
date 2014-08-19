@@ -44,30 +44,37 @@ public:
 	}
 
 	/**
-	 * <p>Add a Listener to this Signal</p>
-	 * @param listener The Listener to be added
+	 * <p>Add a {@link Listener} to this {@link Signal}</p>
+	 * @param listener The {@link Listener} to be added
 	 */
-	void add(Listener<T> *listener) {
-		listeners.emplace_back(listener);
+	void add(std::shared_ptr<Listener<T>> listener) {
+		listeners.push_back(std::shared_ptr<Listener<T>>(listener));
 	}
 
-	void remove(Listener<T> *listener) {
-		for(auto it = listeners.begin(); it != listeners.end(); it++) {
-			if(*it == listener) {
-				listeners.erase(it);
-				break;
-			}
+	/**
+	 * <p>Remove a {@link Listener} from this {@link Signal}.</p>
+	 * @param listener The {@link Listener} to be removed.
+	 */
+	void remove(std::shared_ptr<Listener<T>> listener) {
+		auto found = std::find_if(listeners.begin(), listeners.end(), [&](std::shared_ptr<Listener<T>> found){ return listener == found;});
+
+		if(found != listeners.end()) {
+			listeners.erase(found);
 		}
 	}
 
+	/**
+	 * <p>Calls receive on all {@link Listener}s attached to this {@link Signal}.
+	 * @param object An object which is passed to each listener.
+	 */
 	void dispatch(T &object) {
-		for (Listener<T> *p : listeners) {
+		for (auto &p : listeners) {
 			p->receive(*this, object);
 		}
 	}
 
 private:
-	std::vector<Listener<T> *> listeners;
+	std::vector<std::shared_ptr<Listener<T>>> listeners;
 };
 }
 
