@@ -61,9 +61,9 @@ protected:
 	ComponentE e;
 	ComponentF f;
 
-	std::shared_ptr<Family> family1 = Family::getFor(typeid(ComponentA));
-	std::shared_ptr<Family> family2 = Family::getFor(typeid(ComponentB));
-	std::shared_ptr<Family> family3 = Family::getFor(typeid(ComponentC));
+	std::shared_ptr<Family> family1 = Family::getFor( { typeid(ComponentA) });
+	std::shared_ptr<Family> family2 = Family::getFor( { typeid(ComponentB) });
+	std::shared_ptr<Family> family3 = Family::getFor( { typeid(ComponentC) });
 	std::shared_ptr<Family> family4 = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
 	std::shared_ptr<Family> family5 = Family::getFor( { typeid(ComponentA), typeid(ComponentC) });
 	std::shared_ptr<Family> family6 = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
@@ -98,8 +98,8 @@ TEST_F(FamilyTest, ValidFamily) {
 
 // Ensure that equal invocations produce equal families, including with different orders of components.
 TEST_F(FamilyTest, SameFamily) {
-	auto familyA = Family::getFor(typeid(ComponentA));
-	auto familyB = Family::getFor(typeid(ComponentB));
+	auto familyA = Family::getFor( { typeid(ComponentA) });
+	auto familyB = Family::getFor( { typeid(ComponentB) });
 
 	auto familyLong = Family::getFor(ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
 			ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),

@@ -30,10 +30,6 @@ uint64_t ashley::Family::familyIndex = 0;
 std::unordered_map<ashley::Family::FamilyHashType, std::shared_ptr<ashley::Family>> ashley::Family::families;
 ashley::Family::use_getFor_not_constructor ashley::Family::constructorHider_;
 
-std::shared_ptr<ashley::Family> ashley::Family::getFor(std::type_index index) {
-	return getFor(ashley::ComponentType::getBitsFor(index), ashley::BitsType(), ashley::BitsType());
-}
-
 std::shared_ptr<ashley::Family> ashley::Family::getFor(
 		std::initializer_list<std::type_index> list) {
 	ashley::BitsType bits = ashley::ComponentType::getBitsFor(list);
