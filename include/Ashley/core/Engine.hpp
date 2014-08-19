@@ -53,31 +53,12 @@ class EntityListener;
 class Engine {
 public:
 	Engine();
-
-	/**
-	 * <p>Adds an {@link Entity} to this {@link Engine}.</p>
-	 *
-	 * <p>Note that once added, ownership is transferred to the Engine. For access to the {@link Entity} after adding,
-	 * use {@link Engine#addEntityAndGet} or use the overload which takes an std::shared_ptr.</p>
-	 */
-	void addEntity(ashley::Entity &entity);
+	~Engine();
 
 	/**
 	 * <p>Adds an std::shared_ptr to an {@link Entity} to this {@link Engine}.</p>
 	 */
 	void addEntity(std::shared_ptr<ashley::Entity> ptr);
-
-	/**
-	 * <p>Adds an {@link Entity} to this Engine and returns an std::shared_ptr to it.</p>
-	 */
-	std::shared_ptr<ashley::Entity> addEntityAndGet(ashley::Entity &entity);
-
-	/**
-	 * <p>Removes an {@link Entity} from this {@link Engine}.</p>
-	 *
-	 * <p>Note that if no external pointers have been maintained, the {@link Entity} will be destroyed immediately.</p>
-	 */
-	void removeEntity(ashley::Entity &entity);
 
 	/**
 	 * <p>Removes an {@link Entity} from this {@link Engine} via an shared_ptr.</p>
@@ -87,26 +68,9 @@ public:
 	void removeEntity(std::shared_ptr<ashley::Entity> ptr);
 
 	/**
-	 * Removes an {@link Entity} from this {@link Engine} and returns it in a shared_ptr.
-	 */
-	std::shared_ptr<ashley::Entity> removeEntityAndGet(ashley::Entity &entity);
-
-	/**
 	 * Removes all entities registered with this Engine.
 	 */
 	void removeAllEntities();
-
-	/**
-	 * Adds the {@link EntitySystem} to this Engine.
-	 *
-	 * <p>Note that once added, ownership is transferred to the Engine. For access to the {@link EntitySystem} after
-	 * adding, use {@link Engine#addSystemAndGet}.</p>
-	 *
-	 * <p>Passing the address of a heap-allocated {@link EntitySystem} will cause a segfault when the system is destroyed.
-	 * Use new EntitySystem() instead. For safety, pass an rvalue into this function and then use getSystem to get a
-	 * safe shared_ptr to it.</p>
-	 */
-	void addSystem(ashley::EntitySystem *system);
 
 	/**
 	 * Adds the {@link EntitySystem} to this Engine via an std::shared_ptr.
@@ -115,14 +79,6 @@ public:
 	 * adding, use {@link Engine#addSystemAndGet}.</p>
 	 */
 	void addSystem(std::shared_ptr<ashley::EntitySystem> system);
-
-	/**
-	 * <p>Adds an {@link EntitySystem} to this Engine and returns an std::shared_ptr to it.</p>
-	 * <p>Passing the address of a heap-allocated {@link EntitySystem} will cause a segfault when the system is destroyed.
-	 * Use new EntitySystem() instead. For safety, pass an rvalue into this function and then use getSystem to get a
-	 * safe shared_ptr to it.</p>
-	 */
-	std::shared_ptr<ashley::EntitySystem> addSystemAndGet(ashley::EntitySystem *system);
 
 	/**
 	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
@@ -187,32 +143,46 @@ private:
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
 	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
-//	std::unordered_map<ashley::Family, const std::vector<std::shared_ptr<ashley::Entity>>> immutableFamilies;
+	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
 
-	ashley::Listener<ashley::Entity> *componentAddedListener;
-	ashley::Listener<ashley::Entity> *componentRemovedListener;
-
 	bool notifying;
 
-	void componentAdded(std::shared_ptr<ashley::Entity> entity);
-	void componentRemoved(std::shared_ptr<ashley::Entity> entity);
+	void componentAdded(ashley::Entity &entity);
+	void componentRemoved(ashley::Entity &entity);
 	void removePendingListeners();
 
-//	class AddedListener : public ashley::Listener<Entity> {
-//		virtual void receieve(const ashley::Signal<ashley::Entity> &signal, const ashley::Entity &object) override {
-//			componentAdded(object);
-//		}
-//	};
-//
-//	class RemovedListener : public ashley::Listener<Entity> {
-//		virtual void receieve(const ashley::Signal<ashley::Entity> &signal, const ashley::Entity &object) override {
-//			componentRemoved(object);
-//		}
-//	};
+	friend class AddedListener;
+	friend class RemovedListener;
+
+	class AddedListener : public ashley::Listener<Entity> {
+	public:
+		AddedListener(Engine *engine) : engine(engine) {}
+
+		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
+			engine->componentAdded(object);
+		}
+
+	private:
+		Engine *engine = nullptr;
+	};
+
+	class RemovedListener : public ashley::Listener<Entity> {
+	public:
+		RemovedListener(Engine *engine) : engine(engine) {}
+
+		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
+			engine->componentRemoved(object);
+		}
+
+	private:
+		Engine *engine = nullptr;
+	};
+
+	std::shared_ptr<AddedListener> componentAddedListener;
+	std::shared_ptr<RemovedListener> componentRemovedListener;
 };
 }
 
