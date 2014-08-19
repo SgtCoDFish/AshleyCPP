@@ -40,7 +40,7 @@ public:
 
 	int count = 0;
 
-	void receive(const Signal<Dummy> &signal, const Dummy &object) override {
+	void receive(const Signal<Dummy> &signal, Dummy &object) override {
 		++count;
 	}
 };

@@ -74,7 +74,7 @@ public:
 			counter(0) {
 	}
 
-	void receive(const ashley::Signal<ashley::Entity> &signal, const ashley::Entity &object)
+	void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object)
 			override {
 		++counter;
 	}

@@ -31,7 +31,7 @@ public:
 	virtual ~Listener() {
 	}
 
-	virtual void receive(const ashley::Signal<T> &signal, const T &object) = 0;
+	virtual void receive(const ashley::Signal<T> &signal, T &object) = 0;
 };
 }
 

@@ -60,7 +60,7 @@ public:
 		}
 	}
 
-	void dispatch(const T &object) {
+	void dispatch(T &object) {
 		for (Listener<T> *p : listeners) {
 			p->receive(*this, object);
 		}
