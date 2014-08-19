@@ -74,8 +74,7 @@ public:
 			counter(0) {
 	}
 
-	void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object)
-			override {
+	void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
 		++counter;
 	}
 };
@@ -84,7 +83,7 @@ public:
 TEST_F(EntityTest, UniqueIndex) {
 	const int numEntities = 1000;
 
-	std::vector<ashley::Entity> entities(numEntities);
+	std::vector<ashley::Entity> entities;
 	std::bitset<numEntities * 4> ids;
 
 	for (int i = 0; i < numEntities; i++) {
@@ -249,31 +248,32 @@ TEST_F(EntityTest, AddSameComponent) {
 // Ensure the component listener signals work as intended
 TEST_F(EntityTest, ComponentListener) {
 	ashley::Entity e;
-	EntityListenerMock added, removed;
+	auto addPtr = std::make_shared<EntityListenerMock>();
+	auto remPtr = std::make_shared<EntityListenerMock>();
 
-	e.componentAdded.add(&added);
-	e.componentRemoved.add(&removed);
+	e.componentAdded.add(addPtr);
+	e.componentRemoved.add(remPtr);
 
-	ASSERT_EQ(0, added.counter);
-	ASSERT_EQ(0, removed.counter);
+	ASSERT_EQ(0, addPtr->counter);
+	ASSERT_EQ(0, remPtr->counter);
 
 	e.add<ashley::test::PositionComponent>(5, 2);
 
-	ASSERT_EQ(1, added.counter);
-	ASSERT_EQ(0, removed.counter);
+	ASSERT_EQ(1, addPtr->counter);
+	ASSERT_EQ(0, remPtr->counter);
 
 	e.remove<ashley::test::PositionComponent>();
 
-	ASSERT_EQ(1, added.counter);
-	ASSERT_EQ(1, removed.counter);
+	ASSERT_EQ(1, addPtr->counter);
+	ASSERT_EQ(1, remPtr->counter);
 
 	e.add<ashley::test::VelocityComponent>(5, 222);
 
-	ASSERT_EQ(2, added.counter);
-	ASSERT_EQ(1, removed.counter);
+	ASSERT_EQ(2, addPtr->counter);
+	ASSERT_EQ(1, remPtr->counter);
 
 	e.remove<ashley::test::VelocityComponent>();
 
-	ASSERT_EQ(2, added.counter);
-	ASSERT_EQ(2, removed.counter);
+	ASSERT_EQ(2, addPtr->counter);
+	ASSERT_EQ(2, remPtr->counter);
 }

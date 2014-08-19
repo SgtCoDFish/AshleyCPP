@@ -49,10 +49,11 @@ class SignalTest : public ::testing::Test {
 protected:
 	Dummy dummy;
 	Signal<Dummy> signal;
-	ListenerMock listener;
+	std::shared_ptr<ListenerMock> listener;
 
 	SignalTest() :
-			dummy(), signal(), listener() {
+			dummy(), signal() {
+		listener = std::make_shared<ListenerMock>();
 	}
 	virtual ~SignalTest() {
 	}
@@ -61,12 +62,12 @@ protected:
 
 // Check that basic signal/listener functionality works.
 TEST_F(SignalTest, AddListenerAndDispatch) {
-	signal.add(&listener);
+	signal.add(listener);
 
 	for (int i = 0; i < 10; i++) {
-		ASSERT_EQ(i, listener.count);
+		ASSERT_EQ(i, listener->count);
 		signal.dispatch(dummy);
-		ASSERT_EQ(i + 1, listener.count);
+		ASSERT_EQ(i + 1, listener->count);
 	}
 }
 
@@ -75,13 +76,13 @@ TEST_F(SignalTest, AddListenersAndDispatch) {
 	const int numListeners = 10;
 	ListenerMock mockArr[numListeners];
 
-	std::vector<ListenerMock *> listeners;
+	std::vector<std::shared_ptr<ashley::Listener<Dummy>>> listeners;
 
 	while (listeners.size() < numListeners) {
 		auto index = listeners.size();
 		mockArr[index] = ListenerMock();
-		Listener<Dummy> *mPtr = &(mockArr[index]);
-		listeners.push_back(&(mockArr[index]));
+		std::shared_ptr<ashley::Listener<Dummy>> mPtr = std::make_shared<ListenerMock>(mockArr[index]);
+		listeners.push_back(mPtr);
 		signal.add(mPtr);
 	}
 
@@ -89,46 +90,45 @@ TEST_F(SignalTest, AddListenersAndDispatch) {
 
 	for (int i = 0; i < numDispatches; i++) {
 		for (auto p : listeners) {
-			ASSERT_EQ(i, p->count);
+			ASSERT_EQ(i, std::dynamic_pointer_cast<ListenerMock>(p)->count);
 		}
 
 		signal.dispatch(dummy);
 
 		for (auto p : listeners) {
-			ASSERT_EQ(i + 1, p->count);
+			ASSERT_EQ(i + 1, std::dynamic_pointer_cast<ListenerMock>(p)->count);
 		}
 	}
 }
 
 // Check that removing a listener works correctly.
 TEST_F(SignalTest, AddListenerDispatchAndRemove) {
-	ListenerMock listenerB;
-	Listener<Dummy> *lPtr = &listener, *lBPtr = &listenerB;
+	std::shared_ptr<ListenerMock> lBPtr = std::make_shared<ListenerMock>();
 
-	signal.add(lPtr);
+	signal.add(listener);
 	signal.add(lBPtr);
 
 	const int numDispatches = 5;
 
 	for (int i = 0; i < numDispatches; i++) {
-		ASSERT_EQ(i, listener.count);
-		ASSERT_EQ(i, listenerB.count);
+		ASSERT_EQ(i, listener->count);
+		ASSERT_EQ(i, lBPtr->count);
 
 		signal.dispatch(dummy);
 
-		ASSERT_EQ(i + 1, listener.count);
-		ASSERT_EQ(i + 1, listenerB.count);
+		ASSERT_EQ(i + 1, listener->count);
+		ASSERT_EQ(i + 1, lBPtr->count);
 	}
 
 	signal.remove(lBPtr);
 
 	for (int i = 0; i < numDispatches; i++) {
-		ASSERT_EQ(i + numDispatches, listener.count);
-		ASSERT_EQ(numDispatches, listenerB.count);
+		ASSERT_EQ(i + numDispatches, listener->count);
+		ASSERT_EQ(numDispatches, lBPtr->count);
 
 		signal.dispatch(dummy);
 
-		ASSERT_EQ(i + 1 + numDispatches, listener.count);
-		ASSERT_EQ(numDispatches, listenerB.count)<< "Listener not removed correctly.";
+		ASSERT_EQ(i + 1 + numDispatches, listener->count);
+		ASSERT_EQ(numDispatches, lBPtr->count)<< "Listener not removed correctly.";
 	}
 }
