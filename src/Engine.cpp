@@ -273,12 +273,12 @@ void ashley::Engine::componentAdded(ashley::Entity &entity) {
 
 		if (!(entity.getFamilyBits()[family.getIndex()])) {
 			if (family.matches(entity)) {
-				auto it = std::find_if(entVec.begin(), entVec.end(),
+				auto it = std::find_if(entities.begin(), entities.end(),
 						[&](std::shared_ptr<ashley::Entity> found) {return *found == entity;});
 				auto ptr = *it;
 
 				entVec.emplace_back(std::shared_ptr<ashley::Entity>(ptr));
-				entity.getFamilyBits().set(family.getIndex(), true);
+				ptr->getFamilyBits().set(family.getIndex(), true);
 			}
 		}
 	}
