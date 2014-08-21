@@ -29,6 +29,10 @@ class Listener {
 public:
 	Listener() {}
 	virtual ~Listener() = default;
+	Listener(const Listener &other) = default;
+	Listener(Listener &&other) = default;
+	Listener& operator=(const Listener &other) = default;
+	Listener& operator=(Listener &&other) = default;
 
 	virtual void receive(const ashley::Signal<T> &signal, T &object) = 0;
 };

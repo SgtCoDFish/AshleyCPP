@@ -38,6 +38,10 @@ public:
 	}
 
 	~Signal() = default;
+	Signal(const Signal &other) = default;
+	Signal(Signal &&other) = default;
+	Signal& operator=(const Signal &other) = default;
+	Signal& operator=(Signal &&other) = default;
 
 	/**
 	 * <p>Add a {@link Listener} to this {@link Signal}</p>

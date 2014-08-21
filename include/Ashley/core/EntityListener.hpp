@@ -28,13 +28,18 @@ class Entity;
  */
 class EntityListener {
 public:
+	EntityListener() {
+	}
+
 	virtual ~EntityListener() = default;
+	EntityListener(const EntityListener &other) = default;
+	EntityListener(EntityListener &&other) = default;
+	EntityListener& operator=(const EntityListener &other) = default;
+	EntityListener& operator=(EntityListener &&other) = default;
 
 	virtual void entityAdded(ashley::Entity &entity) = 0;
 	virtual void entityRemoved(ashley::Entity &entity) = 0;
 };
 }
-
-
 
 #endif /* ENTITYLISTENER_HPP_ */

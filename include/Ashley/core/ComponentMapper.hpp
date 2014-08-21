@@ -35,6 +35,12 @@ namespace ashley {
  */
 template<typename T> class ComponentMapper {
 public:
+	~ComponentMapper() = default;
+	ComponentMapper(const ComponentMapper &other) = default;
+	ComponentMapper(ComponentMapper &&other) = default;
+	ComponentMapper& operator=(const ComponentMapper &other) = default;
+	ComponentMapper& operator=(ComponentMapper &&other) = default;
+
 	/**
 	 * @param index Component class to be retrieved by the mapper.
 	 * @return New instance that provides fast access to the {@link Component} of the specified class.

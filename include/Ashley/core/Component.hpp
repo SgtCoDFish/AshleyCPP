@@ -34,6 +34,10 @@ public:
 	}
 
 	virtual ~Component() = default;
+	Component(const Component &other) = default;
+	Component(Component &&other) = default;
+	Component& operator=(const Component &other) = default;
+	Component& operator=(Component &&other) = default;
 
 	virtual std::type_index identify() const {
 		return std::type_index(typeid(*this));

@@ -53,6 +53,10 @@ private:
 
 public:
 	~Family() = default;
+	Family(const Family& other) = default;
+	Family(Family&& other) = default;
+	Family &operator=(const Family& other) = default;
+	Family &operator=(Family&& other) = default;
 
 	/**
 	 * @return The family matching the specified {@link Component} type_indexes. Each set of component types will

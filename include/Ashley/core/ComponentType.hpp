@@ -48,6 +48,10 @@ private:
 public:
 	ComponentType();
 	~ComponentType() = default;
+	ComponentType(const ComponentType &other) = default;
+	ComponentType(ComponentType &&other) = default;
+	ComponentType& operator=(const ComponentType &other) = default;
+	ComponentType& operator=(ComponentType &&other) = default;
 
 	inline uint64_t getIndex() const {
 		return index;

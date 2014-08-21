@@ -47,6 +47,10 @@ class EntityListener;
  * </ul>
  * </p>
  *
+ * <p>Engine has copy construction deleted but allows move construction and assignment. As of the first release,
+ * allowing copy construction probably wouldn't break anything, but supporting copy construction might be expensive
+ * in the future if more memory management is required.</p>
+ *
  * <em>Java author: Stefan Bachmann</em>
  * @author Ashley Davis (SgtCoDFish)
  */
@@ -54,6 +58,10 @@ class Engine {
 public:
 	Engine();
 	~Engine() = default;
+	Engine(const Engine &other) = delete;
+	Engine(Engine &&other) = default;
+	Engine& operator=(const Engine &other) = delete;
+	Engine& operator=(Engine &&other) = default;
 
 	/**
 	 * <p>Adds an std::shared_ptr to an {@link Entity} to this {@link Engine}.</p>

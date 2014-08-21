@@ -36,6 +36,12 @@ public:
 	/** The default priority when calling the empty constructor */
 	static const constexpr uint64_t DEFAULT_PRIORITY = 0;
 
+	virtual ~EntitySystem() = default;
+	EntitySystem(const EntitySystem &other) = default;
+	EntitySystem(EntitySystem &&other) = default;
+	EntitySystem& operator=(const EntitySystem &other) = default;
+	EntitySystem& operator=(EntitySystem &&other) = default;
+
 	/** Use this to set the priority of the system. Lower means it'll get executed first. */
 	uint64_t priority = DEFAULT_PRIORITY;
 
@@ -55,7 +61,6 @@ public:
 			priority(priority) {
 	}
 
-	virtual ~EntitySystem() = default;
 
 	/**
 	 * Called when this EntitySystem is added to an {@link Engine}.

@@ -56,6 +56,10 @@ public:
 	Entity();
 
 	~Entity() = default;
+	Entity(const Entity &other) = default;
+	Entity(Entity &&other) = default;
+	Entity& operator=(const Entity &other) = default;
+	Entity& operator=(Entity &&other) = default;
 
 	/**
 	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>

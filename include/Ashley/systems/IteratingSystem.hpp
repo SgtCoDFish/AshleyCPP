@@ -55,6 +55,10 @@ public:
 	}
 
 	virtual ~IteratingSystem() = default;
+	IteratingSystem(const IteratingSystem &other) = default;
+	IteratingSystem(IteratingSystem &&other) = default;
+	IteratingSystem& operator=(const IteratingSystem &other) = default;
+	IteratingSystem& operator=(IteratingSystem &&other) = default;
 
 	virtual void addedToEngine(ashley::Engine &engine) override;
 	virtual void removedFromEngine(ashley::Engine &engine) override;
