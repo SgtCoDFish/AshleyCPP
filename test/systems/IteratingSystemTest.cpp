@@ -14,47 +14,97 @@
  * limitations under the License.
  ******************************************************************************/
 
+#include <cstdint>
+
+#include <memory>
+
 #include "Ashley/core/Component.hpp"
-#include "AshleyTestCommon.hpp"
+#include "Ashley/core/Engine.hpp"
+#include "Ashley/core/Family.hpp"
+#include "Ashley/core/Entity.hpp"
 #include "Ashley/systems/IteratingSystem.hpp"
+#include "AshleyTestCommon.hpp"
 
 #include "gtest/gtest.h"
 
 using ashley::test::PositionComponent;
 using ashley::test::VelocityComponent;
 
-namespace {
-class IteratingSystemTest : public ::testing::Test {
-protected:
+using ashley::Entity;
+using ashley::Engine;
+using ashley::Family;
+using ashley::Component;
+using ashley::IteratingSystem;
+
+class ComponentA : public Component {
 
 };
 
-class IteratingSystemMock : public ashley::IteratingSystem {
+class ComponentB : public Component {
+
+};
+
+class ComponentC : public Component {
+
+};
+
+namespace {
+class IteratingSystemTest : public ::testing::Test {
+protected:
+	Engine engine;
+
+	std::shared_ptr<Family> family;
+	std::shared_ptr<Entity> e;
+
+	IteratingSystemTest() :
+			family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })), e(
+					std::make_shared<Entity>()) {
+	}
+};
+
+class IteratingSystemMock : public IteratingSystem {
 public:
-	IteratingSystemMock(ashley::Family &family) : IteratingSystem(family), numUpdates(0) {}
-	virtual ~IteratingSystemMock() {}
+	IteratingSystemMock(ashley::Family &family) :
+			IteratingSystem(family), numUpdates(0) {
+	}
+	virtual ~IteratingSystemMock() {
+	}
 
-	int numUpdates;
-
+	uint64_t numUpdates;
 
 	void processEntity(ashley::Entity &entity, float deltaTime) override {
 		++numUpdates;
 	}
 };
 
-class ComponantA : public ashley::Component {
-
-};
-
-class ComponantB : public ashley::Component {
-
-};
-
-class ComponantC : public ashley::Component {
-
-};
 }
 
 TEST_F(IteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
+	const float delta = 0.15f;
 
+	auto mockSystem = std::make_shared<IteratingSystemMock>(*family);
+
+	engine.addSystem(mockSystem);
+	engine.addEntity(e);
+
+	e->add<ComponentA>();
+	engine.update(delta);
+
+	ASSERT_EQ(mockSystem->numUpdates, 0);
+
+	e->add<ComponentB>();
+	engine.update(delta);
+
+	ASSERT_EQ(mockSystem->numUpdates, 1);
+
+	e->add<ComponentC>();
+	engine.update(delta);
+
+	ASSERT_EQ(mockSystem->numUpdates, 2);
+
+	e->remove<ComponentA>();
+	e->add<ComponentC>();
+	engine.update(delta);
+
+	ASSERT_EQ(mockSystem->numUpdates, 2);
 }
