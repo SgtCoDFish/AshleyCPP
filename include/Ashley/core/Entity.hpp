@@ -91,7 +91,8 @@ public:
 
 		if (componentBits[id] == true) {
 			componentBits[id] = false;
-			auto retVal = std::dynamic_pointer_cast<C>(std::shared_ptr<ashley::Component>(componentMap[typeIndex]));
+			auto retVal = std::dynamic_pointer_cast<C>(
+					std::shared_ptr<ashley::Component>(componentMap[typeIndex]));
 			componentMap[typeIndex] = nullptr;
 			componentMap.erase(typeIndex);
 

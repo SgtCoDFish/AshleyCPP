@@ -119,6 +119,13 @@ public:
 	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(ashley::Family &family);
 
 	/**
+	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
+	 * <p>Convenience method because of return type of Family::getFor</p>
+	 */
+	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(
+			std::shared_ptr<ashley::Family> family);
+
+	/**
 	 * Adds an {@link EntityListener}.
 	 */
 	void addEntityListener(ashley::EntityListener *listener);

@@ -56,9 +56,10 @@ public:
 	 * @param listener The {@link Listener} to be removed.
 	 */
 	void remove(std::shared_ptr<Listener<T>> listener) {
-		auto found = std::find_if(listeners.begin(), listeners.end(), [&](std::shared_ptr<Listener<T>> found){ return listener == found;});
+		auto found = std::find_if(listeners.begin(), listeners.end(),
+				[&](std::shared_ptr<Listener<T>> found) {return listener == found;});
 
-		if(found != listeners.end()) {
+		if (found != listeners.end()) {
 			listeners.erase(found);
 		}
 	}
@@ -74,7 +75,7 @@ public:
 	}
 
 private:
-	std::vector<std::shared_ptr<Listener<T>>> listeners;
+	std::vector<std::shared_ptr<Listener<T>>>listeners;
 };
 }
 

@@ -240,6 +240,11 @@ std::vector<std::shared_ptr<ashley::Entity>> *ashley::Engine::getEntitiesFor(
 	return &(families[family]);
 }
 
+std::vector<std::shared_ptr<ashley::Entity>> *ashley::Engine::getEntitiesFor(
+		std::shared_ptr<ashley::Family> family) {
+	return getEntitiesFor(*family);
+}
+
 void ashley::Engine::addEntityListener(ashley::EntityListener *listener) {
 	listeners.emplace_back(listener);
 }

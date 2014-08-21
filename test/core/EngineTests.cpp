@@ -335,7 +335,7 @@ TEST_F(EngineTest, EntityForFamilyWithRemoval) {
 	e->add<ComponentA>();
 
 	engine.addEntity(e);
-	auto entities = engine.getEntitiesFor(*Family::getFor({typeid(ComponentA)}));
+	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(ComponentA) }));
 
 	ASSERT_EQ(entities->size(), 1);
 	ASSERT_TRUE(
