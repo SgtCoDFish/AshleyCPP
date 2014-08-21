@@ -40,12 +40,14 @@ class Component;
  */
 class ComponentType {
 private:
-	template <unsigned int N> struct get_bits_dummy {};
+	template<unsigned int N> struct get_bits_dummy {
+	};
+
 	static get_bits_dummy<0> dummy_base;
 
 public:
 	ComponentType();
-	~ComponentType();
+	~ComponentType() = default;
 
 	inline uint64_t getIndex() const {
 		return index;
@@ -87,7 +89,8 @@ public:
 	/**
 	 * Used by getBitsFor<C, CRest...>
 	 */
-	template <typename C> static ashley::BitsType getBitsFor(get_bits_dummy<0> dummy = get_bits_dummy<0>()) {
+	template<typename C> static ashley::BitsType getBitsFor(get_bits_dummy<0> dummy =
+			get_bits_dummy<0>()) {
 		return ashley::BitsType().set(ashley::ComponentType::getIndexFor<C>(), true);
 	}
 
@@ -95,8 +98,9 @@ public:
 	 * <p>Derives the bits for a list of at least 2 component types passed as template arguments.</p>
 	 * @return Bits representing the collection of components for quick comparison and matching. See {@link Family#getFor(BitsType, BitsType, BitsType)}.
 	 */
-	template<typename C, typename ... CRest> static ashley::BitsType getBitsFor(get_bits_dummy<sizeof...(CRest)> = get_bits_dummy<sizeof...(CRest)>()) {
-			return ashley::ComponentType::getBitsFor<CRest...>(get_bits_dummy<sizeof...(CRest) - 1>()).set(ashley::ComponentType::getIndexFor<C>(), true);
+	template<typename C, typename ... CRest> static ashley::BitsType getBitsFor(
+			get_bits_dummy<sizeof...(CRest)> = get_bits_dummy<sizeof...(CRest)>()) {
+				return ashley::ComponentType::getBitsFor<CRest...>(get_bits_dummy<sizeof...(CRest) -1>()).set(ashley::ComponentType::getIndexFor<C>(), true);
 	}
 	/**
 	 * @param components Initializer list of {@link Component} class std::type_indexes.

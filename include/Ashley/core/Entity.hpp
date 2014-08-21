@@ -55,7 +55,7 @@ public:
 	 */
 	Entity();
 
-	~Entity();
+	~Entity() = default;
 
 	/**
 	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>

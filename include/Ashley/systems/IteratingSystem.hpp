@@ -54,6 +54,8 @@ public:
 			EntitySystem(priority), family(family), entities() {
 	}
 
+	virtual ~IteratingSystem() = default;
+
 	virtual void addedToEngine(ashley::Engine &engine) override;
 	virtual void removedFromEngine(ashley::Engine &engine) override;
 

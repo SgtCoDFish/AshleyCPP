@@ -52,17 +52,13 @@ private:
 	static use_getFor_not_constructor constructorHider_;
 
 public:
+	~Family() = default;
+
 	/**
 	 * @return The family matching the specified {@link Component} type_indexes. Each set of component types will
 	 * always return the same Family instance. The types are specified in an initializer_list of type_index types.
 	 */
 	static std::shared_ptr<ashley::Family> getFor(std::initializer_list<std::type_index> types);
-
-	/**
-	 * @return The family matching the specified {@link Component} type_index. Each component type will
-	 * always return the same Family instance.
-	 */
-	static std::shared_ptr<ashley::Family> getFor(std::type_index index);
 
 	/**
 	 * <p>Returns a family with the passed {@link Component} classes as a descriptor. Each set of component types will

@@ -28,8 +28,7 @@ template<typename T>
 class Listener {
 public:
 	Listener() {}
-	virtual ~Listener() {
-	}
+	virtual ~Listener() = default;
 
 	virtual void receive(const ashley::Signal<T> &signal, T &object) = 0;
 };

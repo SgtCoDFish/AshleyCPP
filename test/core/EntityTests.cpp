@@ -16,7 +16,6 @@
 
 #include <cstdint>
 
-#include <iostream>
 #include <vector>
 #include <bitset>
 #include <typeinfo>

@@ -34,9 +34,6 @@ ashley::Engine::Engine() :
 	componentRemovedListener = std::make_shared<RemovedListener>(this);
 }
 
-ashley::Engine::~Engine() {
-}
-
 void ashley::Engine::addEntity(std::shared_ptr<ashley::Entity> ptr) {
 	entities.emplace_back(std::shared_ptr<ashley::Entity>(ptr));
 

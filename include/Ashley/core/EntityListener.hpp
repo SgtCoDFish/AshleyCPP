@@ -28,7 +28,7 @@ class Entity;
  */
 class EntityListener {
 public:
-	virtual ~EntityListener() {}
+	virtual ~EntityListener() = default;
 
 	virtual void entityAdded(ashley::Entity &entity) = 0;
 	virtual void entityRemoved(ashley::Entity &entity) = 0;

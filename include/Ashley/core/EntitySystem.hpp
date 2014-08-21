@@ -55,8 +55,7 @@ public:
 			priority(priority) {
 	}
 
-	virtual ~EntitySystem() {
-	}
+	virtual ~EntitySystem() = default;
 
 	/**
 	 * Called when this EntitySystem is added to an {@link Engine}.

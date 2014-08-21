@@ -21,8 +21,6 @@
 #include <algorithm>
 #include <memory>
 
-#include <iostream>
-
 #include "Ashley/signals/Listener.hpp"
 
 namespace ashley {
@@ -39,9 +37,7 @@ public:
 	Signal() {
 	}
 
-	~Signal() {
-		listeners.clear();
-	}
+	~Signal() = default;
 
 	/**
 	 * <p>Add a {@link Listener} to this {@link Signal}</p>

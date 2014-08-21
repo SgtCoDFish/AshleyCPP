@@ -35,10 +35,6 @@ ashley::Entity::Entity() :
 		index(nextIndex++) {
 }
 
-ashley::Entity::~Entity() {
-	componentMap.clear();
-}
-
 void ashley::Entity::removeAll() {
 	componentBits.reset();
 	familyBits.reset();

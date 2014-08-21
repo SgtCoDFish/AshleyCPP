@@ -53,7 +53,7 @@ class EntityListener;
 class Engine {
 public:
 	Engine();
-	~Engine();
+	~Engine() = default;
 
 	/**
 	 * <p>Adds an std::shared_ptr to an {@link Entity} to this {@link Engine}.</p>

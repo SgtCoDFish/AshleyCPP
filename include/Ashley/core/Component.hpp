@@ -32,8 +32,8 @@ class Component {
 public:
 	Component() {
 	}
-	virtual ~Component() {
-	}
+
+	virtual ~Component() = default;
 
 	virtual std::type_index identify() const {
 		return std::type_index(typeid(*this));
