@@ -52,15 +52,15 @@ public:
 	/**
 	 * @return The {@link Component} of the specified class belonging to e.
 	 */
-	std::shared_ptr<T> get(ashley::Entity &e) {
-		return e.getComponent<T>();
+	std::shared_ptr<T> get(std::shared_ptr<ashley::Entity> e) {
+		return e->getComponent<T>();
 	}
 
 	/**
 	 * @return Whether or not entity has the component of the specified class.
 	 */
-	bool has(ashley::Entity &e) const {
-		return e.hasComponent<T>();
+	bool has(std::shared_ptr<ashley::Entity> e) const {
+		return e->hasComponent<T>();
 	}
 
 private:

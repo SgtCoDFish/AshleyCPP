@@ -61,13 +61,12 @@ TEST(ComponentTypeTest, DifferentComponentType) {
 TEST(ComponentTypeTest, GetBitsFor) {
 	auto type1 = ashley::ComponentType::getBitsFor<ashley::test::PositionComponent,
 			ashley::test::VelocityComponent>();
-	auto type2 = ashley::ComponentType::getBitsFor(
-			{ typeid(ashley::test::PositionComponent),
-					typeid(ashley::test::VelocityComponent) });
+	auto type2 = ashley::ComponentType::getBitsFor( { typeid(ashley::test::PositionComponent),
+			typeid(ashley::test::VelocityComponent) });
 
-	auto type3 = ashley::ComponentType::getBitsFor(typeid(ashley::test::PositionComponent));
+	auto type3 = ashley::ComponentType::getBitsFor( { typeid(ashley::test::PositionComponent) });
 	auto type4 = ashley::ComponentType::getBitsFor(
-				{ std::type_index(typeid(ashley::test::PositionComponent))});
+			{ std::type_index(typeid(ashley::test::PositionComponent)) });
 
 	ASSERT_EQ(type1, type2);
 	ASSERT_EQ(type3, type4);

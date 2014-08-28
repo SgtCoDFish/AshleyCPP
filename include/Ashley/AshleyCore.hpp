@@ -29,4 +29,6 @@
 #include "signals/Signal.hpp"
 #include "signals/Listener.hpp"
 
+#include "systems/IteratingSystem.hpp"
+
 #endif /* ASHLEY_HPP_ */

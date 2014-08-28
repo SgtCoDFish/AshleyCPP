@@ -43,8 +43,8 @@ class FooComponent : public ashley::Component {
 TEST_F(ComponentMapperTest, ValidGetAndHas) {
 	auto fooMapper = ashley::ComponentMapper<FooComponent>::getFor();
 
-	ashley::Entity e;
-	e.add<ashley::test::PositionComponent>(10, 2).add<ashley::test::VelocityComponent>(5, 6);
+	auto e = std::make_shared<ashley::Entity>();
+	e->add<ashley::test::PositionComponent>(10, 2).add<ashley::test::VelocityComponent>(5, 6);
 
 	ASSERT_TRUE(positionMapper.has(e));
 	ASSERT_TRUE(velocityMapper.has(e));
@@ -61,7 +61,7 @@ TEST_F(ComponentMapperTest, ValidGetAndHas) {
 
 	ASSERT_TRUE(fooMapper.get(e) == nullptr);
 
-	e.add<FooComponent>();
+	e->add<FooComponent>();
 
 	ASSERT_FALSE(fooMapper.get(e) == nullptr);
 }

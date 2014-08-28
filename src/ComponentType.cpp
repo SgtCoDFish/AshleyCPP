@@ -27,7 +27,6 @@
 #include "Ashley/AshleyConstants.hpp"
 
 uint64_t ashley::ComponentType::typeIndex = 0;
-ashley::ComponentType::get_bits_dummy<0> ashley::ComponentType::dummy_base;
 std::unordered_map<std::type_index, ashley::ComponentType> ashley::ComponentType::componentTypes;
 
 ashley::ComponentType::ComponentType() :
@@ -41,10 +40,6 @@ ashley::ComponentType& ashley::ComponentType::getFor(std::type_index index) {
 
 uint64_t ashley::ComponentType::getIndexFor(std::type_index index) {
 	return ashley::ComponentType::getFor(index).getIndex();
-}
-
-ashley::BitsType ashley::ComponentType::getBitsFor(std::type_index index) {
-	return ashley::BitsType().set(ashley::ComponentType::getIndexFor(index), true);
 }
 
 ashley::BitsType ashley::ComponentType::getBitsFor(
