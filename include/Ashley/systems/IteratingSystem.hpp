@@ -71,7 +71,7 @@ public:
 	 * @param entity The current Entity being processed
 	 * @param deltaTime The delta in time between the last and current frame
 	 */
-	virtual void processEntity(ashley::Entity &entity, float deltaTime) = 0;
+	virtual void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) = 0;
 
 protected:
 	Family &family;

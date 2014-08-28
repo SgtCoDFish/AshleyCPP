@@ -72,7 +72,7 @@ public:
 
 	uint64_t numUpdates;
 
-	void processEntity(ashley::Entity &entity, float deltaTime) override {
+	void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) override {
 		++numUpdates;
 	}
 };
