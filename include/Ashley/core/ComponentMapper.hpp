@@ -49,6 +49,10 @@ public:
 		return ComponentMapper<T>(typeid(T));
 	}
 
+	static const ComponentMapper<T> getFor(std::type_index index) {
+		return ComponentMapper<T>(index);
+	}
+
 	/**
 	 * @return The {@link Component} of the specified class belonging to e.
 	 */
