@@ -40,7 +40,7 @@ public:
 	 * Instantiates a system that will iterate over the entities described by the Family, with the default priority.
 	 * @param family The family of entities iterated over in this System
 	 */
-	IteratingSystem(std::shared_ptr<ashley::Family> &family) :
+	IteratingSystem(std::shared_ptr<ashley::Family> family) :
 			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 
@@ -50,7 +50,7 @@ public:
 	 * @param family The family of entities iterated over in this System
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
-	IteratingSystem(std::shared_ptr<ashley::Family> &family, uint64_t priority) :
+	IteratingSystem(std::shared_ptr<ashley::Family> family, uint64_t priority) :
 			EntitySystem(priority), family(family), entities() {
 	}
 
