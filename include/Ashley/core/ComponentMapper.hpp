@@ -27,7 +27,7 @@
 namespace ashley {
 
 /**
- * <p>Provides super fast {@link Component} retrieval from {@Link Entity} objects.</p>
+ * <p>Provides super fast {@link Component} retrieval from {@link Entity} objects.</p>
  *
  * @param <T> the class type of the {@link Component}.
  *
@@ -42,13 +42,17 @@ public:
 	ComponentMapper& operator=(ComponentMapper &&other) = default;
 
 	/**
-	 * @param index Component class to be retrieved by the mapper.
-	 * @return New instance that provides fast access to the {@link Component} of the specified class.
+	 * <p>Retrieves a {@link ComponentMapper} instances for a given templated type.</p>
+	 * @return {@link ComponentMapper} instance (cached if possible) that provides fast access to the {@link Component} of the specified class.
 	 */
 	static const ComponentMapper<T> getFor() {
 		return ComponentMapper<T>(typeid(T));
 	}
 
+	/**
+	 * @param index Component class to be retrieved by the mapper.
+	 * @return {@link ComponentMapper} instance (cached if possible) that provides fast access to the {@link Component} of the specified class.
+	 */
 	static const ComponentMapper<T> getFor(std::type_index index) {
 		return ComponentMapper<T>(index);
 	}

@@ -34,6 +34,11 @@ public:
 	Listener& operator=(const Listener &other) = default;
 	Listener& operator=(Listener &&other) = default;
 
+	/**
+	 * <p>Called by a {@link Signal} for each of its attached {@link Listener}s when some event occurs.</p>
+	 * @param signal the calling signal.
+	 * @param object an object related to the call.
+	 */
 	virtual void receive(const ashley::Signal<T> &signal, T &object) = 0;
 };
 }

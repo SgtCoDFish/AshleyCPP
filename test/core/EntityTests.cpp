@@ -31,6 +31,7 @@
 #include "AshleyTestCommon.hpp"
 
 #include "gtest/gtest.h"
+
 namespace {
 class EntityTest : public ::testing::Test {
 protected:
@@ -96,8 +97,6 @@ TEST_F(EntityTest, UniqueIndex) {
 // Ensure that an empty entity is treated correctly by various functions.
 TEST_F(EntityTest, NoComponents) {
 	ashley::test::assertValidComponentAndBitSize(emptyEntity, 0);
-
-	//TODO: Add more functions here testing interaction with ComponentMapper, see java original
 }
 
 // Ensure that adding and removing components works correctly.
@@ -114,8 +113,6 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 		ASSERT_EQ(i == (positionIndex), bits[i]);
 	}
 
-	//TODO: ComponentMapper functions
-
 	onlyPosition.remove<ashley::test::PositionComponent>();
 
 	ashley::test::assertValidComponentAndBitSize(onlyPosition, 0);
@@ -126,8 +123,6 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 	for (unsigned int i = 0; i < bits.size(); i++) {
 		ASSERT_EQ(0, bits[i])<< "i = " << i << ".";
 	}
-
-	// TODO: ComponentMapper functions
 
 	positionAndVelocity.remove<ashley::test::VelocityComponent>();
 	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 1);
@@ -148,7 +143,22 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 	for (unsigned int i = 0; i < bits.size(); i++) {
 		ASSERT_EQ(0, bits[i])<< "i = " << i << ".";
 	}
+}
 
+TEST_F(EntityTest, AddExistingComponent) {
+	auto e = std::make_shared<ashley::Entity>();
+
+	auto pos = std::make_shared<ashley::test::PositionComponent>(5, 5);
+
+	e->add(pos);
+
+	ASSERT_TRUE(e->hasComponent<ashley::test::PositionComponent>());
+	ASSERT_FALSE(e->hasComponent<ashley::test::VelocityComponent>());
+
+	auto posComp = e->getComponent<ashley::test::PositionComponent>();
+
+	ASSERT_EQ(5, posComp->x);
+	ASSERT_EQ(5, posComp->y);
 }
 
 // Ensure the removeAll() function works

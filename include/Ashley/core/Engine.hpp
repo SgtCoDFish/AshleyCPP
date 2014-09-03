@@ -83,8 +83,7 @@ public:
 	/**
 	 * Adds the {@link EntitySystem} to this Engine via an std::shared_ptr.
 	 *
-	 * <p>Note that once added, ownership is transferred to the Engine. For access to the {@link EntitySystem} after
-	 * adding, use {@link Engine#addSystemAndGet}.</p>
+	 * <p>Note that once added, ownership is transferred to the Engine, and you'll probably want to call {@link Engine#getSystem} to access it.</p>
 	 */
 	void addSystem(std::shared_ptr<ashley::EntitySystem> system);
 

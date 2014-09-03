@@ -64,7 +64,7 @@ protected:
 
 class IteratingSystemMock : public IteratingSystem {
 public:
-	IteratingSystemMock(ashley::Family &family) :
+	IteratingSystemMock(std::shared_ptr<ashley::Family> &family) :
 			IteratingSystem(family), numUpdates(0) {
 	}
 	virtual ~IteratingSystemMock() {
@@ -82,7 +82,7 @@ public:
 TEST_F(IteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
 	const float delta = 0.15f;
 
-	auto mockSystem = std::make_shared<IteratingSystemMock>(*family);
+	auto mockSystem = std::make_shared<IteratingSystemMock>(family);
 
 	engine.addSystem(mockSystem);
 	engine.addEntity(e);

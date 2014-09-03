@@ -61,7 +61,6 @@ public:
 			priority(priority) {
 	}
 
-
 	/**
 	 * Called when this EntitySystem is added to an {@link Engine}.
 	 * @param engine The {@link Engine} this system was added to.
@@ -89,30 +88,62 @@ public:
 		return true;
 	}
 
+	/**
+	 * @return the polymorphic std::type_index corresponding to this {@link EntitySystem}.
+	 */
 	virtual std::type_index identify() const {
 		return std::type_index(typeid(*this));
 	}
 
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if the systems have equal priority.
+	 */
 	inline bool operator==(ashley::EntitySystem &other) const {
 		return this->priority == other.priority;
 	}
 
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if the systems do not have equal priority.
+	 */
 	inline bool operator!=(ashley::EntitySystem &other) const {
 		return this->priority != other.priority;
 	}
 
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if this system will execute before other.
+	 */
 	inline bool operator<(ashley::EntitySystem &other) const {
 		return this->priority < other.priority;
 	}
 
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if the systems have equal priority or if this system will execute first.
+	 */
 	inline bool operator<=(ashley::EntitySystem &other) const {
 		return this->priority <= other.priority;
 	}
 
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if this system will execute after other.
+	 */
 	inline bool operator>(ashley::EntitySystem &other) const {
 		return this->priority > other.priority;
 	}
-
+	/**
+	 * <p>Compares two {@link EntitySystem}s based on their priority. A smaller priority executes first.</p>
+	 * @param other the other {@link EntitySystem} to compare with.
+	 * @return true if this system has equal priority to other, or if this system will execute last.
+	 */
 	inline bool operator>=(ashley::EntitySystem &other) const {
 		return this->priority >= other.priority;
 	}

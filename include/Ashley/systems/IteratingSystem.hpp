@@ -40,7 +40,7 @@ public:
 	 * Instantiates a system that will iterate over the entities described by the Family, with the default priority.
 	 * @param family The family of entities iterated over in this System
 	 */
-	IteratingSystem(ashley::Family &family) :
+	IteratingSystem(std::shared_ptr<ashley::Family> &family) :
 			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 
@@ -50,7 +50,7 @@ public:
 	 * @param family The family of entities iterated over in this System
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
-	IteratingSystem(ashley::Family &family, uint64_t priority) :
+	IteratingSystem(std::shared_ptr<ashley::Family> &family, uint64_t priority) :
 			EntitySystem(priority), family(family), entities() {
 	}
 
@@ -74,7 +74,14 @@ public:
 	virtual void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) = 0;
 
 protected:
-	Family &family;
+	/**
+	 * The family used by this IteratingSystem to retrieve its {@link Entity}s.
+	 */
+	std::shared_ptr<ashley::Family> family;
+
+	/**
+	 * An array of pointers to matching {@link Entity}s which is automatically updated every tick.
+	 */
 	std::vector<std::shared_ptr<ashley::Entity>> *entities;
 };
 }

@@ -35,11 +35,28 @@ ashley::Entity::Entity() :
 		index(nextIndex++) {
 }
 
+ashley::Entity &ashley::Entity::add(std::shared_ptr<Component> component) {
+	auto type = component->identify();
+	auto typeID = ashley::ComponentType::getIndexFor(type);
+
+	if (componentBits[typeID]) {
+		componentMap[type] = nullptr;
+	}
+
+	componentBits[typeID] = true;
+
+	// add new reference to component
+	componentMap[type] = std::shared_ptr<Component>(component);
+
+	componentAdded.dispatch(*this);
+	return *this;
+}
+
 void ashley::Entity::removeAll() {
 	componentBits.reset();
 	familyBits.reset();
 
-	for(auto &p : componentMap) {
+	for (auto &p : componentMap) {
 		p.second.reset();
 	}
 

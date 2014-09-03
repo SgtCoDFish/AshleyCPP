@@ -62,6 +62,13 @@ public:
 	Entity& operator=(Entity &&other) = default;
 
 	/**
+	 * <p>Adds a component via a shared ptr to an existing component.</p>
+	 * @param component the component to add.
+	 * @return this {@link Entity} for chaining.
+	 */
+	Entity &add(std::shared_ptr<Component> component);
+
+	/**
 	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>
 	 *
 	 * <p>If a {@link Component} of the same type already exists, it'll be replaced without being retrievable from this class again.</p>

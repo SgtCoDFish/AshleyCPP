@@ -4,6 +4,11 @@
 .README*
 *.o
 *.a
-/Debug/
-/Release/
-/TestOut/
+Debug/
+Release/
+TestOut/
+doc/
+/Debug/*
+/Release/*
+/TestOut/*
+/doc/*

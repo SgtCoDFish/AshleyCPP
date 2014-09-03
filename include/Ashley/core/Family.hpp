@@ -97,10 +97,18 @@ public:
 			Family(all, one, exclude) {
 	}
 
+	/**
+	 * @param other another Family instances to compare with
+	 * @return true if the index members of both families are equal
+	 */
 	bool operator==(const ashley::Family &other) const {
 		return this->index == other.index;
 	}
 
+	/**
+	 * @param other another Family instances to compare with
+	 * @return true if the index members of both families aren't equal
+	 */
 	bool operator!=(const ashley::Family &other) const {
 		return this->index != other.index;
 	}
@@ -130,7 +138,15 @@ private:
 }
 
 namespace std {
+/**
+ * <p>Overload of std::hash for Family types, allowing families to be used as indices for hash-based maps.</p>
+ */
 template<> struct hash<ashley::Family> {
+	/**
+	 * <p>Hashes the given Family.</p>
+	 * @param family the Family to be hashed.
+	 * @return a hash value corresponding to the given Family.
+	 */
 	std::size_t operator()(ashley::Family &family) const {
 		const std::size_t prime = 31;
 
@@ -151,6 +167,11 @@ template<> struct hash<ashley::Family> {
 		return result;
 	}
 
+	/**
+	 * <p>Hashes the given const Family.</p>
+	 * @param family the const Family to be hashed.
+	 * @return a hash value corresponding to the given const Family.
+	 */
 	std::size_t operator()(const ashley::Family &family) const {
 		const std::size_t prime = 31;
 
