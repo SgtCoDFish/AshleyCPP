@@ -56,7 +56,7 @@ public:
 	/**
 	 * @return The {@link Component} of the specified class belonging to e.
 	 */
-	std::shared_ptr<T> get(std::shared_ptr<ashley::Entity> e) {
+	std::shared_ptr<T> get(std::shared_ptr<ashley::Entity> e) const {
 		return e->getComponent<T>();
 	}
 
