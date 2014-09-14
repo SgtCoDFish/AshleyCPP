@@ -31,9 +31,9 @@ protected:
 	}
 
 	ashley::ComponentMapper<ashley::test::PositionComponent> positionMapper =
-			ashley::ComponentMapper<ashley::test::PositionComponent>::getFor();
+			ashley::ComponentMapper<ashley::test::PositionComponent>::getMapper();
 	ashley::ComponentMapper<ashley::test::VelocityComponent> velocityMapper =
-			ashley::ComponentMapper<ashley::test::VelocityComponent>::getFor();
+			ashley::ComponentMapper<ashley::test::VelocityComponent>::getMapper();
 };
 
 class FooComponent : public ashley::Component {
@@ -41,7 +41,7 @@ class FooComponent : public ashley::Component {
 }
 
 TEST_F(ComponentMapperTest, ValidGetAndHas) {
-	auto fooMapper = ashley::ComponentMapper<FooComponent>::getFor();
+	auto fooMapper = ashley::ComponentMapper<FooComponent>::getMapper();
 
 	auto e = std::make_shared<ashley::Entity>();
 	e->add<ashley::test::PositionComponent>(10, 2).add<ashley::test::VelocityComponent>(5, 6);

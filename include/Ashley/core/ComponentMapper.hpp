@@ -45,7 +45,7 @@ public:
 	 * <p>Retrieves a {@link ComponentMapper} instances for a given templated type.</p>
 	 * @return {@link ComponentMapper} instance (cached if possible) that provides fast access to the {@link Component} of the specified class.
 	 */
-	static const ComponentMapper<T> getFor() {
+	static const ComponentMapper<T> getMapper() {
 		return ComponentMapper<T>(typeid(T));
 	}
 
@@ -62,6 +62,13 @@ public:
 	 */
 	std::shared_ptr<T> get(std::shared_ptr<ashley::Entity> e) const {
 		return e->getComponent<T>();
+	}
+
+	/**
+	 * @return A raw pointer {@link Component} of the specified class belonging to e.
+	 */
+	const T * getRaw(std::shared_ptr<ashley::Entity> e) const {
+		return e->getComponent<T>().get();
 	}
 
 	/**

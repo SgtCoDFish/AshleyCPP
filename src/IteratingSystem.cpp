@@ -36,3 +36,7 @@ void ashley::IteratingSystem::update(float deltaTime) {
 	std::for_each(entities->begin(), entities->end(),
 			[&](std::shared_ptr<ashley::Entity> found) {processEntity(found, deltaTime);});
 }
+
+bool ashley::IteratingSystem::checkProcessing() {
+	return entities->size() > 0;
+}

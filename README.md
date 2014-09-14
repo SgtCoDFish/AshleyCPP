@@ -43,6 +43,11 @@ Note: In situations where you'd use `.class` to get the type of a Java class, in
   All have `std::type_index` and templated versions.
   - `operator==` and `operator!=`  
   Two ComponentTypes are equal if they have the same index, i.e. they represent the same type.
+- ComponentMapper
+  - `getRaw(std::shared_ptr<Entity>)`   
+  Returns a const raw pointer for convenience; saves having to call `get()` on the `std::shared_ptr` return of `get()` for passing to a function.
+  - `getMapper()`   
+  Renamed from `getFor` to make more sense since this templated version needs no non-template arguments.
 - Engine
   - Immutable `getEntitiesFor`  
   Not implemented, might be in the future.

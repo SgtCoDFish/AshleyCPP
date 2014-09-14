@@ -8,6 +8,8 @@
 #ifndef ASHLEYCONSTANTS_HPP_
 #define ASHLEYCONSTANTS_HPP_
 
+#include <bitset>
+
 #ifndef ASHLEY_MAX_COMPONENT_COUNT
 #define ASHLEY_MAX_COMPONENT_COUNT 64
 #endif

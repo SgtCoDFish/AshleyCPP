@@ -73,6 +73,11 @@ public:
 	 */
 	virtual void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) = 0;
 
+	/**
+	 * @return true if there is at least 1 {@link Entity} matching the family for this system.
+	 */
+	virtual bool checkProcessing() override;
+
 protected:
 	/**
 	 * The family used by this IteratingSystem to retrieve its {@link Entity}s.
