@@ -95,6 +95,14 @@ Ticked classes have both their implementation and tests complete.
 - Systems
   - [x] IteratingSystem
   
+Roadmap from commits to main version since last major release:
+- [ ] Check "Family filtering issue"
+- [ ] Add `EntitySystem::setProcessing` and update Engine tests
+- [ ] Add `Engine::getSystems`
+- [ ] Check issue `removing Entities mid iteration` and add tests
+- [ ] Add IntervalIteratingSystem and IntervalSystem
+
+  
 *NB:*
 - Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
 - PooledEngine may be done in future, but is left out for now.
