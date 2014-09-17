@@ -83,7 +83,7 @@ public:
 
 		auto mapPtr = std::dynamic_pointer_cast<ashley::Component>(std::make_shared<C>(args...));
 
-		if(operationHandler != nullptr) {
+		if (operationHandler != nullptr) {
 			operationHandler->add(this, mapPtr);
 		} else {
 			addInternal(mapPtr);
@@ -115,7 +115,7 @@ public:
 		auto typeIndex = std::type_index(typeid(C));
 		auto typeID = ashley::ComponentType::getIndexFor<C>();
 
-		if(componentBits[typeID] == true) {
+		if (componentBits[typeID] == true) {
 			return remove(typeIndex);
 		} else {
 			return std::shared_ptr<ashley::Component>(nullptr);
@@ -181,6 +181,10 @@ public:
 		return componentMap.size();
 	}
 
+	/**
+	 * @return a bitset used for checking the membership of this {@link Entity} in various {@link Family}s.
+	 * Used internally; change at your peril.
+	 */
 	inline ashley::BitsType &getFamilyBits() {
 		return familyBits;
 	}

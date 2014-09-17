@@ -38,6 +38,8 @@ public:
 
 /**
  * <p>Struct representing all the details required about a component operation.</p>
+ *
+ * <p>Internal class; you probably don't need this.</p>
  */
 struct ComponentOperation : public ashley::Poolable {
 	enum class Type {

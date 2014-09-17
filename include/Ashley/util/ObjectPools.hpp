@@ -93,6 +93,10 @@ public:
 		pool.push(object);
 	}
 
+	/**
+	 * @return the highest number of allocations ever required in this {@link ObjectPool}'s lifetime.
+	 * Useful for optimising the starting value passed to the constructor.
+	 */
 	inline int64_t getPeakEntities() {
 		return peakEntities;
 	}
