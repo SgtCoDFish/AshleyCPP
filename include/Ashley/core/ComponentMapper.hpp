@@ -29,9 +29,11 @@ namespace ashley {
 /**
  * <p>Provides super fast {@link Component} retrieval from {@link Entity} objects.</p>
  *
+ * <em>Java author: David Saltares</em>
+ *
  * @param <T> the class type of the {@link Component}.
  *
- * @author David Saltares
+ * @author Ashley Davis (SgtCoDFish)
  */
 template<typename T> class ComponentMapper {
 public:
