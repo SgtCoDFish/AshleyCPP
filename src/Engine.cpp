@@ -22,6 +22,8 @@
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
+#include <typeinfo>
+#include <typeindex>
 
 #include "Ashley/core/Engine.hpp"
 #include "Ashley/core/Entity.hpp"
@@ -102,7 +104,9 @@ void ashley::Engine::removeAllEntities() {
 void ashley::Engine::addSystem(std::shared_ptr<ashley::EntitySystem> system) {
 	auto systemIndex = std::type_index(typeid(*system));
 
-	if (systemsByClass.find(systemIndex) == systemsByClass.end()) {
+	auto it  = systemsByClass.find(systemIndex);
+
+	if (it == systemsByClass.end()) {
 		systems.emplace_back(std::shared_ptr<ashley::EntitySystem>(system));
 		systemsByClass[systemIndex] = std::shared_ptr<ashley::EntitySystem>(system);
 		system->addedToEngine(*this);
