@@ -31,4 +31,8 @@
 
 #include "systems/IteratingSystem.hpp"
 
+#include "internal/ComponentOperations.hpp"
+
+#include "util/ObjectPools.hpp"
+
 #endif /* ASHLEY_HPP_ */

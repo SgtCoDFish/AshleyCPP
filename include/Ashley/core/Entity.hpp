@@ -30,8 +30,10 @@
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/ComponentType.hpp"
 #include "Ashley/signals/Signal.hpp"
+#include "Ashley/internal/ComponentOperations.hpp"
 
 namespace ashley {
+class Engine;
 /**
  * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
@@ -40,6 +42,8 @@ namespace ashley {
  * @author Ashley Davis (SgtCoDFish)
  */
 class Entity {
+	friend class Engine;
+
 public:
 	/** A flag that can be used to bit mask this entity. Up to the user to manage. */
 	uint64_t flags = 0;
@@ -75,42 +79,46 @@ public:
 	 * @return This Entity for easy chaining
 	 */
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
-		auto type = std::type_index(typeid(C));
-		auto typeID = ashley::ComponentType::getIndexFor(type);
+//		auto type = std::type_index(typeid(C));
 
-		auto mapPtr = std::make_shared<C>(args...);
+		auto mapPtr = std::dynamic_pointer_cast<ashley::Component>(std::make_shared<C>(args...));
 
-		if (componentBits[typeID]) {
-			componentMap[type] = nullptr;
+		if(operationHandler != nullptr) {
+			operationHandler->add(this, mapPtr);
+		} else {
+			addInternal(mapPtr);
 		}
 
-		componentBits[typeID] = true;
-		componentMap[type] = mapPtr;
-
-		componentAdded.dispatch(*this);
 		return *this;
 	}
+
+	/**
+	 * <p>Removes a {@link Component} by its type_index.</p>
+	 * @param typeIndex the type index of the component to remove
+	 * @return a shared_ptr to the removed component or nullptr if it was not found.
+	 */
+	std::shared_ptr<ashley::Component> remove(std::type_index typeIndex);
+
+	/**
+	 * <p>Removes the given {@link Component}, if it's found attached to this {@link Entity}.
+	 * @param component the {@link Component} to remove.
+	 * @return the removed {@link Component} or nullptr if not found.
+	 */
+	std::shared_ptr<ashley::Component> remove(std::shared_ptr<ashley::Component> component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
 	 * don't need an instance, just the type.</p>
 	 * @return A shared_ptr to the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
 	 */
-	template<typename C> std::shared_ptr<C> remove() {
+	template<typename C> std::shared_ptr<ashley::Component> remove() {
 		auto typeIndex = std::type_index(typeid(C));
-		auto id = ashley::ComponentType::getIndexFor(typeIndex);
+		auto typeID = ashley::ComponentType::getIndexFor<C>();
 
-		if (componentBits[id] == true) {
-			componentBits[id] = false;
-			auto retVal = std::dynamic_pointer_cast<C>(
-					std::shared_ptr<ashley::Component>(componentMap[typeIndex]));
-			componentMap[typeIndex] = nullptr;
-			componentMap.erase(typeIndex);
-
-			componentRemoved.dispatch(*this);
-			return retVal;
+		if(componentBits[typeID] == true) {
+			return remove(typeIndex);
 		} else {
-			return std::shared_ptr<C>();
+			return std::shared_ptr<ashley::Component>(nullptr);
 		}
 	}
 
@@ -209,6 +217,21 @@ private:
 
 	ashley::BitsType componentBits;
 	ashley::BitsType familyBits;
+
+	internal::ComponentOperationHandler *operationHandler = nullptr;
+
+	Entity &addInternal(std::shared_ptr<ashley::Component> component);
+
+	std::shared_ptr<ashley::Component> removeImpl(std::shared_ptr<Component> &component);
+
+	/**
+	 * Actually processes the removal of a {@link Component} from this {@link Entity}.
+	 * @param componentType the component to remove
+	 * @return the component removed or nullptr if not removed
+	 */
+	std::shared_ptr<ashley::Component> removeInternal(std::shared_ptr<Component> &component);
+
+	friend class internal::ComponentOperationHandler;
 };
 
 }

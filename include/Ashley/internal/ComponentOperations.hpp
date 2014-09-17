@@ -8,7 +8,16 @@
 #ifndef COMPONENTOPERATIONS_HPP_
 #define COMPONENTOPERATIONS_HPP_
 
+#include <memory>
+
+#include "Ashley/core/Component.hpp"
+#include "Ashley/util/ObjectPools.hpp"
+#include "Ashley/core/Entity.hpp"
+
 namespace ashley {
+class Entity;
+class Component;
+
 namespace internal {
 
 /**
@@ -18,45 +27,54 @@ namespace internal {
  */
 class ComponentOperationHandler {
 public:
-	virtual ~ComponentOperationHandler() {}
+	virtual ~ComponentOperationHandler() {
+	}
 
-	virtual void add(std::shared_ptr<ashley::Entity> &entity,
+	virtual void add(::ashley::Entity *entity,
 			std::shared_ptr<ashley::Component> &component) = 0;
-	virtual void remove(std::shared_ptr<ashley::Entity> &entity,
+	virtual void remove(::ashley::Entity *entity,
 			std::shared_ptr<ashley::Component> &component) = 0;
 };
 
 /**
  * <p>Struct representing all the details required about a component operation.</p>
  */
-struct ComponentOperation {
+struct ComponentOperation : public ashley::Poolable {
 	enum class Type {
-		ADD, REMOVE
+		ADD, REMOVE, NONE
 	};
 
 	Type type;
 
-	std::shared_ptr<ashley::Entity> entity = nullptr;
+	ashley::Entity *entity = nullptr;
 	std::shared_ptr<ashley::Component> component = nullptr;
 
-	std::type_index componentType;
+	ComponentOperation() :
+			type(Type::NONE) {
+	}
+	virtual ~ComponentOperation() {
+	}
 
-	inline void makeAdd(std::shared_ptr<ashley::Entity> &entity, std::shared_ptr<ashley::Component> &component) {
+	inline void makeAdd(ashley::Entity *entity,
+			std::shared_ptr<ashley::Component> &component) {
 		this->type = Type::ADD;
 
 		this->entity = entity;
 		this->component = component;
-
-		this->componentType = component->identify();
 	}
 
-	inline void makeRemove(std::shared_ptr<ashley::Entity> &entity, std::shared_ptr<ashley::Component> &component) {
+	inline void makeRemove(ashley::Entity *entity,
+			std::shared_ptr<ashley::Component> &component) {
 		this->type = Type::REMOVE;
 
 		this->entity = entity;
 		this->component = component;
+	}
 
-		this->componentType = component->identify();
+	void reset() override {
+		entity = nullptr;
+		component = nullptr;
+		this->type = Type::NONE;
 	}
 };
 

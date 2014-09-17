@@ -28,10 +28,34 @@
 #include "Ashley/core/EntityListener.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 
+#include "Ashley/internal/ComponentOperations.hpp"
+
 ashley::Engine::Engine() :
-		notifying(false) {
+		notifying(false), updating(false), operationPool(100) {
 	componentAddedListener = std::make_shared<AddedListener>(this);
 	componentRemovedListener = std::make_shared<RemovedListener>(this);
+
+	operationHandler = std::unique_ptr<EngineOperationHandler>(new EngineOperationHandler(this));
+}
+
+ashley::Engine::~Engine() {
+	entities.clear();
+	families.clear();
+	listeners.clear();
+	systemsByClass.clear();
+	operationHandler = nullptr;
+
+	for(auto &op : operationVector) {
+		operationPool.free(op);
+	}
+
+	operationVector.clear();
+
+	pendingRemovalEntities.clear();
+	removalPendingListeners.clear();
+
+	systems.clear();
+	systemsByClass.clear();
 }
 
 void ashley::Engine::addEntity(std::shared_ptr<ashley::Entity> ptr) {
@@ -49,6 +73,7 @@ void ashley::Engine::addEntity(std::shared_ptr<ashley::Entity> ptr) {
 
 	ptr->componentAdded.add(componentAddedListener);
 	ptr->componentRemoved.add(componentRemovedListener);
+	ptr->operationHandler = &(*operationHandler);
 
 	notifying = true;
 
@@ -60,107 +85,13 @@ void ashley::Engine::addEntity(std::shared_ptr<ashley::Entity> ptr) {
 	removePendingListeners();
 }
 
-//void ashley::Engine::addEntity(ashley::Entity &entity) {
-//	addEntityAndGet(entity);
-//}
-//
-//std::shared_ptr<ashley::Entity> ashley::Engine::addEntityAndGet(ashley::Entity &entity) {
-//	auto ptr = std::shared_ptr<ashley::Entity>(&entity);
-//	addEntity(ptr);
-//
-//	return std::shared_ptr<ashley::Entity>(ptr);
-//}
-
-//void ashley::Engine::removeEntity(ashley::Entity &entity) {
-//	// saves implementing three times, for now
-//	removeEntityAndGet(entity);
-//}
-
 void ashley::Engine::removeEntity(std::shared_ptr<ashley::Entity> ptr) {
-	auto entitiesIt = std::find_if(entities.begin(), entities.end(),
-			[&](std::shared_ptr<ashley::Entity> found) {return ptr == found;});
-
-	if (entitiesIt == entities.end()) {
-		return;
+	if (updating) {
+		pendingRemovalEntities.push_back(ptr);
+	} else {
+		removeEntityInternal(ptr);
 	}
-
-	entities.erase(entitiesIt);
-
-	if (!ptr->getFamilyBits().none()) {
-		for (auto &p : families) {
-			const Family& family = p.first;
-			std::vector<std::shared_ptr<ashley::Entity>>& vec = p.second;
-
-			if (family.matches(*ptr)) {
-				auto vecIt = std::find_if(vec.begin(), vec.end(),
-						[&](std::shared_ptr<ashley::Entity> found) {return ptr == found;});
-
-				if (vecIt != vec.end()) {
-					vec.erase(vecIt);
-				}
-
-				ptr->getFamilyBits().set(family.getIndex(), false);
-			}
-		}
-	}
-
-	ptr->componentAdded.remove(componentAddedListener);
-	ptr->componentRemoved.remove(componentRemovedListener);
-
-	notifying = true;
-
-	for (auto &listener : listeners) {
-		listener->entityRemoved(*ptr);
-	}
-
-	notifying = false;
-	removePendingListeners();
 }
-
-//std::shared_ptr<ashley::Entity> ashley::Engine::removeEntityAndGet(ashley::Entity &entity) {
-//	auto entitiesIt = std::find_if(entities.begin(), entities.end(),
-//			[&](std::shared_ptr<ashley::Entity> ptr) {return *ptr == entity;});
-//
-//	if (entitiesIt == entities.end()) {
-//		return std::shared_ptr<ashley::Entity>();
-//	}
-//
-//	auto ret = *entitiesIt;
-//
-//	entities.erase(entitiesIt);
-//
-//	if (!ret->getFamilyBits().none()) {
-//		for (auto &p : families) {
-//			const Family& family = p.first;
-//			std::vector<std::shared_ptr<ashley::Entity>>& vec = p.second;
-//
-//			if (family.matches(entity)) {
-//				auto vecIt = std::find_if(vec.begin(), vec.end(),
-//						[&](std::shared_ptr<ashley::Entity> ptr) {return *ptr == entity;});
-//
-//				if (vecIt != vec.end()) {
-//					vec.erase(vecIt);
-//				}
-//
-//				ret->getFamilyBits().set(family.getIndex(), false);
-//			}
-//		}
-//	}
-//
-//	ret->componentAdded.remove(componentAddedListener);
-//	ret->componentRemoved.remove(componentRemovedListener);
-//
-//	notifying = true;
-//
-//	for (auto &listener : listeners) {
-//		listener->entityRemoved(*ret);
-//	}
-//
-//	notifying = false;
-//	removePendingListeners();
-//
-//	return ret;
-//}
 
 void ashley::Engine::removeAllEntities() {
 	while (entities.size() > 0) {
@@ -179,19 +110,6 @@ void ashley::Engine::addSystem(std::shared_ptr<ashley::EntitySystem> system) {
 		std::sort(systems.begin(), systems.end(), Engine::systemPriorityComparator);
 	}
 }
-
-//void ashley::Engine::addSystem(ashley::EntitySystem *system) {
-//	addSystemAndGet(system);
-//}
-
-//std::shared_ptr<ashley::EntitySystem> ashley::Engine::addSystemAndGet(
-//		ashley::EntitySystem *system) {
-//	auto ptr = std::shared_ptr<ashley::EntitySystem>(system);
-//
-//	addSystem(ptr);
-//
-//	return std::shared_ptr<ashley::EntitySystem>(ptr);
-//}
 
 void ashley::Engine::removeSystem(std::type_index systemType) {
 	auto ptr = getSystem(systemType);
@@ -256,11 +174,17 @@ void ashley::Engine::removeEntityListener(ashley::EntityListener *listener) {
 }
 
 void ashley::Engine::update(float deltaTime) {
+	updating = true;
+
 	for (auto &ptr : systems) {
 		if (ptr->checkProcessing()) {
 			ptr->update(deltaTime);
 		}
 	}
+
+	processComponentOperations();
+	removePendingEntities();
+	updating = false;
 }
 
 bool ashley::Engine::systemPriorityComparator(std::shared_ptr<ashley::EntitySystem> &one,
@@ -312,6 +236,35 @@ void ashley::Engine::componentRemoved(ashley::Entity &entity) {
 	}
 }
 
+void ashley::Engine::processComponentOperations() {
+	const int numOperations = operationVector.size();
+
+	for(int i = 0; i < numOperations; i++) {
+		auto operation = operationVector[i];
+
+		switch(operation->type) {
+		case internal::ComponentOperation::Type::ADD: {
+			operation->entity->addInternal(operation->component);
+			break;
+		}
+
+		case internal::ComponentOperation::Type::REMOVE: {
+			operation->entity->removeInternal(operation->component);
+			break;
+		}
+
+		default: {
+			throw std::bad_function_call();
+			return;
+		}
+		}
+
+		operationPool.free(operation);
+	}
+
+	operationVector.clear();
+}
+
 void ashley::Engine::removePendingListeners() {
 	// read as:
 	// for each element in listeners, remove if the same element is found somewhere in removalPendingListeners
@@ -325,3 +278,120 @@ void ashley::Engine::removePendingListeners() {
 
 	removalPendingListeners.clear();
 }
+
+void ashley::Engine::removePendingEntities() {
+	const int numPending = pendingRemovalEntities.size();
+
+	for (int i = 0; i < numPending; i++) {
+		removeEntityInternal(pendingRemovalEntities[i]);
+	}
+
+	pendingRemovalEntities.clear();
+}
+
+void ashley::Engine::removeEntityInternal(std::shared_ptr<ashley::Entity> entity) {
+	auto it =
+			std::find_if(entities.begin(), entities.end(),
+					[&](std::shared_ptr<ashley::Entity> ptr) {return ptr->getIndex() == entity->getIndex();});
+
+	if (it == entities.end()) {
+		throw std::bad_function_call();
+	} else {
+		entities.erase(it);
+	}
+
+	if (!entity->getFamilyBits().none()) {
+		for (auto &entry : families) {
+			const auto &family = entry.first;
+			std::vector<std::shared_ptr<ashley::Entity>> &vec = entry.second;
+
+			if (family.matches(*entity)) {
+				auto familyIt =
+						std::find_if(vec.begin(), vec.end(),
+								[&](std::shared_ptr<ashley::Entity> ptr) {return ptr->getIndex() == entity->getIndex();});
+
+				if (familyIt != vec.end()) {
+					vec.erase(familyIt);
+				}
+
+				entity->getFamilyBits()[family.getIndex()] = 0;
+			}
+		}
+	}
+
+	entity->componentAdded.remove(componentAddedListener);
+	entity->componentRemoved.remove(componentRemovedListener);
+
+	notifying = true;
+
+	for (auto &listener : listeners) {
+		listener->entityRemoved(*entity);
+	}
+
+	notifying = false;
+	removePendingListeners();
+}
+
+void ashley::Engine::EngineOperationHandler::add(ashley::Entity *entity,
+		std::shared_ptr<ashley::Component> &component) {
+	if (engine->updating) {
+		auto operation = engine->operationPool.obtain();
+		operation->makeAdd(entity, component);
+		engine->operationVector.push_back(operation);
+	} else {
+		entity->addInternal(component);
+	}
+
+}
+
+void ashley::Engine::EngineOperationHandler::remove(ashley::Entity *entity,
+		std::shared_ptr<ashley::Component> &component) {
+	if (engine->updating) {
+		auto operation = engine->operationPool.obtain();
+		operation->makeRemove(entity, component);
+		engine->operationVector.push_back(operation);
+	} else {
+		entity->removeInternal(component);
+	}
+}
+
+//void ashley::Engine::removeEntity(std::shared_ptr<ashley::Entity> ptr) {
+//	auto entitiesIt = std::find_if(entities.begin(), entities.end(),
+//			[&](std::shared_ptr<ashley::Entity> found) {return ptr == found;});
+//
+//	if (entitiesIt == entities.end()) {
+//		return;
+//	}
+//
+//	entities.erase(entitiesIt);
+//
+//	if (!ptr->getFamilyBits().none()) {
+//		for (auto &p : families) {
+//			const Family& family = p.first;
+//			std::vector<std::shared_ptr<ashley::Entity>>& vec = p.second;
+//
+//			if (family.matches(*ptr)) {
+//				auto vecIt = std::find_if(vec.begin(), vec.end(),
+//						[&](std::shared_ptr<ashley::Entity> found) {return ptr == found;});
+//
+//				if (vecIt != vec.end()) {
+//					vec.erase(vecIt);
+//				}
+//
+//				ptr->getFamilyBits().set(family.getIndex(), false);
+//			}
+//		}
+//	}
+//
+//	ptr->componentAdded.remove(componentAddedListener);
+//	ptr->componentRemoved.remove(componentRemovedListener);
+//
+//	notifying = true;
+//
+//	for (auto &listener : listeners) {
+//		listener->entityRemoved(*ptr);
+//	}
+//
+//	notifying = false;
+//	removePendingListeners();
+//}

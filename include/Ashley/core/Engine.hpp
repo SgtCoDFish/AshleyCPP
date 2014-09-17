@@ -26,6 +26,8 @@
 #include <memory>
 
 #include "Ashley/signals/Listener.hpp"
+#include "Ashley/util/ObjectPools.hpp"
+#include "Ashley/internal/ComponentOperations.hpp"
 
 namespace ashley {
 class Entity;
@@ -57,7 +59,8 @@ class EntityListener;
 class Engine {
 public:
 	Engine();
-	~Engine() = default;
+	~Engine();
+
 	Engine(const Engine &other) = delete;
 	Engine(Engine &&other) = default;
 	Engine& operator=(const Engine &other) = delete;
@@ -162,14 +165,27 @@ private:
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
 
+	std::vector<std::shared_ptr<ashley::Entity>> pendingRemovalEntities;
+
 	bool notifying;
+	bool updating;
+
+	ObjectPool<internal::ComponentOperation> operationPool;
+	std::vector<internal::ComponentOperation *> operationVector;
 
 	void componentAdded(ashley::Entity &entity);
 	void componentRemoved(ashley::Entity &entity);
+
+	void processComponentOperations();
+
 	void removePendingListeners();
+
+	void removePendingEntities();
+	void removeEntityInternal(std::shared_ptr<ashley::Entity> entity);
 
 	friend class AddedListener;
 	friend class RemovedListener;
+	friend class EngineOperationHandler;
 
 	class AddedListener : public ashley::Listener<Entity> {
 	public:
@@ -195,8 +211,26 @@ private:
 		Engine *engine = nullptr;
 	};
 
+	class EngineOperationHandler : public ashley::internal::ComponentOperationHandler {
+	public:
+		EngineOperationHandler(Engine *engine) : engine(engine) {}
+		virtual ~EngineOperationHandler() {
+			//
+		}
+
+		void add(ashley::Entity *entity,
+				std::shared_ptr<ashley::Component> &component) override;
+		void remove(ashley::Entity *entity,
+				std::shared_ptr<ashley::Component> &component) override;
+
+	private:
+		Engine *engine = nullptr;
+	};
+
 	std::shared_ptr<AddedListener> componentAddedListener;
 	std::shared_ptr<RemovedListener> componentRemovedListener;
+
+	std::unique_ptr<EngineOperationHandler> operationHandler;
 };
 }
 
