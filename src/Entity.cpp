@@ -17,6 +17,7 @@
 #include <cassert>
 #include <cstdint>
 
+#include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -24,8 +25,8 @@
 #include <memory>
 #include <utility>
 
-#include "Ashley/signals/Signal.hpp"
 #include "Ashley/core/Entity.hpp"
+#include "Ashley/signals/Signal.hpp"
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/ComponentType.hpp"
 
@@ -33,6 +34,10 @@ uint64_t ashley::Entity::nextIndex = 0;
 
 ashley::Entity::Entity() :
 		index(nextIndex++) {
+}
+
+ashley::Entity::~Entity() {
+	removeAll();
 }
 
 ashley::Entity &ashley::Entity::add(std::shared_ptr<Component> component) {
@@ -48,6 +53,9 @@ ashley::Entity &ashley::Entity::add(std::shared_ptr<Component> component) {
 std::shared_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIndex) {
 	std::shared_ptr<ashley::Component> com = nullptr;
 
+	std::cout << "In remove(ti): type is " << typeIndex.name() << ".\n";
+	std::cout.flush();
+
 	try {
 		com = componentMap.at(typeIndex);
 		return removeImpl(com);
@@ -57,8 +65,11 @@ std::shared_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIn
 
 }
 
-std::shared_ptr<ashley::Component> ashley::Entity::remove(std::shared_ptr<ashley::Component> component) {
-	return remove(component->identify());
+std::shared_ptr<ashley::Component> ashley::Entity::remove(std::shared_ptr<ashley::Component> &component) {
+	auto index = component->identify();
+	std::cout << "In remove(shr): type is " << index.name() << ".\n";
+	std::cout.flush();
+	return remove(index);
 }
 
 void ashley::Entity::removeAll() {
@@ -66,7 +77,7 @@ void ashley::Entity::removeAll() {
 	familyBits.reset();
 
 	for (auto &p : componentMap) {
-		p.second.reset();
+		p.second = nullptr;
 	}
 
 	componentMap.clear();
@@ -88,6 +99,7 @@ const ashley::BitsType &ashley::Entity::getComponentBits() const {
 
 ashley::Entity &ashley::Entity::addInternal(std::shared_ptr<ashley::Component> component) {
 	auto type = component->identify();
+	std::cout << "Adding type: " << type.name() << ".\n";
 	auto typeID = ashley::ComponentType::getIndexFor(type);
 
 	if (componentBits[typeID]) {
@@ -117,6 +129,9 @@ std::shared_ptr<ashley::Component> ashley::Entity::removeImpl(std::shared_ptr<Co
 std::shared_ptr<ashley::Component> ashley::Entity::removeInternal(std::shared_ptr<Component> &component) {
 	auto typeIndex = component->identify();
 	auto id = ashley::ComponentType::getIndexFor(typeIndex);
+
+	std::cout << "In remove(intern): type is " << typeIndex.name() << ".\n";
+	std::cout.flush();
 
 	if (componentBits[id] == true) {
 		auto retVal = std::shared_ptr<ashley::Component>(componentMap[typeIndex]);

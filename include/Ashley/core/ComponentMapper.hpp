@@ -17,12 +17,12 @@
 #ifndef COMPONENTMAPPER_HPP_
 #define COMPONENTMAPPER_HPP_
 
-#include <typeindex>
-#include <typeinfo>
 #include <memory>
+#include <typeinfo>
+#include <typeindex>
 
-#include "Ashley/core/Entity.hpp"
 #include "Ashley/core/ComponentType.hpp"
+#include "Ashley/core/Entity.hpp"
 
 namespace ashley {
 

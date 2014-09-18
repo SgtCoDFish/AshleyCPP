@@ -14,15 +14,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include <cstdint>
-
-#include <string>
 #include <sstream>
-#include <unordered_map>
-#include <memory>
-#include <bitset>
-#include <utility>
+#include <stdexcept>
 
+#include "Ashley/core/ComponentType.hpp"
+#include "Ashley/core/Entity.hpp"
 #include "Ashley/core/Family.hpp"
 
 uint64_t ashley::Family::familyIndex = 0;

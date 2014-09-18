@@ -17,23 +17,30 @@
 #ifndef ENGINE_HPP_
 #define ENGINE_HPP_
 
-#include "Ashley/core/Family.hpp"
-
-#include <typeinfo>
-#include <typeindex>
-#include <vector>
-#include <unordered_map>
 #include <memory>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
-#include "Ashley/signals/Listener.hpp"
-#include "Ashley/util/ObjectPools.hpp"
+#include "Ashley/core/Entity.hpp"
+#include "Ashley/core/EntityListener.hpp"
+#include "Ashley/core/Family.hpp"
 #include "Ashley/internal/ComponentOperations.hpp"
+#include "Ashley/signals/Listener.hpp"
+#include "Ashley/signals/Signal.hpp"
+#include "Ashley/util/ObjectPools.hpp"
 
 namespace ashley {
-class Entity;
+class Component;
 class EntitySystem;
-class EntityListener;
+class Entity;
+class Family;
+} /* namespace ashley */
 
+
+namespace ashley {
 /**
  * <p>The heart of the Entity framework. It is responsible for keeping track of {@link Entity} and
  * managing {@link EntitySystem} objects. The Engine should be updated every tick via the {@link #update(float)} method.</p>
@@ -76,7 +83,7 @@ public:
 	 *
 	 * <p>Note that if no external pointers are maintained, the {@link Entity} will be destroyed immediately.</p>
 	 */
-	void removeEntity(std::shared_ptr<ashley::Entity> ptr);
+	void removeEntity(std::shared_ptr<ashley::Entity> &ptr);
 
 	/**
 	 * Removes all entities registered with this Engine.
@@ -160,7 +167,7 @@ private:
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
 	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
+	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
@@ -170,11 +177,10 @@ private:
 	bool notifying;
 	bool updating;
 
-	ObjectPool<internal::ComponentOperation> operationPool;
-	std::vector<internal::ComponentOperation *> operationVector;
+	ObjectPool<ComponentOperation> operationPool;
+	std::vector<ComponentOperation *> operationVector;
 
-	void componentAdded(ashley::Entity &entity);
-	void componentRemoved(ashley::Entity &entity);
+	void updateFamilyMembership(ashley::Entity &entity);
 
 	void processComponentOperations();
 
@@ -192,7 +198,7 @@ private:
 		AddedListener(Engine *engine) : engine(engine) {}
 
 		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
-			engine->componentAdded(object);
+			engine->updateFamilyMembership(object);
 		}
 
 	private:
@@ -204,14 +210,14 @@ private:
 		RemovedListener(Engine *engine) : engine(engine) {}
 
 		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
-			engine->componentRemoved(object);
+			engine->updateFamilyMembership(object);
 		}
 
 	private:
 		Engine *engine = nullptr;
 	};
 
-	class EngineOperationHandler : public ashley::internal::ComponentOperationHandler {
+	class EngineOperationHandler : public ashley::ComponentOperationHandler {
 	public:
 		EngineOperationHandler(Engine *engine) : engine(engine) {}
 		virtual ~EngineOperationHandler() {
@@ -219,16 +225,16 @@ private:
 		}
 
 		void add(ashley::Entity *entity,
-				std::shared_ptr<ashley::Component> &component) override;
+				std::shared_ptr<ashley::Component> component) override;
 		void remove(ashley::Entity *entity,
-				std::shared_ptr<ashley::Component> &component) override;
+				std::shared_ptr<ashley::Component> component) override;
 
 	private:
 		Engine *engine = nullptr;
 	};
 
-	std::shared_ptr<AddedListener> componentAddedListener;
-	std::shared_ptr<RemovedListener> componentRemovedListener;
+	std::shared_ptr<ashley::Listener<Entity>> componentAddedListener;
+	std::shared_ptr<ashley::Listener<Entity>> componentRemovedListener;
 
 	std::unique_ptr<EngineOperationHandler> operationHandler;
 };

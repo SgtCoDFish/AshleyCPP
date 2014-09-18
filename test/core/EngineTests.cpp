@@ -28,6 +28,7 @@
 #include "Ashley/core/EntityListener.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 #include "Ashley/core/Component.hpp"
+#include "Ashley/core/ComponentType.hpp"
 #include "Ashley/core/Family.hpp"
 
 #include "gtest/gtest.h"
@@ -37,6 +38,7 @@ using ashley::Entity;
 using ashley::EntityListener;
 using ashley::EntitySystem;
 using ashley::Component;
+using ashley::ComponentType;
 using ashley::Family;
 
 namespace {
@@ -49,8 +51,8 @@ class ComponentC : public Component {
 
 class EntityListenerMock : public EntityListener {
 public:
-	uint64_t addedCount = { 0 };
-	uint64_t removedCount = { 0 };
+	uint64_t addedCount = 0;
+	uint64_t removedCount = 0;
 
 	void entityAdded(Entity &entity) override {
 		++addedCount;
@@ -340,7 +342,7 @@ TEST_F(EngineTest, EntityForFamilyWithRemoval) {
 	ASSERT_EQ(entities->size(), 1);
 	ASSERT_TRUE(
 			std::find_if(entities->begin(), entities->end(),
-					[&](std::shared_ptr<Entity> found) {return found == e;})
+					[&](std::shared_ptr<Entity> &found) {return found == e;})
 					!= entities->end());
 
 	engine.removeEntity(e);
@@ -378,7 +380,7 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
 	std::for_each(familyEntities->begin(), familyEntities->end(),
-			[&](std::shared_ptr<ashley::Entity> found) {
+			[&](std::shared_ptr<ashley::Entity> &found) {
 				if(found == e1) e1Found = true;
 				else if(found == e2) e2Found = true;
 				else if(found == e3) e3Found = true;
@@ -388,22 +390,63 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	ASSERT_EQ(e2Found, false);
 	ASSERT_EQ(e3Found, true);
 	ASSERT_EQ(e4Found, true);
-
+	std::cout << "one\n";
 	e1->remove<ComponentA>();
+	std::cout << "two\n";
+	std::cout.flush();
+
 	engine.removeEntity(e3);
+	std::cout << "three\n";
+	std::cout.flush();
 
 	e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
 	std::for_each(familyEntities->begin(), familyEntities->end(),
-			[&](std::shared_ptr<ashley::Entity> found) {
+			[&](std::shared_ptr<ashley::Entity> &found) {
 				if(found == e1) e1Found = true;
 				else if(found == e2) e2Found = true;
 				else if(found == e3) e3Found = true;
 				else if(found == e4) e4Found = true;});
+	std::cout << "four\n";
 
 	EXPECT_EQ(e1Found, false);
 	EXPECT_EQ(e2Found, false);
 	EXPECT_EQ(e3Found, false);
 	EXPECT_EQ(e4Found, true);
 	ASSERT_EQ(1, familyEntities->size());
+	familyEntities = nullptr;
+
+	std::cout << "e1: " << e1.use_count() << "\n";
+	std::cout << "e2: " << e2.use_count() << "\n";
+	std::cout << "e3: " << e3.use_count() << "\n";
+	std::cout << "e4: " << e4.use_count() << "\n";
+	std::cout.flush();
+}
+
+TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
+	auto entsWithAOnly = engine.getEntitiesFor(Family::getFor(ComponentType::getBitsFor( {
+			typeid(ComponentA) }), // must have A
+	ashley::BitsType(), // ignore
+			ComponentType::getBitsFor( { typeid(ComponentB) }))); // must not have B
+
+	auto entsWithB = engine.getEntitiesFor(Family::getFor({typeid(ComponentB)}));
+
+	auto e1 = std::make_shared<Entity>();
+	auto e2 = std::make_shared<Entity>();
+
+	engine.addEntity(e1);
+	engine.addEntity(e2);
+
+	e1->add<ComponentA>();
+
+	e2->add<ComponentA>();
+	e2->add<ComponentB>();
+
+	ASSERT_EQ(1, entsWithAOnly->size());
+	ASSERT_EQ(1, entsWithB->size());
+
+	e2->remove<ComponentB>();
+
+	ASSERT_EQ(2, entsWithAOnly->size());
+	ASSERT_EQ(0, entsWithB->size());
 }

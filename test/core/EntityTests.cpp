@@ -257,32 +257,35 @@ TEST_F(EntityTest, AddSameComponent) {
 // Ensure the component listener signals work as intended
 TEST_F(EntityTest, ComponentListener) {
 	ashley::Entity e;
-	auto addPtr = std::make_shared<EntityListenerMock>();
-	auto remPtr = std::make_shared<EntityListenerMock>();
+	std::shared_ptr<ashley::Listener<ashley::Entity>> addPtr = std::make_shared<EntityListenerMock>();
+	std::shared_ptr<ashley::Listener<ashley::Entity>> remPtr = std::make_shared<EntityListenerMock>();
+
+	auto dynAdd = std::dynamic_pointer_cast<EntityListenerMock>(addPtr);
+	auto dynRem = std::dynamic_pointer_cast<EntityListenerMock>(remPtr);
 
 	e.componentAdded.add(addPtr);
 	e.componentRemoved.add(remPtr);
 
-	ASSERT_EQ(0, addPtr->counter);
-	ASSERT_EQ(0, remPtr->counter);
+	ASSERT_EQ(0, dynAdd->counter);
+	ASSERT_EQ(0, dynRem->counter);
 
 	e.add<ashley::test::PositionComponent>(5, 2);
 
-	ASSERT_EQ(1, addPtr->counter);
-	ASSERT_EQ(0, remPtr->counter);
+	ASSERT_EQ(1, dynAdd->counter);
+	ASSERT_EQ(0, dynRem->counter);
 
 	e.remove<ashley::test::PositionComponent>();
 
-	ASSERT_EQ(1, addPtr->counter);
-	ASSERT_EQ(1, remPtr->counter);
+	ASSERT_EQ(1, dynAdd->counter);
+	ASSERT_EQ(1, dynRem->counter);
 
 	e.add<ashley::test::VelocityComponent>(5, 222);
 
-	ASSERT_EQ(2, addPtr->counter);
-	ASSERT_EQ(1, remPtr->counter);
+	ASSERT_EQ(2, dynAdd->counter);
+	ASSERT_EQ(1, dynRem->counter);
 
 	e.remove<ashley::test::VelocityComponent>();
 
-	ASSERT_EQ(2, addPtr->counter);
-	ASSERT_EQ(2, remPtr->counter);
+	ASSERT_EQ(2, dynAdd->counter);
+	ASSERT_EQ(2, dynRem->counter);
 }

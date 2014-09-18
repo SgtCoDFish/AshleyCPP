@@ -17,18 +17,16 @@
 #ifndef COMPONENTTYPE_HPP_
 #define COMPONENTTYPE_HPP_
 
-#include <cstdint>
-
 #include <bitset>
-#include <typeinfo>
+#include <cstdint>
+#include <initializer_list>
 #include <typeindex>
 #include <unordered_map>
 
 #include "Ashley/AshleyConstants.hpp"
+#include "Ashley/core/Component.hpp"
 
 namespace ashley {
-class Component;
-
 /**
  * <p>Uniquely identifies a {@link Component} sub-class, assigning them an index which is used internally for fast comparison and retrieval.</p>
  * <p>Functions which accept a type are overloaded to accept both std::type_index (preferred) and std::type_info. This means that a {@link Component}, c, type can be passed as either std::type_index(typeid(c)) or just as typeid(c).</p>

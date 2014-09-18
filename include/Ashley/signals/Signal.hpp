@@ -38,6 +38,7 @@ public:
 	}
 
 	~Signal() = default;
+
 	Signal(const Signal &other) = default;
 	Signal(Signal &&other) = default;
 	Signal& operator=(const Signal &other) = default;
@@ -47,7 +48,7 @@ public:
 	 * <p>Add a {@link Listener} to this {@link Signal}</p>
 	 * @param listener The {@link Listener} to be added
 	 */
-	void add(std::shared_ptr<Listener<T>> listener) {
+	void add(std::shared_ptr<Listener<T>> &listener) {
 		listeners.push_back(std::shared_ptr<Listener<T>>(listener));
 	}
 
@@ -55,13 +56,21 @@ public:
 	 * <p>Remove a {@link Listener} from this {@link Signal}.</p>
 	 * @param listener The {@link Listener} to be removed.
 	 */
-	void remove(std::shared_ptr<Listener<T>> listener) {
-		auto found = std::find_if(listeners.begin(), listeners.end(),
-				[&](std::shared_ptr<Listener<T>> found) {return listener == found;});
+	void remove(std::shared_ptr<Listener<T>> &listener) {
+		auto it = std::find_if(listeners.begin(), listeners.end(),
+				[&](std::shared_ptr<Listener<T>> &found) {return listener == found;});
 
-		if (found != listeners.end()) {
-			listeners.erase(found);
+		if (it != listeners.end()) {
+			listeners.erase(it);
 		}
+	}
+
+	void removeAll() {
+		while (listeners.size() > 0) {
+			remove(listeners.front());
+		}
+
+		listeners.clear();
 	}
 
 	/**

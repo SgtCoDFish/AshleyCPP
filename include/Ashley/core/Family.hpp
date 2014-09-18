@@ -17,21 +17,19 @@
 #ifndef FAMILY_HPP_
 #define FAMILY_HPP_
 
-#include <cstdint>
-
-#include <string>
 #include <bitset>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
-#include <memory>
-#include <utility>
-#include <functional>
 
 #include "Ashley/AshleyConstants.hpp"
-#include "Ashley/core/Entity.hpp"
 
 namespace ashley {
-
+class Entity;
 /**
  * Represents a group of {@link Component}s. It is used to describe what {@link Entity} objects an
  * {@link EntitySystem} should process.

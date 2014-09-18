@@ -49,7 +49,7 @@ class SignalTest : public ::testing::Test {
 protected:
 	Dummy dummy;
 	Signal<Dummy> signal;
-	std::shared_ptr<ListenerMock> listener;
+	std::shared_ptr<Listener<Dummy>> listener;
 
 	SignalTest() :
 			dummy(), signal() {
@@ -63,11 +63,12 @@ protected:
 // Check that basic signal/listener functionality works.
 TEST_F(SignalTest, AddListenerAndDispatch) {
 	signal.add(listener);
+	auto dynList = std::dynamic_pointer_cast<ListenerMock>(listener);
 
 	for (int i = 0; i < 10; i++) {
-		ASSERT_EQ(i, listener->count);
+		ASSERT_EQ(i, dynList->count);
 		signal.dispatch(dummy);
-		ASSERT_EQ(i + 1, listener->count);
+		ASSERT_EQ(i + 1, dynList->count);
 	}
 }
 
@@ -104,31 +105,32 @@ TEST_F(SignalTest, AddListenersAndDispatch) {
 // Check that removing a listener works correctly.
 TEST_F(SignalTest, AddListenerDispatchAndRemove) {
 	std::shared_ptr<ListenerMock> lBPtr = std::make_shared<ListenerMock>();
-
+	auto base = std::dynamic_pointer_cast<Listener<Dummy>>(lBPtr);
+	auto dynList = std::dynamic_pointer_cast<ListenerMock>(listener);
 	signal.add(listener);
-	signal.add(lBPtr);
+	signal.add(base);
 
 	const int numDispatches = 5;
 
 	for (int i = 0; i < numDispatches; i++) {
-		ASSERT_EQ(i, listener->count);
+		ASSERT_EQ(i, dynList->count);
 		ASSERT_EQ(i, lBPtr->count);
 
 		signal.dispatch(dummy);
 
-		ASSERT_EQ(i + 1, listener->count);
+		ASSERT_EQ(i + 1, dynList->count);
 		ASSERT_EQ(i + 1, lBPtr->count);
 	}
 
-	signal.remove(lBPtr);
+	signal.remove(base);
 
 	for (int i = 0; i < numDispatches; i++) {
-		ASSERT_EQ(i + numDispatches, listener->count);
+		ASSERT_EQ(i + numDispatches, dynList->count);
 		ASSERT_EQ(numDispatches, lBPtr->count);
 
 		signal.dispatch(dummy);
 
-		ASSERT_EQ(i + 1 + numDispatches, listener->count);
+		ASSERT_EQ(i + 1 + numDispatches, dynList->count);
 		ASSERT_EQ(numDispatches, lBPtr->count)<< "Listener not removed correctly.";
 	}
 }

@@ -19,6 +19,7 @@
 
 #include <cstdint>
 
+#include <iostream>
 #include <vector>
 #include <bitset>
 #include <typeinfo>
@@ -27,13 +28,13 @@
 #include <utility>
 
 #include "Ashley/AshleyConstants.hpp"
+#include "Ashley/core/Engine.hpp"
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/ComponentType.hpp"
 #include "Ashley/signals/Signal.hpp"
 #include "Ashley/internal/ComponentOperations.hpp"
 
 namespace ashley {
-class Engine;
 /**
  * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
@@ -59,7 +60,7 @@ public:
 	 */
 	Entity();
 
-	~Entity() = default;
+	~Entity();
 	Entity(const Entity &other) = default;
 	Entity(Entity &&other) = default;
 	Entity& operator=(const Entity &other) = default;
@@ -81,12 +82,13 @@ public:
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
 //		auto type = std::type_index(typeid(C));
 
-		auto mapPtr = std::dynamic_pointer_cast<ashley::Component>(std::make_shared<C>(args...));
+		auto mapPtr = std::make_shared<C>(args...);
+		std::shared_ptr<ashley::Component> comPtr = std::dynamic_pointer_cast<ashley::Component>(mapPtr);
 
 		if (operationHandler != nullptr) {
-			operationHandler->add(this, mapPtr);
+			operationHandler->add(this, comPtr);
 		} else {
-			addInternal(mapPtr);
+			addInternal(comPtr);
 		}
 
 		return *this;
@@ -104,7 +106,7 @@ public:
 	 * @param component the {@link Component} to remove.
 	 * @return the removed {@link Component} or nullptr if not found.
 	 */
-	std::shared_ptr<ashley::Component> remove(std::shared_ptr<ashley::Component> component);
+	std::shared_ptr<ashley::Component> remove(std::shared_ptr<ashley::Component> &component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
@@ -113,6 +115,8 @@ public:
 	 */
 	template<typename C> std::shared_ptr<ashley::Component> remove() {
 		auto typeIndex = std::type_index(typeid(C));
+		std::cout << "In remove: type is " << typeIndex.name() << ".\n";
+		std::cout.flush();
 		auto typeID = ashley::ComponentType::getIndexFor<C>();
 
 		if (componentBits[typeID] == true) {
@@ -222,7 +226,7 @@ private:
 	ashley::BitsType componentBits;
 	ashley::BitsType familyBits;
 
-	internal::ComponentOperationHandler *operationHandler = nullptr;
+	ComponentOperationHandler *operationHandler = nullptr;
 
 	Entity &addInternal(std::shared_ptr<ashley::Component> component);
 
@@ -235,7 +239,7 @@ private:
 	 */
 	std::shared_ptr<ashley::Component> removeInternal(std::shared_ptr<Component> &component);
 
-	friend class internal::ComponentOperationHandler;
+	friend class ComponentOperationHandler;
 };
 
 }
