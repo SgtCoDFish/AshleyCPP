@@ -19,7 +19,6 @@
 
 #include <cstdint>
 
-#include <iostream>
 #include <vector>
 #include <bitset>
 #include <typeinfo>
@@ -115,8 +114,6 @@ public:
 	 */
 	template<typename C> std::shared_ptr<ashley::Component> remove() {
 		auto typeIndex = std::type_index(typeid(C));
-		std::cout << "In remove: type is " << typeIndex.name() << ".\n";
-		std::cout.flush();
 		auto typeID = ashley::ComponentType::getIndexFor<C>();
 
 		if (componentBits[typeID] == true) {

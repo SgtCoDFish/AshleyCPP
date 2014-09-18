@@ -114,7 +114,7 @@ Ticked classes have both their implementation and tests complete.
   - [x] Poolable
   
 Roadmap from commits to main version since last major release:
-- [ ] Check "Family filtering issue" - [Java Commit](https://github.com/libgdx/ashley/commit/325223d82935138fc5a28505660c2b23a05cfc6b)
+- [x] Check "Family filtering issue" - [Java Commit](https://github.com/libgdx/ashley/commit/325223d82935138fc5a28505660c2b23a05cfc6b)
 - [ ] Add `EntitySystem::setProcessing` and update Engine tests
 - [ ] Add `Engine::getSystems`
 - [x] Check issue `removing Entities mid iteration` and add tests - [Java Commit](https://github.com/libgdx/ashley/commit/a2a63f4e42e09e3221331b2333e675b3a4ab6fe3)

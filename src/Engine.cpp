@@ -204,7 +204,6 @@ void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 		bool belongsToFamily = entPtr->getFamilyBits()[family.getIndex()];
 		bool matches = family.matches(entity);
 
-
 		if (!belongsToFamily && matches) {
 			vec.push_back(entPtr);
 			entPtr->getFamilyBits()[family.getIndex()] = true;
@@ -279,7 +278,6 @@ void ashley::Engine::removeEntityInternal(std::shared_ptr<ashley::Entity> entity
 	} else {
 		entities.erase(it);
 	}
-
 
 	if (!entity->getFamilyBits().none()) {
 		for (auto &entry : families) {
