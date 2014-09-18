@@ -60,7 +60,7 @@ public:
 	 */
 	Entity();
 
-	~Entity();
+	~Entity() = default;
 	Entity(const Entity &other) = default;
 	Entity(Entity &&other) = default;
 	Entity& operator=(const Entity &other) = default;
@@ -193,27 +193,27 @@ public:
 		return familyBits;
 	}
 
-	const bool operator==(const ashley::Entity &other) const {
+	bool operator==(const ashley::Entity &other) const {
 		return this->index == other.index;
 	}
 
-	const bool operator!=(const ashley::Entity &other) const {
+	bool operator!=(const ashley::Entity &other) const {
 		return this->index != other.index;
 	}
 
-	const bool operator<(const ashley::Entity &other) const {
+	bool operator<(const ashley::Entity &other) const {
 		return this->index < other.index;
 	}
 
-	const bool operator<=(const ashley::Entity &other) const {
+	bool operator<=(const ashley::Entity &other) const {
 		return this->index <= other.index;
 	}
 
-	const bool operator>(const ashley::Entity &other) const {
+	bool operator>(const ashley::Entity &other) const {
 		return this->index > other.index;
 	}
 
-	const bool operator>=(const ashley::Entity &other) const {
+	bool operator>=(const ashley::Entity &other) const {
 		return this->index >= other.index;
 	}
 private:

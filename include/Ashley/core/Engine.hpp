@@ -66,7 +66,7 @@ namespace ashley {
 class Engine {
 public:
 	Engine();
-	~Engine();
+	~Engine() = default;
 
 	Engine(const Engine &other) = delete;
 	Engine(Engine &&other) = default;
@@ -224,9 +224,9 @@ private:
 			//
 		}
 
-		void add(ashley::Entity *entity,
+		virtual void add(ashley::Entity *entity,
 				std::shared_ptr<ashley::Component> component) override;
-		void remove(ashley::Entity *entity,
+		virtual void remove(ashley::Entity *entity,
 				std::shared_ptr<ashley::Component> component) override;
 
 	private:

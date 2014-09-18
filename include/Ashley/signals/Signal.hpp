@@ -46,10 +46,10 @@ public:
 
 	/**
 	 * <p>Add a {@link Listener} to this {@link Signal}</p>
-	 * @param listener The {@link Listener} to be added
+	 * @param listener The {@link Listener} to be added, passed by value to create an automatic copy which is used.
 	 */
-	void add(std::shared_ptr<Listener<T>> &listener) {
-		listeners.push_back(std::shared_ptr<Listener<T>>(listener));
+	void add(std::shared_ptr<Listener<T>> listener) {
+		listeners.push_back(listener);
 	}
 
 	/**

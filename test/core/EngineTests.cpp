@@ -54,11 +54,11 @@ public:
 	uint64_t addedCount = 0;
 	uint64_t removedCount = 0;
 
-	void entityAdded(Entity &entity) override {
+	virtual void entityAdded(Entity &entity) override {
 		++addedCount;
 	}
 
-	void entityRemoved(Entity &entity) override {
+	virtual void entityRemoved(Entity &entity) override {
 		++removedCount;
 	}
 };
@@ -270,7 +270,7 @@ TEST_F(EngineTest, SystemUpdateOrder) {
 
 	engine.update(deltaTime);
 
-	uint64_t previous = 0; // differs from java version because we can use unsigned ints
+	uint64_t previous = 0;
 
 	for (auto it = updates->begin(); it != updates->end(); it++) {
 		ASSERT_TRUE((*it) >= previous);
@@ -390,14 +390,9 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	ASSERT_EQ(e2Found, false);
 	ASSERT_EQ(e3Found, true);
 	ASSERT_EQ(e4Found, true);
-	std::cout << "one\n";
-	e1->remove<ComponentA>();
-	std::cout << "two\n";
-	std::cout.flush();
 
+	e1->remove<ComponentA>();
 	engine.removeEntity(e3);
-	std::cout << "three\n";
-	std::cout.flush();
 
 	e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
@@ -407,20 +402,12 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 				else if(found == e2) e2Found = true;
 				else if(found == e3) e3Found = true;
 				else if(found == e4) e4Found = true;});
-	std::cout << "four\n";
 
 	EXPECT_EQ(e1Found, false);
 	EXPECT_EQ(e2Found, false);
 	EXPECT_EQ(e3Found, false);
 	EXPECT_EQ(e4Found, true);
 	ASSERT_EQ(1, familyEntities->size());
-	familyEntities = nullptr;
-
-	std::cout << "e1: " << e1.use_count() << "\n";
-	std::cout << "e2: " << e2.use_count() << "\n";
-	std::cout << "e3: " << e3.use_count() << "\n";
-	std::cout << "e4: " << e4.use_count() << "\n";
-	std::cout.flush();
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
