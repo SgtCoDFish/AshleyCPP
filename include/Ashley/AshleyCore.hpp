@@ -18,13 +18,13 @@
 #define ASHLEY_HPP_
 
 // include all AshleyCPP files here
+#include "core/Family.hpp"
 #include "core/Component.hpp"
 #include "core/ComponentMapper.hpp"
 #include "core/ComponentType.hpp"
 #include "core/Engine.hpp"
 #include "core/Entity.hpp"
 #include "core/EntityListener.hpp"
-#include "core/Family.hpp"
 
 #include "signals/Signal.hpp"
 #include "signals/Listener.hpp"

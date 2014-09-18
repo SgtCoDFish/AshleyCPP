@@ -17,9 +17,9 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "Ashley/core/Family.hpp"
 #include "Ashley/core/ComponentType.hpp"
 #include "Ashley/core/Entity.hpp"
-#include "Ashley/core/Family.hpp"
 
 uint64_t ashley::Family::familyIndex = 0;
 std::unordered_map<ashley::Family::FamilyHashType, std::shared_ptr<ashley::Family>> ashley::Family::families;
