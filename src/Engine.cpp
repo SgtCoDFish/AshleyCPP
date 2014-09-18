@@ -38,23 +38,23 @@ ashley::Engine::Engine() :
 	operationHandler = std::unique_ptr<EngineOperationHandler>(new EngineOperationHandler(this));
 }
 
-//ashley::Engine::~Engine() {
-//	for (auto &op : operationVector) {
-//		operationPool.free(op);
-//	}
-////	operationVector.clear();
-////	listeners.clear();
-////
-////	pendingRemovalEntities.clear();
-////	removalPendingListeners.clear();
-////	entities.clear();
-////	families.clear();
-////
-////	systems.clear();
-////	systemsByClass.clear();
-////
-////	operationHandler = nullptr;
-//}
+ashley::Engine::~Engine() {
+	for (auto &op : operationVector) {
+		operationPool.free(op);
+	}
+	operationVector.clear();
+	listeners.clear();
+
+	pendingRemovalEntities.clear();
+	removalPendingListeners.clear();
+	entities.clear();
+	families.clear();
+
+	systems.clear();
+	systemsByClass.clear();
+
+	operationHandler = nullptr;
+}
 
 void ashley::Engine::addEntity(std::shared_ptr<ashley::Entity> ptr) {
 	entities.push_back(ptr);
@@ -191,7 +191,7 @@ void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 					[&](std::shared_ptr<ashley::Entity> &ptr) {return ptr->getIndex() == entity.getIndex();});
 
 	if (it == entities.end()) {
-		throw std::bad_function_call();
+		// not the end of the world if we had a bad call, probably smells of things getting destroyed incorrectly.
 		return;
 	}
 
@@ -208,7 +208,8 @@ void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 			vec.push_back(entPtr);
 			entPtr->getFamilyBits()[family.getIndex()] = true;
 		} else if (belongsToFamily && !matches) {
-			auto familyIt = std::find_if(vec.begin(), vec.end(), [&](std::shared_ptr<ashley::Entity> &found){ return *found == entity;});
+			auto familyIt = std::find_if(vec.begin(), vec.end(),
+					[&](std::shared_ptr<ashley::Entity> &found) {return *found == entity;});
 			entPtr->getFamilyBits()[family.getIndex()] = false;
 			vec.erase(familyIt);
 		}
@@ -269,9 +270,8 @@ void ashley::Engine::removePendingEntities() {
 }
 
 void ashley::Engine::removeEntityInternal(std::shared_ptr<ashley::Entity> entity) {
-	auto it =
-			std::find_if(entities.begin(), entities.end(),
-					[&](std::shared_ptr<ashley::Entity> &ptr) {return ptr == entity;});
+	auto it = std::find_if(entities.begin(), entities.end(),
+			[&](std::shared_ptr<ashley::Entity> &ptr) {return ptr == entity;});
 
 	if (it == entities.end()) {
 		throw std::bad_function_call();
@@ -285,9 +285,8 @@ void ashley::Engine::removeEntityInternal(std::shared_ptr<ashley::Entity> entity
 			std::vector<std::shared_ptr<ashley::Entity>> &vec = entry.second;
 
 			if (family.matches(*entity)) {
-				auto familyIt =
-						std::find_if(vec.begin(), vec.end(),
-								[&](std::shared_ptr<ashley::Entity> &ptr) {return ptr == entity;});
+				auto familyIt = std::find_if(vec.begin(), vec.end(),
+						[&](std::shared_ptr<ashley::Entity> &ptr) {return ptr == entity;});
 
 				if (familyIt != vec.end()) {
 					vec.erase(familyIt);

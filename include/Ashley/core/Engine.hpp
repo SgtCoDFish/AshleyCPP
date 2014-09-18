@@ -39,7 +39,6 @@ class Entity;
 class Family;
 } /* namespace ashley */
 
-
 namespace ashley {
 /**
  * <p>The heart of the Entity framework. It is responsible for keeping track of {@link Entity} and
@@ -66,7 +65,7 @@ namespace ashley {
 class Engine {
 public:
 	Engine();
-	~Engine() = default;
+	~Engine();
 
 	Engine(const Engine &other) = delete;
 	Engine(Engine &&other) = default;
@@ -167,7 +166,7 @@ private:
 	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
 	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>> families;
+	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
