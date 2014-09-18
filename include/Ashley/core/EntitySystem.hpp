@@ -32,6 +32,9 @@ class Engine;
  * @author Ashley Davis (SgtCoDFish)
  */
 class EntitySystem {
+private:
+	bool processing;
+
 public:
 	/** The default priority when calling the empty constructor */
 	static const constexpr uint64_t DEFAULT_PRIORITY = 0;
@@ -58,7 +61,7 @@ public:
 	 */
 
 	EntitySystem(uint64_t priority) :
-			priority(priority) {
+			processing(true), priority(priority) {
 	}
 
 	/**
@@ -85,7 +88,15 @@ public:
 	 * @return Whether or not the system should be processed.
 	 */
 	virtual inline bool checkProcessing() {
-		return true;
+		return processing;
+	}
+
+	/**
+	 * <p>Switches this {@link EntitySystem}'s processing on or off.
+	 * @param processing the state of processing for this system.
+	 */
+	void setProcessing(bool processing) {
+		this->processing = processing;
 	}
 
 	/**

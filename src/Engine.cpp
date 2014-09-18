@@ -147,6 +147,10 @@ std::vector<std::shared_ptr<ashley::Entity>> *ashley::Engine::getEntitiesFor(
 	return &(families[family]);
 }
 
+const std::vector<std::shared_ptr<ashley::EntitySystem>> *ashley::Engine::getSystems() const {
+	return &systems;
+}
+
 std::vector<std::shared_ptr<ashley::Entity>> *ashley::Engine::getEntitiesFor(
 		std::shared_ptr<ashley::Family> family) {
 	return getEntitiesFor(*family);

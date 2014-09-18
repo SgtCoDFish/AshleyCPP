@@ -115,8 +115,8 @@ Ticked classes have both their implementation and tests complete.
   
 Roadmap from commits to main version since last major release:
 - [x] Check "Family filtering issue" - [Java Commit](https://github.com/libgdx/ashley/commit/325223d82935138fc5a28505660c2b23a05cfc6b)
-- [ ] Add `EntitySystem::setProcessing` and update Engine tests
-- [ ] Add `Engine::getSystems`
+- [x] Add `EntitySystem::setProcessing` and update Engine tests
+- [x] Add `Engine::getSystems` and test
 - [x] Check issue `removing Entities mid iteration` and add tests - [Java Commit](https://github.com/libgdx/ashley/commit/a2a63f4e42e09e3221331b2333e675b3a4ab6fe3)
 - [ ] Add IntervalIteratingSystem and IntervalSystem - [Java Commit](https://github.com/libgdx/ashley/commit/47bf907b15ad8ed4297a10eb6b6b311e1542dcb8)
 

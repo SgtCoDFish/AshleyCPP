@@ -66,7 +66,6 @@ public:
 class EntitySystemMock : public EntitySystem {
 private:
 	std::shared_ptr<std::vector<uint64_t>> updates;
-	bool active = { true };
 
 public:
 	uint64_t updateCalls = { 0 };
@@ -94,14 +93,6 @@ public:
 
 	void removedFromEngine(Engine &engine) override {
 		++removedCalls;
-	}
-
-	bool checkProcessing() override {
-		return active;
-	}
-
-	void setActive(bool active) {
-		this->active = active;
 	}
 };
 
@@ -285,7 +276,7 @@ TEST_F(EngineTest, IgnoreSystem) {
 	const int numUpdates = 10;
 
 	for (int i = 0; i < numUpdates; i++) {
-		aptr->setActive(i % 2 == 0); // set to active if i is even
+		aptr->setProcessing(i % 2 == 0); // set to active if i is even
 
 		engine.update(deltaTime);
 
@@ -416,7 +407,7 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
 	ashley::BitsType(), // ignore
 			ComponentType::getBitsFor( { typeid(ComponentB) }))); // must not have B
 
-	auto entsWithB = engine.getEntitiesFor(Family::getFor({typeid(ComponentB)}));
+	auto entsWithB = engine.getEntitiesFor(Family::getFor( { typeid(ComponentB) }));
 
 	auto e1 = std::make_shared<Entity>();
 	auto e2 = std::make_shared<Entity>();
@@ -436,4 +427,18 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
 
 	ASSERT_EQ(2, entsWithAOnly->size());
 	ASSERT_EQ(0, entsWithB->size());
+}
+
+TEST_F(EngineTest, GetSystems) {
+	auto sys = engine.getSystems();
+
+	ASSERT_EQ(sys->size(), 0);
+
+	auto aptr = std::make_shared<EntitySystemMockA>();
+	auto bptr = std::make_shared<EntitySystemMockB>();
+
+	engine.addSystem(aptr);
+	engine.addSystem(bptr);
+
+	ASSERT_EQ(sys->size(), 2);
 }

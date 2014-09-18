@@ -130,6 +130,11 @@ public:
 	}
 
 	/**
+	 * @return all the systems currently attached to this {@link Engine}.
+	 */
+	const std::vector<std::shared_ptr<ashley::EntitySystem>> *getSystems() const;
+
+	/**
 	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
 	 */
 	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(ashley::Family &family);
