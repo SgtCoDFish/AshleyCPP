@@ -23,7 +23,7 @@
 
 namespace ashley {
 /**
- * <p>A simple {@link EntitySystem} which runs its logic every time
+ * <p>An {@link EntitySystem} which runs its logic every time
  * a given period of time (an <em>interval</em>) passes.</p>
  *
  * <p><em>Java author:</em> David Saltares</p>
@@ -35,12 +35,22 @@ private:
 	float accumulator;
 
 public:
+	/**
+	 * <p>Creates an {@link IntervalSystem} with a default priority and the given interval.
+	 * @param interval The amount of time, in seconds, that the system waits before it
+	 * executes {@link IntervalSystem#updateInterval}.
+	 */
 	IntervalSystem(float interval);
 
+	/**
+	 * <p>Creates an {@link IntervalSystem} with the given priority and the given interval.
+	 * @param interval The amount of time, in seconds, that the system waits before it
+	 * executes {@link IntervalSystem#updateInterval}.
+	 * @param priority The system's priority; lower priorities execute first.
+	 */
 	IntervalSystem(float interval, uint64_t priority);
 
 	void update(float deltaTime) override;
-
 protected:
 	/**
 	 * <p>Should be overridden with the processing logic for the system.</p>
