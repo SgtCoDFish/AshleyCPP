@@ -14,26 +14,21 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ASHLEY_HPP_
-#define ASHLEY_HPP_
+#include "Ashley/systems/IntervalSystem.hpp"
 
-// include all AshleyCPP files here
-#include "core/Family.hpp"
-#include "core/Component.hpp"
-#include "core/ComponentMapper.hpp"
-#include "core/ComponentType.hpp"
-#include "core/Engine.hpp"
-#include "core/Entity.hpp"
-#include "core/EntityListener.hpp"
+ashley::IntervalSystem::IntervalSystem(float interval) :
+		IntervalSystem(interval, ashley::EntitySystem::DEFAULT_PRIORITY) {
+}
 
-#include "signals/Signal.hpp"
-#include "signals/Listener.hpp"
+ashley::IntervalSystem::IntervalSystem(float interval, uint64_t priority) :
+		ashley::EntitySystem(priority), interval(interval), accumulator(0) {
+}
 
-#include "systems/IteratingSystem.hpp"
-#include "systems/IntervalSystem.hpp"
+void ashley::IntervalSystem::update(float deltaTime) {
+	accumulator += deltaTime;
 
-#include "internal/ComponentOperations.hpp"
-
-#include "util/ObjectPools.hpp"
-
-#endif /* ASHLEY_HPP_ */
+	if (accumulator >= interval) {
+		accumulator -= interval;
+		updateInterval();
+	}
+}
