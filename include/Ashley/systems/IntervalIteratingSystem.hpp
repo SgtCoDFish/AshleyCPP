@@ -41,6 +41,12 @@ private:
 
 public:
 
+	virtual ~IntervalIteratingSystem() = default;
+	IntervalIteratingSystem(const IntervalIteratingSystem &other) = default;
+	IntervalIteratingSystem(IntervalIteratingSystem &&other) = default;
+	IntervalIteratingSystem& operator=(const IntervalIteratingSystem &other) = default;
+	IntervalIteratingSystem& operator=(IntervalIteratingSystem &&other) = default;
+
 	/**
 	 * <p>Creates an {@link IntervalIteratingSystem} which iterates over the {@link Entity}s
 	 * matching <em>family</em>
@@ -58,7 +64,8 @@ public:
 	 * will be called for each matched {@link Entity}.
 	 * @param priority the system's priority; lower priorities execute first.
 	 */
-	IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval, uint64_t priority);
+	IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval,
+			uint64_t priority);
 
 	void addedToEngine(Engine &engine) override;
 	void removedFromEngine(Engine &engine) override;

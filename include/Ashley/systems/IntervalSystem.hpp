@@ -35,6 +35,12 @@ private:
 	float accumulator;
 
 public:
+	virtual ~IntervalSystem() = default;
+	IntervalSystem(const IntervalSystem &other) = default;
+	IntervalSystem(IntervalSystem &&other) = default;
+	IntervalSystem& operator=(const IntervalSystem &other) = default;
+	IntervalSystem& operator=(IntervalSystem &&other) = default;
+
 	/**
 	 * <p>Creates an {@link IntervalSystem} with a default priority and the given interval.
 	 * @param interval The amount of time, in seconds, that the system waits before it
