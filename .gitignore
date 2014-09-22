@@ -7,9 +7,14 @@
 Debug/
 Release/
 TestOut/
+build/
 doc/
 /Debug/*
 /Release/*
 /TestOut/*
+/build/*
 /doc/*
 /T32/
+
+
+
