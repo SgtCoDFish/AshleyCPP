@@ -1,27 +1,42 @@
 AshleyCPP
 =========
 
-AshleyCPP is an (unimaginatively named) C++11 port of the Java entity framework [Ashley](https://github.com/libgdx/ashley/).
+AshleyCPP is a lightweight, cross-platform and easy to use Entity framework for C++11 based on the Java entity framework
+[Ashley](https://github.com/libgdx/ashley/). It contains the tools you need to create an application using data-oriented
+design and also includes a generic object-pooling system to minimise dynamic allocation during runtime.
 
-It prioritises speed, simplicity and ease of use, and mirrors the public API of the original where possible.
+It prioritises speed and simplicity and mirrors the public API of the original where possible to make it easy to learn,
+quick to run and simple to debug.
 
 The original is inspired by the [Ash](http://www.ashframework.org/) and
 [Artemis](http://gamadu.com/artemis/) frameworks.
 
-A test suite is included, designed for the googletest platform (works on Eclipse).
+AshleyCPP is a personal project and while there are no guarantees that it will compile and work, the master branch
+on GitHub should compile and function properly and can be (and has been) used to make projects.
 
-Note that for now, AshleyCPP is a for-fun project and is not even guaranteed to compile. It may be stabilised when more is complete.
-That said, it probably does compile and will probably work fine!
+### Building
+
+AshleyCPP uses the CMake build system and comes with three build targets; debug, release and test.
+
+To build the library from source, install a relatively recent version of CMake, navigate to a copy of the source and
+do the following:
+
+    mkdir build
+    cd build
+    cmake -G "<your platform here>" ..
+
+and then proceed to build in your preferred environment. For example using makefiles on Unix:
+
+    cmake -G "Unix Makefiles"
+    make # builds the release (libAshleyCPP) and debug (libAshleyCPP-d) libraries
+    make AshleyCPPTest # for building the test suite executable
 
 
 ### Usage Notes and API Changes
 While AshleyCPP strives to match the exported public API of the Java original, differences in the languages mean that some changes must be made. Such changes are listed below.
 
-Note: In situations where you'd use `.class` to get the type of a Java class, in C++ you can use this instead:
+Note: In situations where you'd use `.class` to get the type of a Java class, in C++ you can `#include <typeinfo>` and:
 
-    // at the top with the rest of the includes
-    #include <typeinfo>
-    
     typeid(ComponentClass); // Equivalent to ComponentClass.class in Java.  
     
     // e.g. create a Family that matches Entity instances with ComponentA and ComponentB
@@ -31,19 +46,16 @@ Note: In situations where you'd use `.class` to get the type of a Java class, in
   - The whole library is enclosed in the `ashley` namespace. Use `using namespace ashley;` to save typing if you want.
   - You can `#include` individual headers (organised in a similar way to the Java packages) or use `#include "Ashley/AshleyCore.hpp"`
   - Java generic functions that take vararg lists of `Class<? extends Component>` are replaced by
-    `std::initializer_list<std::type_index>`. Some functions also provide variadic template overloads which may be
+    `std::initializer_list<std::type_index>`. Some functions also provide template overloads which may be
     easier to use; check the documentation for specific occurrences.
-  - Many places where references to class type in Java were pass to a method are replaced by passing an `std::shared_ptr`.
+  - Many places where references to class type in Java were passed to a method are replaced by passing an `std::shared_ptr`.
   
 - Component
   - `virtual std::type_index identify() const;`  
     Added to help with type identification; can be called by Component-derived types using a base class `Component *`
     to identify the derived class polymorphically.
     
-- ComponentType
-  - `getFor`, `getBitsFor` and `getIndexFor`  
-  All have `std::type_index` and templated versions.
-  
+- ComponentType  
   - `operator==` and `operator!=`  
   Two ComponentTypes are equal if they have the same index, i.e. they represent the same type.
   
@@ -54,17 +66,20 @@ Note: In situations where you'd use `.class` to get the type of a Java class, in
   Renamed from `getFor` to make more sense since this templated version needs no non-template arguments.
   
 - Engine
-  - Immutable `getEntitiesFor`  
-  Not implemented, might be in the future.
+  - `getEntitiesFor`  
+  The C++ version is mutable at the moment; you get a pointer to a vector of `std::shared_ptr<Entity>`. Modifiying
+  the vector may cause errors and is not supported.
   - `SystemComparator` -> `bool systemPriorityComparator()`
   Private static comparator class in Java becomes a public static comparison function in C++.
   
 - Entity
   - `add` and `remove`  
-  Instead of accepting a component directly, takes the templated Component type and perfect forwards into the appropriate (copy-/move-)constructor.
-  Does also provide versions taking components or component types directly if you really need it.
+  Instead of accepting a component directly, can take the templated Component type and perfect forward into the
+  appropriate (copy-/move-)constructor which saves typing and increases efficiency.
+  Also provides overloads taking components or component types directly if needed.
   - `getComponents()`  
-  No longer immutable, might change in the future.
+  The C++ version is mutable at the moment; you get a pointer to a vector of `std::shared_ptr<Component>`. Modifiying
+  the vector may cause errors and is not supported.
   - `getComponentWeak`  
   Same as getComponent but returns an `std::weak_ptr` instead.
   - `operator==` and `operator!=`  
@@ -76,14 +91,15 @@ Note: In situations where you'd use `.class` to get the type of a Java class, in
   - `virtual std::type_index identify() const;`  
     Same reasons as with `Component::identify()`.
   - `=, !=, <, <=, >, >=` Comparison operators  
-  Defined based on priority; lower priority means first to execute, so `a < b == true` means a will execute first.
+  Defined based on priority; lower priority means first to execute, so `a < b == true` means `a` will execute first.
   
 - Family
   - Constructor  
     There is a visible constructor to make Family usable with std::shared_ptr. The first argument is a private dummy type
     and you shouldn't try to use it; use a version of Family::getFor instead.
   - `hashCode()` -> `std::hash`  
-  Family.hpp contains a specialisation of `std::hash` to allow Family instances to be used as keys in `std::unordered_map`s. It uses the same hash as in Java.
+  Family.hpp contains a specialisation of `std::hash` to allow Family instances to be used as keys in
+  `std::unordered_map`s. It uses the same hash as in Java.
   - `operator==` and `operator!=`
   Defined based on index; two families are equal if they represent the same selection of components.
   
@@ -107,8 +123,8 @@ Ticked classes have both their implementation and tests complete.
   - [x] Listener
 - Systems
   - [x] IteratingSystem
-  - [ ] IntervalSystem
-  - [ ] IntervalIteratingSystem
+  - [x] IntervalSystem
+  - [x] IntervalIteratingSystem
 - Util
   - [x] ObjectPool
   - [x] Poolable
@@ -118,7 +134,7 @@ Roadmap from commits to main version since last major release:
 - [x] Add `EntitySystem::setProcessing` and update Engine tests
 - [x] Add `Engine::getSystems` and test
 - [x] Check issue `removing Entities mid iteration` and add tests - [Java Commit](https://github.com/libgdx/ashley/commit/a2a63f4e42e09e3221331b2333e675b3a4ab6fe3)
-- [ ] Add IntervalIteratingSystem and IntervalSystem - [Java Commit](https://github.com/libgdx/ashley/commit/47bf907b15ad8ed4297a10eb6b6b311e1542dcb8)
+- [x] Add IntervalIteratingSystem and IntervalSystem - [Java Commit](https://github.com/libgdx/ashley/commit/47bf907b15ad8ed4297a10eb6b6b311e1542dcb8)
 
   
 *NB:*
