@@ -9,7 +9,8 @@ set(flags "-fmessage-length=0")
 set(ASHLEY_DEBUG_FLAGS "-O0 -g3")
 set(ASHLEY_RELEASE_FLAGS "-O3")
 
-set(CMAKE_CXX_FLAGS_BASE "${dialect} ${warnings} ${flags} ${debug_flags}")
+set(CMAKE_CXX_COMPILER_ARG1 "-std=c++0x")
+set(CMAKE_CXX_FLAGS_BASE "${warnings} ${flags} ${debug_flags}")
 
 include_directories("include" "test")
 
