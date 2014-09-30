@@ -15,6 +15,7 @@ doc/
 /build/*
 /doc/*
 /T32/
+.*.md.html
 
 
 

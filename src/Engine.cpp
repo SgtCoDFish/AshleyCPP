@@ -303,6 +303,7 @@ void ashley::Engine::removeEntityInternal(std::shared_ptr<ashley::Entity> entity
 
 	entity->componentAdded.remove(componentAddedListener);
 	entity->componentRemoved.remove(componentRemovedListener);
+	entity->operationHandler = nullptr;
 
 	notifying = true;
 
