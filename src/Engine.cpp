@@ -90,7 +90,7 @@ void ashley::Engine::removeAllEntities() {
 	}
 }
 
-void ashley::Engine::addSystem(std::shared_ptr<ashley::EntitySystem> system) {
+void ashley::Engine::addSystem(std::shared_ptr<ashley::EntitySystem> &system) {
 	auto systemIndex = std::type_index(typeid(*system));
 
 	auto it = systemsByClass.find(systemIndex);
@@ -183,8 +183,8 @@ void ashley::Engine::update(float deltaTime) {
 	updating = false;
 }
 
-bool ashley::Engine::systemPriorityComparator(std::shared_ptr<ashley::EntitySystem> &one,
-		std::shared_ptr<ashley::EntitySystem> &other) {
+bool ashley::Engine::systemPriorityComparator(const std::shared_ptr<ashley::EntitySystem> &one,
+		const std::shared_ptr<ashley::EntitySystem> &other) {
 	return (*one).operator <(*other);
 }
 

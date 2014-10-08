@@ -94,7 +94,7 @@ public:
 	 *
 	 * <p>Note that once added, ownership is transferred to the Engine, and you'll probably want to call {@link Engine#getSystem} to access it.</p>
 	 */
-	void addSystem(std::shared_ptr<ashley::EntitySystem> system);
+	void addSystem(std::shared_ptr<ashley::EntitySystem> &system);
 
 	/**
 	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
@@ -162,8 +162,8 @@ public:
 	 */
 	void update(float deltaTime);
 
-	static bool systemPriorityComparator(std::shared_ptr<ashley::EntitySystem> &one,
-			std::shared_ptr<ashley::EntitySystem> &other);
+	static bool systemPriorityComparator(const std::shared_ptr<ashley::EntitySystem> &one,
+			const std::shared_ptr<ashley::EntitySystem> &other);
 
 private:
 	std::vector<std::shared_ptr<ashley::Entity>> entities;
