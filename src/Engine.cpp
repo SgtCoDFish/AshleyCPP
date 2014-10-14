@@ -90,7 +90,7 @@ void ashley::Engine::removeAllEntities() {
 	}
 }
 
-void ashley::Engine::addSystem(std::shared_ptr<ashley::EntitySystem> &system) {
+void ashley::Engine::addSystem(const std::shared_ptr<ashley::EntitySystem> &system) {
 	auto systemIndex = std::type_index(typeid(*system));
 
 	auto it = systemsByClass.find(systemIndex);
