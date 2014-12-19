@@ -61,15 +61,15 @@ protected:
 	ComponentE e;
 	ComponentF f;
 
-	std::shared_ptr<Family> family1 = Family::getFor( { typeid(ComponentA) });
-	std::shared_ptr<Family> family2 = Family::getFor( { typeid(ComponentB) });
-	std::shared_ptr<Family> family3 = Family::getFor( { typeid(ComponentC) });
-	std::shared_ptr<Family> family4 = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
-	std::shared_ptr<Family> family5 = Family::getFor( { typeid(ComponentA), typeid(ComponentC) });
-	std::shared_ptr<Family> family6 = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
-	std::shared_ptr<Family> family7 = Family::getFor( { typeid(ComponentA), typeid(ComponentB),
+	Family *family1 = Family::getFor( { typeid(ComponentA) });
+	Family *family2 = Family::getFor( { typeid(ComponentB) });
+	Family *family3 = Family::getFor( { typeid(ComponentC) });
+	Family *family4 = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
+	Family *family5 = Family::getFor( { typeid(ComponentA), typeid(ComponentC) });
+	Family *family6 = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
+	Family *family7 = Family::getFor( { typeid(ComponentA), typeid(ComponentB),
 			typeid(ComponentC) });
-	std::shared_ptr<Family> family8 = Family::getFor(
+	Family *family8 = Family::getFor(
 			ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
 			ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
 			ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());

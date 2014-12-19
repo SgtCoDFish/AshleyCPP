@@ -16,6 +16,8 @@ doc/
 /doc/*
 /T32/
 .*.md.html
+/include/gtest/*
+/include/gtest
 
 
 

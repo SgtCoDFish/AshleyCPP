@@ -57,18 +57,17 @@ protected:
 
 	Engine engine;
 
-	std::shared_ptr<Family> family;
-	std::shared_ptr<Entity> e;
+	Family *family = nullptr;
+	ashley::entity_ptr e;
 
 	IteratingSystemTest() :
-			family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })), e(
-					std::make_shared<Entity>()) {
+			family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })), e{nullptr} {
 	}
 };
 
 class IteratingSystemMock : public IteratingSystem {
 public:
-	IteratingSystemMock(std::shared_ptr<ashley::Family> &family) :
+	IteratingSystemMock(Family *family) :
 			IteratingSystem(family), numUpdates(0) {
 	}
 	virtual ~IteratingSystemMock() {

@@ -36,7 +36,7 @@ public:
 
 class IntervalIteratingSystemSpy : public ashley::IntervalIteratingSystem {
 private:
-	const ashley::ComponentMapper<IntervalComponentSpy> &im;
+	const ashley::ComponentMapper<IntervalComponentSpy> im;
 
 public:
 	IntervalIteratingSystemSpy() :

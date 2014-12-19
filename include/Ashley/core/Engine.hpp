@@ -143,13 +143,13 @@ public:
 	 * @return all the systems currently attached to this {@link Engine}. Note that this creates and populates a new
 	 * 		   vector and is therefore slow.
 	 */
-	const std::vector<EntitySystem * > getSystems() const;
+	const std::vector<EntitySystem *> getSystems() const;
 
 	/**
 	 * <p>Returns const vector of {@link Entity} pointers for the specified {@link Family}.</p>
 	 * <p>Convenience method because of return type of Family::getFor</p>
 	 */
-	std::vector<Entity * > *getEntitiesFor(Family * const family);
+	std::vector<Entity *> *getEntitiesFor(Family * const family);
 
 	/**
 	 * Adds an {@link EntityListener}.
