@@ -42,6 +42,7 @@ ashley::Engine::~Engine() {
 	for (auto &op : operationVector) {
 		operationPool.free(op);
 	}
+
 	operationVector.clear();
 	listeners.clear();
 
@@ -52,8 +53,6 @@ ashley::Engine::~Engine() {
 
 	systems.clear();
 	systemsByClass.clear();
-
-	operationHandler = nullptr;
 }
 
 ashley::Entity *ashley::Engine::addEntity(std::unique_ptr<Entity> &&ptr) {

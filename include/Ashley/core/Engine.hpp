@@ -106,8 +106,8 @@ public:
 	 */
 	EntitySystem *addSystem(std::unique_ptr<EntitySystem> &&system);
 
-	template <typename ES, typename ...Args> ES *addSystem(Args&&... args) {
-		return (ES *)addSystem(std::unique_ptr<ES>(new ES(args...)));
+	template<typename ES, typename ...Args> ES *addSystem(Args&&... args) {
+		return (ES *) addSystem(std::unique_ptr<ES>(new ES(args...)));
 	}
 
 	/**
@@ -137,7 +137,7 @@ public:
 	template<typename ES> ES *getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
 		auto ret = systemsByClass.find(typeid(ES));
-		return (ES*)(ret != systemsByClass.end() ? (*ret).second : nullptr);
+		return (ES*) (ret != systemsByClass.end() ? (*ret).second : nullptr);
 	}
 
 	/**
@@ -147,7 +147,7 @@ public:
 	const std::vector<EntitySystem *> getSystems() const;
 
 	/**
-	 * <p>Returns const vector of {@link Entity} pointers for the specified {@link Family}.</p>
+	 * <p>Returns vector of {@link Entity} pointers for the specified {@link Family}.</p>
 	 * <p>Convenience method because of return type of Family::getFor</p>
 	 */
 	std::vector<Entity *> *getEntitiesFor(Family * const family);
@@ -173,11 +173,10 @@ public:
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
+	std::unordered_map<Family, std::vector<Entity *>> families;
 
 	std::vector<std::unique_ptr<EntitySystem>> systems;
 	std::unordered_map<std::type_index, EntitySystem *> systemsByClass;
-
-	std::unordered_map<Family, std::vector<Entity *>> families;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;

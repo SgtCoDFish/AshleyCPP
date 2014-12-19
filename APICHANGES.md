@@ -12,15 +12,13 @@ This file contains all the API changes between this C++ port and the original Ja
   Two ComponentTypes are equal if they have the same index, i.e. they represent the same type.
   
 - ComponentMapper
-  - `getRaw(std::shared_ptr<Entity>)`   
-  Returns a const raw pointer for convenience; saves having to call `get()` on the `std::shared_ptr` return of `get()` for passing to a function.
   - `getMapper()`   
   Renamed from `getFor` to make more sense since this templated version needs no non-template arguments.
   
 - Engine
   - `getEntitiesFor`  
-  The C++ version is mutable at the moment; you get a pointer to a vector of `std::shared_ptr<Entity>`. Modifiying
-  the vector may cause errors and is not supported.
+  The C++ version is mutable but should not be changed; you get a pointer to a vector of `Entity*`. Modifiying the
+  vector may cause errors and is not supported.
   - `SystemComparator` -> `bool systemPriorityComparator()`
   Private static comparator class in Java becomes a public static comparison function in C++.
   
@@ -28,12 +26,10 @@ This file contains all the API changes between this C++ port and the original Ja
   - `add` and `remove`  
   Instead of accepting a component directly, can take the templated Component type and perfect forward into the
   appropriate (copy-/move-)constructor which saves typing and increases efficiency.
-  Also provides overloads taking components or component types directly if needed.
+  Also provides an overload taking components as rvalue references to unique_ptrs which are moved from.
   - `getComponents()`  
-  The C++ version is mutable at the moment; you get a pointer to a vector of `std::shared_ptr<Component>`. Modifiying
+  The C++ version is mutable but shouldn't be changed; you get a pointer to a vector of `Component *`. Modifiying
   the vector may cause errors and is not supported.
-  - `getComponentWeak`  
-  Same as getComponent but returns an `std::weak_ptr` instead.
   - `operator==` and `operator!=`  
   Two entities compare equal if they have the same index number.
   - Relational comparison operators `<, <=, >, >=`  
@@ -47,7 +43,7 @@ This file contains all the API changes between this C++ port and the original Ja
   
 - Family
   - Constructor  
-    There is a visible constructor to make Family usable with std::shared_ptr. The first argument is a private dummy type
+    There is a visible constructor to make Family usable with smart pointer classes. The first argument is a private dummy type
     and you shouldn't try to use it; use a version of Family::getFor instead.
   - `hashCode()` -> `std::hash`  
   Family.hpp contains a specialisation of `std::hash` to allow Family instances to be used as keys in
