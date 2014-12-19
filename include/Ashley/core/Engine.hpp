@@ -75,9 +75,10 @@ public:
 	/**
 	 * <p>Adds an std::unique_ptr to an {@link Entity} to this {@link Engine} via moving.
 	 * Note that the added unique_ptr is owned by the engine after a call to this function,
-	 * and trying to use the value you moved in is undefined behaviour.</p>
+	 * and trying to use the value you moved in is undefined behaviour
+	 * (and probably a segfault).</p>
 	 *
-	 * @return a naked pointer to the {@link Entity} in the {@link Engine}.
+	 * @return a (safe-to-use) naked pointer to the {@link Entity} in the {@link Engine}.
 	 */
 	Entity *addEntity(std::unique_ptr<Entity> &&ptr);
 
@@ -88,9 +89,9 @@ public:
 	Entity *addEntity();
 
 	/**
-	 * <p>Removes an {@link Entity} from this {@link Engine} via a pointer to the entity..</p>
+	 * <p>Removes an {@link Entity} from this {@link Engine} via a pointer to the {@link Entity}.</p>
 	 *
-	 * <p>Note that the {@link Entity} will be destroyed immediately.</p>
+	 * <p>Note that the {@link Entity} (and therefore all attached {@link Component}s) will be destroyed.</p>
 	 */
 	void removeEntity(Entity * const ptr);
 
@@ -100,39 +101,47 @@ public:
 	void removeAllEntities();
 
 	/**
-	 * Adds the {@link EntitySystem} to this Engine via an std::shared_ptr.
+	 * Adds the {@link EntitySystem} to this Engine via a std::unique_ptr with moving.
 	 *
-	 * <p>Note that once added, ownership is transferred to the Engine, and you'll probably want to call {@link Engine#getSystem} to access it.</p>
+	 * <p>Note that once added, ownership is transferred to the Engine, and you need to use {@link Engine#getSystem} to access it or use the returned naked pointer.</p>
+	 *
+	 * @return a naked (safe-to-use) pointer to the added system)
 	 */
 	EntitySystem *addSystem(std::unique_ptr<EntitySystem> &&system);
 
+	/**
+	 * <p>Creates and adds a new system based on the templated type.</p>
+	 * @param args arguments forwarded to the constructor of the system.
+	 * @return a naked (safe-to-use) pointer to the created system.
+	 */
 	template<typename ES, typename ...Args> ES *addSystem(Args&&... args) {
 		return (ES *) addSystem(std::unique_ptr<ES>(new ES(args...)));
 	}
 
 	/**
 	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
-	 * <p>Note that the argument passed could be the only remaining reference to the system and if it is the last,
-	 * the system might be immediately destroyed.</p>
+	 * <p>Note that the system might be (is likely to be) immediately destroyed upon calling this function, and thus
+	 * any state contained in the system will be lost.</p>
 	 */
 	void removeSystem(EntitySystem * const system);
 
 	/**
 	 * <p>Removes the system associated with the given type from this {@link Engine}.</p>
-	 * <p>Note that this could destroy the system if no shared_ptrs are maintained to it.</p>
+	 * <p>Note that the system might be (is likely to be) immediately destroyed upon calling this function, and thus
+	 * any state contained in the system will be lost.</p>
 	 */
 	void removeSystem(std::type_index systemType);
 
 	/**
 	 * <p>Quick {@link EntitySystem} retrieval. Will require a type-cast on the returned {@link EntitySystem}.</p>
-	 * <p>To avoid a typecast, use the templated, argumentless version.</p>
-	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
+	 * <p>To avoid a typecast, use the templated, argument-less version.</p>
+	 * @return A naked pointer to the system if it exists in the {@link Engine} or nullptr otherwise.
 	 */
 	EntitySystem * const getSystem(std::type_index systemType) const;
 
 	/**
-	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to templates.</p>
-	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
+	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to template magic.</p>
+	 * @return A naked pointer to the system if it exists in the {@link Engine} or nullptr otherwise.
 	 */
 	template<typename ES> ES *getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
@@ -142,13 +151,14 @@ public:
 
 	/**
 	 * @return all the systems currently attached to this {@link Engine}. Note that this creates and populates a new
-	 * 		   vector and is therefore slow.
+	 * 		   vector and is therefore slow and not advisable for regular use.
 	 */
 	const std::vector<EntitySystem *> getSystems() const;
 
 	/**
-	 * <p>Returns vector of {@link Entity} pointers for the specified {@link Family}.</p>
-	 * <p>Convenience method because of return type of Family::getFor</p>
+	 * <p>(Quickly) returns vector of {@link Entity} pointers for {@link Entity}s matching the
+	 * specified {@link Family}.</p>
+	 * @return a (possibly empty) vector of naked {@link Entity} pointers.
 	 */
 	std::vector<Entity *> *getEntitiesFor(Family * const family);
 

@@ -33,7 +33,7 @@ namespace ashley {
 class Entity;
 
 /**
- * Represents a group of {@link Component}s. It is used to describe what {@link Entity} objects an
+ * Represents a group of {@link Component}s. Used to describe what {@link Entity} objects an
  * {@link EntitySystem} should process.
  *
  * Example: {@code Family.getFor<PositionComponent, VelocityComponent>()}

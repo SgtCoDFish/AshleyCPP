@@ -64,7 +64,7 @@ public:
 	Entity& operator=(Entity &&other) = default;
 
 	/**
-	 * <p>Adds a component via a unqiue ptr to an existing component via moving. If this seems really confusing, look up rvalue references.</p>
+	 * <p>Adds a component via a unqiue ptr to an existing component via moving.</p>
 	 *
 	 * <p>In short, if you create a component stored in a std::unique_ptr, you want to call: <br>
 	 * <tt>entity->add(std::move(component));</tt><br>
@@ -76,10 +76,11 @@ public:
 	Entity &add(std::unique_ptr<Component> &&component);
 
 	/**
-	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>
+	 * <p>Constructs a new object of type C (subclassing ashley::Component) using <em>args...</em> for construction.</p>
 	 *
-	 * <p>If a {@link Component} of the same type already exists, it'll be replaced without being retrievable from this class again.</p>
-	 * @return This Entity for easy chaining
+	 * <p>If a {@link Component} of the same type already exists, it'll be replaced and destroyed without being retrievable
+	 * from this class again.</p>
+	 * @return This {@link Entity} for easy chaining
 	 */
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
 		auto mapPtr = std::unique_ptr<Component>(new C(args...));
@@ -96,23 +97,23 @@ public:
 	/**
 	 * <p>Removes a {@link Component} by its type_index.</p>
 	 * @param typeIndex the type index of the component to remove
-	 * @return the removed {@link Component} or nullptr if not found, or if the removal has been delayed
-	 * 		   (e.g. when we're already in update() and need to wait to the end)
+	 * @return the removed {@link Component}'s unique_ptr if the component was removed straight away; or nullptr if not
+	 * found or if the removal has been delayed (e.g. when we're already in update() and need to wait to the end)
 	 */
 	std::unique_ptr<Component> remove(const std::type_index typeIndex);
 
 	/**
 	 * <p>Removes the given {@link Component}, if it's found attached to this {@link Entity}.
 	 * @param component the {@link Component} to remove.
-	 * @return the removed {@link Component} or nullptr if not found, or if the removal has been delayed
-	 * 		   (e.g. when we're already in update() and need to wait to the end)
+	 * @return the removed {@link Component}'s unique_ptr if the component was removed straight away; or nullptr if not
+	 * found or if the removal has been delayed (e.g. when we're already in update() and need to wait to the end)
 	 */
 	std::unique_ptr<Component> remove(Component * const component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
 	 * don't need an instance, just the type.</p>
-	 * @return A shared_ptr to the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
+	 * @return A the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
 	 */
 	template<typename C> std::unique_ptr<Component> remove() {
 		const auto typeIndex = std::type_index(typeid(C));
@@ -121,18 +122,20 @@ public:
 		if (componentBits[typeID] == true) {
 			return remove(typeIndex);
 		} else {
-			return std::unique_ptr<C>();
+			return std::unique_ptr<Component>(nullptr);
 		}
 	}
 
 	/**
 	 * <p>Removes all the {@link Component}'s from the Entity.</p>
+	 * <p>Note that they'll all be destroyed and unretrievable by doing this.</p>
 	 */
 	void removeAll();
 
 	/**
+	 * <p>Retrieves a list of naked, safe-to-use, pointers to the {@link Component}s attached to this {@link Entity}.</p>
 	 * <p>Note that this function creates a new vector and populates it with pointers referencing the original
-	 * unique_ptrs that the object stores. This is slow, and this function probably shouldn't be used often.</p>
+	 * unique_ptrs that the object stores internally. This is slow, and this function probably shouldn't be used often.</p>
 	 *
 	 * @return vector of all this Entity's {@link Component} pointers.
 	 */
@@ -146,7 +149,8 @@ public:
 	}
 
 	/**
-	 * @return a shared_ptr to the specified component type in this object, or a null shared_ptr if the Entity has no such component.
+	 * @return a naked pointer to the specified {@link Component} in this object, or nullptr if the {@link Entity} has
+	 * no such component.
 	 */
 	template<typename C> C* getComponent() {
 		auto type = std::type_index(typeid(C));
@@ -156,7 +160,7 @@ public:
 	}
 
 	/**
-	 * @return Whether or not the Entity already has a {@link Component} of the specified type.
+	 * @return Whether or not the {@link Entity} already has a {@link Component} of the specified type.
 	 */
 	template<typename C> bool hasComponent() const {
 		return componentBits[ashley::ComponentType::getIndexFor(std::type_index(typeid(C)))];
@@ -168,7 +172,7 @@ public:
 	const ashley::BitsType& getComponentBits() const;
 
 	/**
-	 * @return The number of components attached to this Entity.
+	 * @return The number of components attached to this {@link Entity}.
 	 */
 	inline unsigned int countComponents() const {
 		return componentMap.size();
