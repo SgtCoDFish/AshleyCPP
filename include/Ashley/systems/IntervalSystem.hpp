@@ -19,9 +19,14 @@
 
 #include <cstdint>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 
 namespace ashley {
+
+class IntervalSystem;
+using interval_system_ptr = ashley_ptr_type<IntervalSystem>;
+
 /**
  * <p>An {@link EntitySystem} which runs its logic every time
  * a given period of time (an <em>interval</em>) passes.</p>

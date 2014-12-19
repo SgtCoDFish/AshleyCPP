@@ -35,7 +35,7 @@ ashley::Entity::Entity() :
 		index(nextIndex++) {
 }
 
-ashley::Entity &ashley::Entity::add(std::shared_ptr<Component> component) {
+ashley::Entity &ashley::Entity::add(std::unique_ptr<Component> &&component) {
 	if (operationHandler != nullptr) {
 		operationHandler->add(this, component);
 	} else {
@@ -45,40 +45,31 @@ ashley::Entity &ashley::Entity::add(std::shared_ptr<Component> component) {
 	return *this;
 }
 
-std::shared_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIndex) {
-	std::shared_ptr<ashley::Component> com = nullptr;
-
+std::unique_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIndex) {
 	try {
-		com = componentMap.at(typeIndex);
-		return removeImpl(com);
+		return removeImpl(typeIndex);
 	} catch (std::out_of_range &oor) {
-		return std::shared_ptr<ashley::Component>(nullptr);
+		return std::unique_ptr<Component> { nullptr };
 	}
 
 }
 
-std::shared_ptr<ashley::Component> ashley::Entity::remove(
-		std::shared_ptr<ashley::Component> &component) {
-	auto index = component->identify();
-	return remove(index);
+std::unique_ptr<ashley::Component> ashley::Entity::remove(const Component *component) {
+	return remove(component->identify());
 }
 
 void ashley::Entity::removeAll() {
 	componentBits.reset();
 	familyBits.reset();
 
-	for (auto &p : componentMap) {
-		p.second = nullptr;
-	}
-
 	componentMap.clear();
 }
 
-const std::vector<std::shared_ptr<ashley::Component>> ashley::Entity::getComponents() const {
-	std::vector<std::shared_ptr<ashley::Component>> retVal;
+std::vector<ashley::Component *> ashley::Entity::getComponents() const {
+	std::vector<ashley::Component *> retVal;
 
 	for (auto &p : componentMap) {
-		retVal.emplace_back(std::shared_ptr<ashley::Component>(p.second));
+		retVal.emplace_back(p.second.get());
 	}
 
 	return retVal;
@@ -88,7 +79,7 @@ const ashley::BitsType &ashley::Entity::getComponentBits() const {
 	return componentBits;
 }
 
-ashley::Entity &ashley::Entity::addInternal(std::shared_ptr<ashley::Component> component) {
+void ashley::Entity::addInternal(std::unique_ptr<Component> &component) {
 	auto type = component->identify();
 	auto typeID = ashley::ComponentType::getIndexFor(type);
 
@@ -97,42 +88,34 @@ ashley::Entity &ashley::Entity::addInternal(std::shared_ptr<ashley::Component> c
 	}
 
 	componentBits[typeID] = true;
+	componentMap[type] = std::move(component);
 
-	// add new reference to component
-	componentMap[type] = std::shared_ptr<Component>(component);
-
-	componentAdded.dispatch(*this);
-
-	return *this;
+	componentAdded.dispatch(this);
 }
 
-std::shared_ptr<ashley::Component> ashley::Entity::removeImpl(
-		std::shared_ptr<Component> &component) {
+std::unique_ptr<ashley::Component> ashley::Entity::removeImpl(std::type_index typeIndex) {
 	if (operationHandler != nullptr) {
-		operationHandler->remove(this, component);
+		operationHandler->remove(this, typeIndex);
 	} else {
-		return removeInternal(component);
+		return removeInternal(typeIndex);
 	}
 
-	return component;
+	return std::unique_ptr<Component> { nullptr };
 }
 
-std::shared_ptr<ashley::Component> ashley::Entity::removeInternal(
-		std::shared_ptr<Component> &component) {
-	auto typeIndex = component->identify();
-	auto id = ashley::ComponentType::getIndexFor(typeIndex);
+std::unique_ptr<ashley::Component> ashley::Entity::removeInternal(std::type_index typeIndex) {
+	const auto id = ashley::ComponentType::getIndexFor(typeIndex);
 
-	std::shared_ptr<ashley::Component> ret = nullptr;
+	std::unique_ptr<ashley::Component> ret { nullptr };
 
 	if (componentBits[id] == true) {
-		ret = std::shared_ptr<ashley::Component>(componentMap.at(typeIndex));
 		componentBits[id] = false;
-		componentMap.at(typeIndex) = nullptr;
+		ret = std::move(componentMap.at(typeIndex));
 		componentMap.erase(typeIndex);
 
-		componentRemoved.dispatch(*this);
+		componentRemoved.dispatch(this);
 	}
 
-	return component;
-
+	// should be moved automatically
+	return ret;
 }

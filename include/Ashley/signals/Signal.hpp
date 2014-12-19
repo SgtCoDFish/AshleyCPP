@@ -21,9 +21,11 @@
 #include <algorithm>
 #include <memory>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/signals/Listener.hpp"
 
 namespace ashley {
+
 /**
  * <p>A Signal is a basic event class then can dispatch an event to multiple listeners. It uses
  * templates to allow any type of object to be passed around on dispatch.</p>
@@ -31,8 +33,7 @@ namespace ashley {
  * <em>Java author: Stefan Bachmann</em>
  * @author Ashley Davis (SgtCoDFish)
  */
-template<typename T>
-class Signal {
+template<typename T> class Signal {
 public:
 	Signal() {
 	}
@@ -48,17 +49,17 @@ public:
 	 * <p>Add a {@link Listener} to this {@link Signal}</p>
 	 * @param listener The {@link Listener} to be added, passed by value to create an automatic copy which is used.
 	 */
-	void add(std::shared_ptr<Listener<T>> listener) {
-		listeners.push_back(listener);
+	void add(Listener<T> *listener) {
+		listeners.emplace_back(listener);
 	}
 
 	/**
 	 * <p>Remove a {@link Listener} from this {@link Signal}.</p>
 	 * @param listener The {@link Listener} to be removed.
 	 */
-	void remove(std::shared_ptr<Listener<T>> &listener) {
+	void remove(Listener<T> * listener) {
 		auto it = std::find_if(listeners.begin(), listeners.end(),
-				[&](std::shared_ptr<Listener<T>> &found) {return listener == found;});
+				[&](ashley::Listener<T> *&found) {return listener == found;});
 
 		if (it != listeners.end()) {
 			listeners.erase(it);
@@ -66,10 +67,6 @@ public:
 	}
 
 	void removeAll() {
-		while (listeners.size() > 0) {
-			remove(listeners.front());
-		}
-
 		listeners.clear();
 	}
 
@@ -77,14 +74,14 @@ public:
 	 * <p>Calls receive on all {@link Listener}s attached to this {@link Signal}.
 	 * @param object An object which is passed to each listener.
 	 */
-	void dispatch(T &object) {
+	void dispatch(T *object) {
 		for (auto &p : listeners) {
-			p->receive(*this, object);
+			p->receive(this, object);
 		}
 	}
 
 private:
-	std::vector<std::shared_ptr<Listener<T>>>listeners;
+	std::vector<Listener<T> *> listeners;
 };
 }
 

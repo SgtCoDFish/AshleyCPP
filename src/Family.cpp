@@ -22,28 +22,27 @@
 #include "Ashley/core/Entity.hpp"
 
 uint64_t ashley::Family::familyIndex = 0;
-std::unordered_map<ashley::Family::FamilyHashType, std::shared_ptr<ashley::Family>> ashley::Family::families;
+std::unordered_map<ashley::Family::FamilyHashType, ashley::Family::internal_family_ptr> ashley::Family::families;
 ashley::Family::use_getFor_not_constructor ashley::Family::constructorHider_;
 
-std::shared_ptr<ashley::Family> ashley::Family::getFor(
+ashley::Family *ashley::Family::getFor(
 		std::initializer_list<std::type_index> list) {
 	ashley::BitsType bits = ashley::ComponentType::getBitsFor(list);
 
 	return getFor(bits, ashley::BitsType(), ashley::BitsType());
 }
 
-std::shared_ptr<ashley::Family> ashley::Family::getFor(ashley::BitsType all, ashley::BitsType one,
+ashley::Family *ashley::Family::getFor(ashley::BitsType all, ashley::BitsType one,
 		ashley::BitsType exclude) {
 	auto hash = ashley::Family::getFamilyHash(all, one, exclude);
 
 	try {
 		families.at(hash);
 	} catch (std::out_of_range &oor) {
-		auto family = std::make_shared<ashley::Family>(constructorHider_, all, one, exclude);
-		families[hash] = family;
+		families[hash] = std::unique_ptr<ashley::Family>(new Family(constructorHider_, all, one, exclude));
 	}
 
-	return std::shared_ptr<ashley::Family>(families[hash]);
+	return families[hash].get();
 }
 
 bool ashley::Family::matches(Entity &e) const {

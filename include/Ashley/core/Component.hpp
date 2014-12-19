@@ -20,7 +20,10 @@
 #include <typeinfo>
 #include <typeindex>
 
+#include "Ashley/AshleyConstants.hpp"
+
 namespace ashley {
+
 /**
  * Base class for all Components. A Component is intended as a data holder and provides data to be processed
  * in an {@link EntitySystem}.

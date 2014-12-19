@@ -17,8 +17,12 @@
 #ifndef LISTENER_HPP_
 #define LISTENER_HPP_
 
+#include "Ashley/AshleyConstants.hpp"
+
 namespace ashley {
+
 template<typename T> class Signal;
+
 /**
  * <p>A simple Listener interface used to listen to a {@link Signal}.</p>
  * <em>Java author: Stefan Bachmann</em>
@@ -27,7 +31,9 @@ template<typename T> class Signal;
 template<typename T>
 class Listener {
 public:
-	Listener() {}
+	Listener() {
+	}
+
 	virtual ~Listener() = default;
 	Listener(const Listener &other) = default;
 	Listener(Listener &&other) = default;
@@ -39,7 +45,7 @@ public:
 	 * @param signal the calling signal.
 	 * @param object an object related to the call.
 	 */
-	virtual void receive(const ashley::Signal<T> &signal, T &object) = 0;
+	virtual void receive(ashley::Signal<T> * const signal, T *object) = 0;
 };
 }
 

@@ -34,7 +34,7 @@ void ashley::IteratingSystem::removedFromEngine(ashley::Engine &engine) {
 
 void ashley::IteratingSystem::update(float deltaTime) {
 	std::for_each(entities->begin(), entities->end(),
-			[&](std::shared_ptr<ashley::Entity> found) {processEntity(found, deltaTime);});
+			[&](ashley::Entity *const &found) {processEntity(found, deltaTime);});
 }
 
 bool ashley::IteratingSystem::checkProcessing() {

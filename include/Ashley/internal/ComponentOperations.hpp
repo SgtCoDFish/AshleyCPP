@@ -19,11 +19,12 @@
 
 #include <memory>
 
+#include "Ashley/core/Component.hpp"
 #include "Ashley/util/ObjectPools.hpp"
 
 namespace ashley {
-class Component;
 class Entity;
+
 /**
  * <p>Interface representing possible actions on {@link Component}s with respect to {@link Entity}s.</p>
  *
@@ -34,10 +35,8 @@ public:
 	virtual ~ComponentOperationHandler() {
 	}
 
-	virtual void add(ashley::Entity *entity,
-			std::shared_ptr<ashley::Component> component) = 0;
-	virtual void remove(ashley::Entity *entity,
-			std::shared_ptr<ashley::Component> component) = 0;
+	virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &component) = 0;
+	virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex) = 0;
 };
 
 /**
@@ -53,28 +52,28 @@ struct ComponentOperation : public ashley::Poolable {
 	Type type;
 
 	ashley::Entity *entity = nullptr;
-	std::shared_ptr<ashley::Component> component = nullptr;
+	std::unique_ptr<std::type_index> typeIndex;
+	std::unique_ptr<Component> component = nullptr;
 
 	ComponentOperation() :
-			type(Type::NONE) {
+			type(Type::NONE), typeIndex{std::unique_ptr<std::type_index>(nullptr)} {
 	}
+
 	virtual ~ComponentOperation() {
 	}
 
-	inline void makeAdd(ashley::Entity *entity,
-			std::shared_ptr<ashley::Component> component) {
+	inline void makeAdd(ashley::Entity *entity, std::unique_ptr<Component> &component) {
 		this->type = Type::ADD;
 
 		this->entity = entity;
-		this->component = component;
+		this->component = std::move(component);
 	}
 
-	inline void makeRemove(ashley::Entity *entity,
-			std::shared_ptr<ashley::Component> component) {
+	inline void makeRemove(ashley::Entity *entity, const std::type_index typeIndex) {
 		this->type = Type::REMOVE;
 
 		this->entity = entity;
-		this->component = component;
+		this->typeIndex = std::unique_ptr<std::type_index>(new std::type_index(typeIndex));
 	}
 
 	void reset() override {

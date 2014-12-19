@@ -17,6 +17,8 @@
 #ifndef ENTITYLISTENER_HPP_
 #define ENTITYLISTENER_HPP_
 
+#include "Ashley/AshleyConstants.hpp"
+
 namespace ashley {
 class Entity;
 

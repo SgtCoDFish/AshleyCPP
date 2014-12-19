@@ -18,11 +18,11 @@
 #include "Ashley/core/Engine.hpp"
 #include "Ashley/systems/IntervalIteratingSystem.hpp"
 
-ashley::IntervalIteratingSystem::IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval) :
+ashley::IntervalIteratingSystem::IntervalIteratingSystem(Family *family, float interval) :
 		IntervalIteratingSystem(family, interval, DEFAULT_PRIORITY) {
 }
 
-ashley::IntervalIteratingSystem::IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval,
+ashley::IntervalIteratingSystem::IntervalIteratingSystem(Family *family, float interval,
 		uint64_t priority) :
 		IntervalSystem(interval, priority), family(family) {
 }
@@ -36,7 +36,7 @@ void ashley::IntervalIteratingSystem::removedFromEngine(ashley::Engine &engine) 
 }
 
 void ashley::IntervalIteratingSystem::updateInterval() {
-	for(unsigned int i = 0; i < entities->size(); ++i) {
+	for (unsigned int i = 0; i < entities->size(); ++i) {
 		processEntity(entities->at(i));
 	}
 }

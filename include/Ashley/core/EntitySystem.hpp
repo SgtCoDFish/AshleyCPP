@@ -14,15 +14,19 @@
  * limitations under the License.
  ******************************************************************************/
 
+
+#ifndef ENTITYSYSTEM_HPP_
+#define ENTITYSYSTEM_HPP_
+
 #include <cstdint>
 
 #include <typeinfo>
 #include <typeindex>
 
-#ifndef ENTITYSYSTEM_HPP_
-#define ENTITYSYSTEM_HPP_
+#include "Ashley/AshleyConstants.hpp"
 
 namespace ashley {
+
 class Engine;
 
 /**

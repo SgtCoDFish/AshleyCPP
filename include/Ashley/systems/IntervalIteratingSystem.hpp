@@ -19,12 +19,16 @@
 
 #include <vector>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/systems/IntervalSystem.hpp"
 
 namespace ashley {
 class Entity;
 class Engine;
 class Family;
+class IntervalIteratingSystem;
+
+using interval_iterating_system_ptr = ashley_ptr_type<IntervalIteratingSystem>;
 
 /**
  * <p>An {@link EntitySystem} which processing a {@link Family} of {@link Entity}s after the given
@@ -36,8 +40,8 @@ class Family;
  */
 class IntervalIteratingSystem : public ashley::IntervalSystem {
 private:
-	std::shared_ptr<ashley::Family> family;
-	std::vector<std::shared_ptr<ashley::Entity>> *entities = nullptr;
+	Family *family = nullptr;
+	std::vector<Entity *> *entities = nullptr;
 
 public:
 
@@ -54,7 +58,7 @@ public:
 	 * @param interval the interval, in seconds, after which {@link IntervalIteratingSystem#processEntity}
 	 * will be called for each matched {@link Entity}.
 	 */
-	IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval);
+	IntervalIteratingSystem(Family *family, float interval);
 
 	/**
 	 * <p>Creates an {@link IntervalIteratingSystem} which iterates over the {@link Entity}s
@@ -64,8 +68,7 @@ public:
 	 * will be called for each matched {@link Entity}.
 	 * @param priority the system's priority; lower priorities execute first.
 	 */
-	IntervalIteratingSystem(std::shared_ptr<ashley::Family> family, float interval,
-			uint64_t priority);
+	IntervalIteratingSystem(Family *family, float interval, uint64_t priority);
 
 	void addedToEngine(Engine &engine) override;
 	void removedFromEngine(Engine &engine) override;
@@ -73,7 +76,7 @@ public:
 protected:
 	void updateInterval() override;
 
-	virtual void processEntity(std::shared_ptr<ashley::Entity> &entity) = 0;
+	virtual void processEntity(Entity *const &entity) = 0;
 };
 
 }

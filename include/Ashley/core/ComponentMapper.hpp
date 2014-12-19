@@ -17,10 +17,10 @@
 #ifndef COMPONENTMAPPER_HPP_
 #define COMPONENTMAPPER_HPP_
 
-#include <memory>
 #include <typeinfo>
 #include <typeindex>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/ComponentType.hpp"
 #include "Ashley/core/Entity.hpp"
 
@@ -62,21 +62,21 @@ public:
 	/**
 	 * @return The {@link Component} of the specified class belonging to e.
 	 */
-	std::shared_ptr<T> get(std::shared_ptr<ashley::Entity> e) const {
+	ashley_ptr_type<T> get(entity_ptr e) const {
 		return e->getComponent<T>();
 	}
 
 	/**
 	 * @return A raw pointer {@link Component} of the specified class belonging to e.
 	 */
-	const T * getRaw(std::shared_ptr<ashley::Entity> e) const {
+	const T * getRaw(entity_ptr e) const {
 		return e->getComponent<T>().get();
 	}
 
 	/**
 	 * @return Whether or not entity has the component of the specified class.
 	 */
-	bool has(std::shared_ptr<ashley::Entity> e) const {
+	bool has(entity_ptr e) const {
 		return e->hasComponent<T>();
 	}
 

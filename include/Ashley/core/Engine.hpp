@@ -24,7 +24,9 @@
 #include <utility>
 #include <vector>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/Entity.hpp"
+#include "Ashley/core/EntitySystem.hpp"
 #include "Ashley/core/EntityListener.hpp"
 #include "Ashley/core/Family.hpp"
 #include "Ashley/internal/ComponentOperations.hpp"
@@ -37,9 +39,7 @@ class Component;
 class EntitySystem;
 class Entity;
 class Family;
-} /* namespace ashley */
 
-namespace ashley {
 /**
  * <p>The heart of the Entity framework. It is responsible for keeping track of {@link Entity} and
  * managing {@link EntitySystem} objects. The Engine should be updated every tick via the {@link #update(float)} method.</p>
@@ -73,16 +73,26 @@ public:
 	Engine& operator=(Engine &&other) = default;
 
 	/**
-	 * <p>Adds an std::shared_ptr to an {@link Entity} to this {@link Engine}.</p>
+	 * <p>Adds an std::unique_ptr to an {@link Entity} to this {@link Engine} via moving.
+	 * Note that the added unique_ptr is owned by the engine after a call to this function,
+	 * and trying to use the value you moved in is undefined behaviour.</p>
+	 *
+	 * @return a naked pointer to the {@link Entity} in the {@link Engine}.
 	 */
-	void addEntity(std::shared_ptr<ashley::Entity> ptr);
+	Entity *addEntity(std::unique_ptr<Entity> &&ptr);
 
 	/**
-	 * <p>Removes an {@link Entity} from this {@link Engine} via an shared_ptr.</p>
-	 *
-	 * <p>Note that if no external pointers are maintained, the {@link Entity} will be destroyed immediately.</p>
+	 * <p>Constructs a new {@link Entity} owned by this {@link Engine} and returns a pointer to it.</p>
+	 * @return a pointer to the created {@link Entity}.
 	 */
-	void removeEntity(std::shared_ptr<ashley::Entity> &ptr);
+	Entity *addEntity();
+
+	/**
+	 * <p>Removes an {@link Entity} from this {@link Engine} via a pointer to the entity..</p>
+	 *
+	 * <p>Note that the {@link Entity} will be destroyed immediately.</p>
+	 */
+	void removeEntity(Entity * const ptr);
 
 	/**
 	 * Removes all entities registered with this Engine.
@@ -94,14 +104,14 @@ public:
 	 *
 	 * <p>Note that once added, ownership is transferred to the Engine, and you'll probably want to call {@link Engine#getSystem} to access it.</p>
 	 */
-	void addSystem(std::shared_ptr<ashley::EntitySystem> system);
+	void addSystem(std::unique_ptr<EntitySystem> &&system);
 
 	/**
 	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
 	 * <p>Note that the argument passed could be the only remaining reference to the system and if it is the last,
 	 * the system might be immediately destroyed.</p>
 	 */
-	void removeSystem(std::shared_ptr<ashley::EntitySystem> system);
+	void removeSystem(EntitySystem * const system);
 
 	/**
 	 * <p>Removes the system associated with the given type from this {@link Engine}.</p>
@@ -114,37 +124,32 @@ public:
 	 * <p>To avoid a typecast, use the templated, argumentless version.</p>
 	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	std::shared_ptr<ashley::EntitySystem> getSystem(std::type_index systemType) const;
+	EntitySystem * const getSystem(std::type_index systemType) const;
 
 	/**
 	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to templates.</p>
 	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	template<typename ES> std::shared_ptr<ES> getSystem() {
+	template<typename ES> ashley_ptr_type<ES> getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
 		auto ret = systemsByClass.find(typeid(ES));
 		return (ret != systemsByClass.end() ?
 				std::dynamic_pointer_cast<ES>(
-						std::shared_ptr<ashley::EntitySystem>((*ret).second)) :
-				std::shared_ptr<ES>());
+						ashley_ptr_type<ashley::EntitySystem>((*ret).second)) :
+				ashley_ptr_type<ES>());
 	}
 
 	/**
-	 * @return all the systems currently attached to this {@link Engine}.
+	 * @return all the systems currently attached to this {@link Engine}. Note that this creates and populates a new
+	 * 		   vector and is therefore slow.
 	 */
-	const std::vector<std::shared_ptr<ashley::EntitySystem>> *getSystems() const;
+	const std::vector<EntitySystem * > getSystems() const;
 
 	/**
-	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
-	 */
-	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(ashley::Family &family);
-
-	/**
-	 * <p>Returns const vector of {@link Entity}s for the specified {@link Family}.</p>
+	 * <p>Returns const vector of {@link Entity} pointers for the specified {@link Family}.</p>
 	 * <p>Convenience method because of return type of Family::getFor</p>
 	 */
-	std::vector<std::shared_ptr<ashley::Entity>> *getEntitiesFor(
-			std::shared_ptr<ashley::Family> family);
+	std::vector<Entity * > *getEntitiesFor(Family * const family);
 
 	/**
 	 * Adds an {@link EntityListener}.
@@ -162,21 +167,21 @@ public:
 	 */
 	void update(float deltaTime);
 
-	static bool systemPriorityComparator(std::shared_ptr<ashley::EntitySystem> &one,
-			std::shared_ptr<ashley::EntitySystem> &other);
+	static bool systemPriorityComparator(std::unique_ptr<EntitySystem> &one,
+			std::unique_ptr<EntitySystem> &other);
 
 private:
-	std::vector<std::shared_ptr<ashley::Entity>> entities;
+	std::vector<std::unique_ptr<Entity>> entities;
 
-	std::vector<std::shared_ptr<ashley::EntitySystem>> systems;
-	std::unordered_map<std::type_index, std::shared_ptr<ashley::EntitySystem>> systemsByClass;
+	std::vector<std::unique_ptr<EntitySystem>> systems;
+	std::unordered_map<std::type_index, EntitySystem *> systemsByClass;
 
-	std::unordered_map<ashley::Family, std::vector<std::shared_ptr<ashley::Entity>>>families;
+	std::unordered_map<Family, std::vector<Entity *>> families;
 
 	std::vector<ashley::EntityListener *> listeners;
 	std::vector<ashley::EntityListener *> removalPendingListeners;
 
-	std::vector<std::shared_ptr<ashley::Entity>> pendingRemovalEntities;
+	std::vector<Entity *> pendingRemovalEntities;
 
 	bool notifying;
 	bool updating;
@@ -191,7 +196,7 @@ private:
 	void removePendingListeners();
 
 	void removePendingEntities();
-	void removeEntityInternal(std::shared_ptr<ashley::Entity> entity);
+	void removeEntityInternal(Entity * const entity);
 
 	friend class AddedListener;
 	friend class RemovedListener;
@@ -199,10 +204,13 @@ private:
 
 	class AddedListener : public ashley::Listener<Entity> {
 	public:
-		AddedListener(Engine *engine) : engine(engine) {}
+		AddedListener(Engine * const engine) :
+				engine(engine) {
+		}
 
-		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
-			engine->updateFamilyMembership(object);
+		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object)
+				override {
+			engine->updateFamilyMembership(*object);
 		}
 
 	private:
@@ -211,10 +219,13 @@ private:
 
 	class RemovedListener : public ashley::Listener<Entity> {
 	public:
-		RemovedListener(Engine *engine) : engine(engine) {}
+		RemovedListener(Engine * const engine) :
+				engine(engine) {
+		}
 
-		virtual void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
-			engine->updateFamilyMembership(object);
+		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object)
+				override {
+			engine->updateFamilyMembership(*object);
 		}
 
 	private:
@@ -223,22 +234,23 @@ private:
 
 	class EngineOperationHandler : public ashley::ComponentOperationHandler {
 	public:
-		EngineOperationHandler(Engine *engine) : engine(engine) {}
+		EngineOperationHandler(Engine *engine) :
+				engine(engine) {
+		}
 		virtual ~EngineOperationHandler() {
-			//
 		}
 
-		virtual void add(ashley::Entity *entity,
-				std::shared_ptr<ashley::Component> component) override;
-		virtual void remove(ashley::Entity *entity,
-				std::shared_ptr<ashley::Component> component) override;
+		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &component)
+				override;
+		virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex)
+				override;
 
 	private:
 		Engine *engine = nullptr;
 	};
 
-	std::shared_ptr<ashley::Listener<Entity>> componentAddedListener;
-	std::shared_ptr<ashley::Listener<Entity>> componentRemovedListener;
+	std::unique_ptr<ashley::Listener<Entity>> componentAddedListener;
+	std::unique_ptr<ashley::Listener<Entity>> componentRemovedListener;
 
 	std::unique_ptr<EngineOperationHandler> operationHandler;
 };

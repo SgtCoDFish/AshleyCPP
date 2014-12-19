@@ -29,7 +29,9 @@
 #include "Ashley/AshleyConstants.hpp"
 
 namespace ashley {
+
 class Entity;
+
 /**
  * Represents a group of {@link Component}s. It is used to describe what {@link Entity} objects an
  * {@link EntitySystem} should process.
@@ -60,7 +62,7 @@ public:
 	 * @return The family matching the specified {@link Component} type_indexes. Each set of component types will
 	 * always return the same Family instance. The types are specified in an initializer_list of type_index types.
 	 */
-	static std::shared_ptr<ashley::Family> getFor(std::initializer_list<std::type_index> types);
+	static Family *getFor(std::initializer_list<std::type_index> types);
 
 	/**
 	 * <p>Returns a family with the passed {@link Component} classes as a descriptor. Each set of component types will
@@ -71,7 +73,7 @@ public:
 	 * @param exclude entities cannot contain any of the components in the set. See {@link ComponentType#getBitsFor}.
 	 * @return The family
 	 */
-	static std::shared_ptr<ashley::Family> getFor(ashley::BitsType all, ashley::BitsType one,
+	static Family *getFor(ashley::BitsType all, ashley::BitsType one,
 			ashley::BitsType exclude);
 
 	/**
@@ -113,8 +115,9 @@ public:
 
 private:
 	using FamilyHashType = std::string;
+	using internal_family_ptr = std::unique_ptr<Family>;
 	static uint64_t familyIndex;
-	static std::unordered_map<FamilyHashType, std::shared_ptr<Family>> families;
+	static std::unordered_map<FamilyHashType, internal_family_ptr> families;
 
 	BitsType all;
 	BitsType one;

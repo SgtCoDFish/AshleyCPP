@@ -17,23 +17,21 @@
 #ifndef ENTITY_HPP_
 #define ENTITY_HPP_
 
-#include <cstdint>
-
-#include <vector>
 #include <bitset>
-#include <typeinfo>
-#include <typeindex>
+#include <cstdint>
 #include <memory>
-#include <utility>
+#include <typeindex>
+#include <unordered_map>
+#include <vector>
 
 #include "Ashley/AshleyConstants.hpp"
-#include "Ashley/core/Engine.hpp"
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/ComponentType.hpp"
-#include "Ashley/signals/Signal.hpp"
 #include "Ashley/internal/ComponentOperations.hpp"
+#include "Ashley/signals/Signal.hpp"
 
 namespace ashley {
+
 /**
  * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
@@ -66,11 +64,16 @@ public:
 	Entity& operator=(Entity &&other) = default;
 
 	/**
-	 * <p>Adds a component via a shared ptr to an existing component.</p>
+	 * <p>Adds a component via a unqiue ptr to an existing component via moving. If this seems really confusing, look up rvalue references.</p>
+	 *
+	 * <p>In short, if you create a component stored in a std::unique_ptr, you want to call: <br>
+	 * <tt>entity->add(std::move(component));</tt><br>
+	 * and remember not to use the component after moving it; use getComponent.
+	 * </p>
 	 * @param component the component to add.
 	 * @return this {@link Entity} for chaining.
 	 */
-	Entity &add(std::shared_ptr<Component> component);
+	Entity &add(std::unique_ptr<Component> &&component);
 
 	/**
 	 * <p>Constructs a new object of type C (subclassing ashley::Component) using args for construction.</p>
@@ -79,15 +82,12 @@ public:
 	 * @return This Entity for easy chaining
 	 */
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
-//		auto type = std::type_index(typeid(C));
-
-		auto mapPtr = std::make_shared<C>(args...);
-		std::shared_ptr<ashley::Component> comPtr = std::dynamic_pointer_cast<ashley::Component>(mapPtr);
+		auto mapPtr = std::unique_ptr<C>(new C(args...));
 
 		if (operationHandler != nullptr) {
-			operationHandler->add(this, comPtr);
+			operationHandler->add(this, mapPtr);
 		} else {
-			addInternal(comPtr);
+			addInternal(mapPtr);
 		}
 
 		return *this;
@@ -96,30 +96,32 @@ public:
 	/**
 	 * <p>Removes a {@link Component} by its type_index.</p>
 	 * @param typeIndex the type index of the component to remove
-	 * @return a shared_ptr to the removed component or nullptr if it was not found.
+	 * @return the removed {@link Component} or nullptr if not found, or if the removal has been delayed
+	 * 		   (e.g. when we're already in update() and need to wait to the end)
 	 */
-	std::shared_ptr<ashley::Component> remove(std::type_index typeIndex);
+	std::unique_ptr<Component> remove(const std::type_index typeIndex);
 
 	/**
 	 * <p>Removes the given {@link Component}, if it's found attached to this {@link Entity}.
 	 * @param component the {@link Component} to remove.
-	 * @return the removed {@link Component} or nullptr if not found.
+	 * @return the removed {@link Component} or nullptr if not found, or if the removal has been delayed
+	 * 		   (e.g. when we're already in update() and need to wait to the end)
 	 */
-	std::shared_ptr<ashley::Component> remove(std::shared_ptr<ashley::Component> &component);
+	std::unique_ptr<Component> remove(const Component *component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
 	 * don't need an instance, just the type.</p>
 	 * @return A shared_ptr to the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
 	 */
-	template<typename C> std::shared_ptr<ashley::Component> remove() {
+	template<typename C> std::unique_ptr<C> remove() {
 		auto typeIndex = std::type_index(typeid(C));
 		auto typeID = ashley::ComponentType::getIndexFor<C>();
 
 		if (componentBits[typeID] == true) {
 			return remove(typeIndex);
 		} else {
-			return std::shared_ptr<ashley::Component>(nullptr);
+			return nullptr;
 		}
 	}
 
@@ -129,9 +131,12 @@ public:
 	void removeAll();
 
 	/**
-	 * @return const version of the map of all this Entity's {@link Component} pointers.
+	 * <p>Note that this function creates a new vector and populates it with pointers referencing the original
+	 * unique_ptrs that the object stores. This is slow, and this function probably shouldn't be used often.</p>
+	 *
+	 * @return vector of all this Entity's {@link Component} pointers.
 	 */
-	const std::vector<std::shared_ptr<ashley::Component>> getComponents() const;
+	std::vector<Component *> getComponents() const;
 
 	/**
 	 * @return The Entity's unique index.
@@ -143,28 +148,15 @@ public:
 	/**
 	 * @return a shared_ptr to the specified component type in this object, or a null shared_ptr if the Entity has no such component.
 	 */
-	template<typename C> std::shared_ptr<C> getComponent() {
+	template<typename C> C* getComponent() {
 		auto type = std::type_index(typeid(C));
 		auto id = ashley::ComponentType::getIndexFor(type);
 
-		return (componentBits[id] ?
-				std::dynamic_pointer_cast<C>(componentMap[type]) : std::shared_ptr<C>());
+		return (componentBits[id] ? (C *) (componentMap[type].get()) : nullptr);
 	}
 
 	/**
-	 * @return a weak_ptr to the specified component type in this object, or a null weak_ptr if the Entity has no such component.
-	 */
-	template<typename C> std::weak_ptr<C> getComponentWeak() {
-		auto type = std::type_index(typeid(C));
-		auto id = ashley::ComponentType::getIndexFor(type);
-
-		return (componentBits[id] ?
-				std::weak_ptr<C>(std::dynamic_pointer_cast<C>(componentMap[type])) :
-				std::weak_ptr<C>());
-	}
-
-	/**
-	 * @return Whether or not the Entity already has a {@link Component} for the specified type.
+	 * @return Whether or not the Entity already has a {@link Component} of the specified type.
 	 */
 	template<typename C> bool hasComponent() const {
 		return componentBits[ashley::ComponentType::getIndexFor(std::type_index(typeid(C)))];
@@ -218,23 +210,23 @@ private:
 
 	uint64_t index;
 
-	std::unordered_map<std::type_index, std::shared_ptr<ashley::Component>> componentMap;
+	std::unordered_map<std::type_index, std::unique_ptr<Component>> componentMap;
 
 	ashley::BitsType componentBits;
 	ashley::BitsType familyBits;
 
 	ComponentOperationHandler *operationHandler = nullptr;
 
-	Entity &addInternal(std::shared_ptr<ashley::Component> component);
+	void addInternal(std::unique_ptr<Component> &component);
 
-	std::shared_ptr<ashley::Component> removeImpl(std::shared_ptr<Component> &component);
+	std::unique_ptr<Component> removeImpl(std::type_index typeIndex);
 
 	/**
 	 * Actually processes the removal of a {@link Component} from this {@link Entity}.
 	 * @param componentType the component to remove
 	 * @return the component removed or nullptr if not removed
 	 */
-	std::shared_ptr<ashley::Component> removeInternal(std::shared_ptr<Component> &component);
+	std::unique_ptr<Component> removeInternal(std::type_index typeIndex);
 
 	friend class ComponentOperationHandler;
 };

@@ -14,10 +14,12 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ASHLEY_HPP_
-#define ASHLEY_HPP_
+#ifndef ASHLEYCORE__HPP_
+#define ASHLEYCORE__HPP_
 
 // include all AshleyCPP files here
+#include "AshleyConstants.hpp"
+
 #include "core/Family.hpp"
 #include "core/Component.hpp"
 #include "core/ComponentMapper.hpp"

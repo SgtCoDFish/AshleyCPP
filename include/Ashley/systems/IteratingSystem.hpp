@@ -19,12 +19,16 @@
 
 #include <vector>
 
+#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 
 namespace ashley {
 class Entity;
 class Engine;
 class Family;
+class IteratingSystem;
+
+using iterating_system_ptr = ashley_ptr_type<IteratingSystem>;
 
 /**
  * <p>A simple EntitySystem that iterates over each entity and calls processEntity() for each entity every time
@@ -40,7 +44,7 @@ public:
 	 * Instantiates a system that will iterate over the entities described by the Family, with the default priority.
 	 * @param family The family of entities iterated over in this System
 	 */
-	IteratingSystem(std::shared_ptr<ashley::Family> family) :
+	IteratingSystem(Family *family) :
 			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 
@@ -50,7 +54,7 @@ public:
 	 * @param family The family of entities iterated over in this System
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
-	IteratingSystem(std::shared_ptr<ashley::Family> family, uint64_t priority) :
+	IteratingSystem(Family *family, uint64_t priority) :
 			EntitySystem(priority), family(family), entities() {
 	}
 
@@ -71,7 +75,7 @@ public:
 	 * @param entity The current Entity being processed
 	 * @param deltaTime The delta in time between the last and current frame
 	 */
-	virtual void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) = 0;
+	virtual void processEntity(Entity * const &entity, float deltaTime) = 0;
 
 	/**
 	 * @return true if there is at least 1 {@link Entity} matching the family for this system.
@@ -82,12 +86,12 @@ protected:
 	/**
 	 * The family used by this IteratingSystem to retrieve its {@link Entity}s.
 	 */
-	std::shared_ptr<ashley::Family> family;
+	Family *family = nullptr;
 
 	/**
 	 * An array of pointers to matching {@link Entity}s which is automatically updated every tick.
 	 */
-	std::vector<std::shared_ptr<ashley::Entity>> *entities;
+	std::vector<Entity *> *entities = nullptr;
 };
 }
 
