@@ -46,7 +46,7 @@ public:
 	}
 
 protected:
-	void processEntity(std::shared_ptr<ashley::Entity> &entity) {
+	void processEntity(ashley::Entity *const &entity) {
 		im.get(entity)->numUpdates++;
 	}
 };
@@ -58,8 +58,7 @@ protected:
 	std::shared_ptr<IntervalIteratingSystemSpy> intervalIteratingSystemSpy = nullptr;
 
 	IntervalIteratingSystemTest() {
-		intervalIteratingSystemSpy = std::make_shared<IntervalIteratingSystemSpy>();
-		engine.addSystem(intervalIteratingSystemSpy);
+		engine.addSystem<IntervalIteratingSystemSpy>();
 	}
 };
 
@@ -71,9 +70,8 @@ TEST_F(IntervalIteratingSystemTest, IntervalIteratingSystem) {
 	auto im = ashley::ComponentMapper<IntervalComponentSpy>::getMapper();
 
 	for (int i = 0; i < 10; ++i) {
-		auto entity = std::make_shared<ashley::Entity>();
+		auto entity = engine.addEntity();
 		entity->add<IntervalComponentSpy>();
-		engine.addEntity(entity);
 	}
 
 	for (int i = 1; i <= 10; ++i) {

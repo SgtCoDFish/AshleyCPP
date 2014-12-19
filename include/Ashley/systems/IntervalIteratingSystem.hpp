@@ -19,16 +19,12 @@
 
 #include <vector>
 
-#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/systems/IntervalSystem.hpp"
 
 namespace ashley {
 class Entity;
 class Engine;
 class Family;
-class IntervalIteratingSystem;
-
-using interval_iterating_system_ptr = ashley_ptr_type<IntervalIteratingSystem>;
 
 /**
  * <p>An {@link EntitySystem} which processing a {@link Family} of {@link Entity}s after the given

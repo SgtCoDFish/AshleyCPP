@@ -97,18 +97,21 @@ void ashley::Engine::removeAllEntities() {
 	}
 }
 
-void ashley::Engine::addSystem(std::unique_ptr<EntitySystem> &&system) {
-	auto systemIndex = std::type_index(typeid(*system));
+ashley::EntitySystem *ashley::Engine::addSystem(std::unique_ptr<EntitySystem> &&system) {
+	const auto systemIndex = std::type_index(typeid(*system));
 
 	auto it = systemsByClass.find(systemIndex);
 
 	if (it == systemsByClass.end()) {
 		systems.emplace_back(std::move(system));
+
 		systemsByClass.emplace(systemIndex, systems.back().get());
-		system->addedToEngine(*this);
+		systems.back()->addedToEngine(*this);
 
 		std::sort(systems.begin(), systems.end(), Engine::systemPriorityComparator);
 	}
+
+	return getSystem(systemIndex);
 }
 
 void ashley::Engine::removeSystem(std::type_index systemType) {
@@ -121,9 +124,9 @@ void ashley::Engine::removeSystem(EntitySystem * const system) {
 			[&](std::unique_ptr<ashley::EntitySystem> &found) {return found.get() == system;});
 
 	if (ptr != systems.end()) {
-		systems.erase(ptr);
 		systemsByClass.erase(system->identify());
 		system->removedFromEngine(*this);
+		systems.erase(ptr);
 	}
 }
 

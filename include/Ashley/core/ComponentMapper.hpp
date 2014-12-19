@@ -62,21 +62,14 @@ public:
 	/**
 	 * @return The {@link Component} of the specified class belonging to e.
 	 */
-	ashley_ptr_type<T> get(entity_ptr e) const {
+	T *get(Entity *e) const {
 		return e->getComponent<T>();
-	}
-
-	/**
-	 * @return A raw pointer {@link Component} of the specified class belonging to e.
-	 */
-	const T * getRaw(entity_ptr e) const {
-		return e->getComponent<T>().get();
 	}
 
 	/**
 	 * @return Whether or not entity has the component of the specified class.
 	 */
-	bool has(entity_ptr e) const {
+	bool has(Entity *e) const {
 		return e->hasComponent<T>();
 	}
 

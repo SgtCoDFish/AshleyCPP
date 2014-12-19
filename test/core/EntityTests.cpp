@@ -74,7 +74,7 @@ public:
 			counter(0) {
 	}
 
-	void receive(const ashley::Signal<ashley::Entity> &signal, ashley::Entity &object) override {
+	void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
 		++counter;
 	}
 };
@@ -82,15 +82,11 @@ public:
 // Ensure that all entities obtain different IDs.
 TEST_F(EntityTest, UniqueIndex) {
 	const int numEntities = 1000;
-
-	std::vector<ashley::Entity> entities;
 	std::bitset<numEntities * 4> ids;
 
 	for (int i = 0; i < numEntities; i++) {
 		ashley::Entity e;
 		ASSERT_FALSE(ids[(e.getIndex())] == 1)<< "Non-unique entity ID generated: " << e.getIndex() << ".";
-		ids[e.getIndex()] = 1;
-		entities.push_back(e);
 	}
 }
 
@@ -146,11 +142,11 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 }
 
 TEST_F(EntityTest, AddExistingComponent) {
-	auto e = std::make_shared<ashley::Entity>();
+	auto e = std::unique_ptr<ashley::Entity>(new ashley::Entity());
 
-	auto pos = std::make_shared<ashley::test::PositionComponent>(5, 5);
+	auto pos = std::unique_ptr<ashley::test::PositionComponent>(new ashley::test::PositionComponent(5, 5));
 
-	e->add(pos);
+	e->add(std::move(pos));
 
 	ASSERT_TRUE(e->hasComponent<ashley::test::PositionComponent>());
 	ASSERT_FALSE(e->hasComponent<ashley::test::VelocityComponent>());
@@ -257,14 +253,11 @@ TEST_F(EntityTest, AddSameComponent) {
 // Ensure the component listener signals work as intended
 TEST_F(EntityTest, ComponentListener) {
 	ashley::Entity e;
-	std::shared_ptr<ashley::Listener<ashley::Entity>> addPtr = std::make_shared<EntityListenerMock>();
-	std::shared_ptr<ashley::Listener<ashley::Entity>> remPtr = std::make_shared<EntityListenerMock>();
+	EntityListenerMock *dynAdd = new EntityListenerMock();
+	EntityListenerMock *dynRem = new EntityListenerMock();
 
-	auto dynAdd = std::dynamic_pointer_cast<EntityListenerMock>(addPtr);
-	auto dynRem = std::dynamic_pointer_cast<EntityListenerMock>(remPtr);
-
-	e.componentAdded.add(addPtr);
-	e.componentRemoved.add(remPtr);
+	e.componentAdded.add(dynAdd);
+	e.componentRemoved.add(dynRem);
 
 	ASSERT_EQ(0, dynAdd->counter);
 	ASSERT_EQ(0, dynRem->counter);

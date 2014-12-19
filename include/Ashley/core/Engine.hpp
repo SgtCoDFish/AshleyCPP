@@ -104,7 +104,11 @@ public:
 	 *
 	 * <p>Note that once added, ownership is transferred to the Engine, and you'll probably want to call {@link Engine#getSystem} to access it.</p>
 	 */
-	void addSystem(std::unique_ptr<EntitySystem> &&system);
+	EntitySystem *addSystem(std::unique_ptr<EntitySystem> &&system);
+
+	template <typename ES, typename ...Args> ES *addSystem(Args&&... args) {
+		return (ES *)addSystem(std::unique_ptr<ES>(new ES(args...)));
+	}
 
 	/**
 	 * <p>Removes the given {@link EntitySystem} from this {@link Engine}.</p>
@@ -130,13 +134,10 @@ public:
 	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to templates.</p>
 	 * @return A shared_ptr to the system if it exists in the system or a shared_ptr to nullptr otherwise.
 	 */
-	template<typename ES> ashley_ptr_type<ES> getSystem() {
+	template<typename ES> ES *getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
 		auto ret = systemsByClass.find(typeid(ES));
-		return (ret != systemsByClass.end() ?
-				std::dynamic_pointer_cast<ES>(
-						ashley_ptr_type<ashley::EntitySystem>((*ret).second)) :
-				ashley_ptr_type<ES>());
+		return (ES*)(ret != systemsByClass.end() ? (*ret).second : nullptr);
 	}
 
 	/**

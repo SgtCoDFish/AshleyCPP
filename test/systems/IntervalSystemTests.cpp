@@ -41,11 +41,10 @@ protected:
 class IntervalSystemTest : public ::testing::Test {
 protected:
 	ashley::Engine engine;
-	std::shared_ptr<IntervalSystemSpy> intervalSystemSpy = nullptr;
+	IntervalSystemSpy *intervalSystemSpy = nullptr;
 
 	IntervalSystemTest() {
-		intervalSystemSpy = std::make_shared<IntervalSystemSpy>();
-		engine.addSystem(intervalSystemSpy);
+		intervalSystemSpy = engine.addSystem<IntervalSystemSpy>();
 	}
 };
 }

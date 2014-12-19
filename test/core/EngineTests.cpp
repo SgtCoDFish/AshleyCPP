@@ -139,16 +139,14 @@ protected:
 
 // Ensure that listeners work with adding and removing all entities.
 TEST_F(EngineTest, AddAndRemoveEntities) {
-	auto e1 = std::make_shared<Entity>();
-	engine.addEntity(e1);
+	engine.addEntity();
 
 	ASSERT_EQ(1, listenerA.addedCount);
 	ASSERT_EQ(1, listenerB.addedCount);
 
 	engine.removeEntityListener(&listenerB);
 
-	auto e2 = std::make_shared<Entity>();
-	engine.addEntity(e2);
+	engine.addEntity();
 
 	ASSERT_EQ(2, listenerA.addedCount);
 	ASSERT_EQ(1, listenerB.addedCount);
@@ -159,8 +157,6 @@ TEST_F(EngineTest, AddAndRemoveEntities) {
 
 	ASSERT_EQ(2, listenerA.removedCount);
 	ASSERT_EQ(2, listenerB.removedCount);
-//	ASSERT_EQ(e1.use_count(), 1);
-//	ASSERT_EQ(e2.use_count(), 1);
 }
 
 // Test the addSystem(EntitySystem*) getSystem() and removeSystem(typeID) methods
@@ -168,11 +164,11 @@ TEST_F(EngineTest, AddGetAndRemoveSystem) {
 	ASSERT_TRUE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_TRUE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
 
-	engine.addSystem(std::make_shared<EntitySystemMockA>());
-	engine.addSystem(std::make_shared<EntitySystemMockB>());
+	engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
-	auto sA = engine.getSystem<EntitySystemMockA>();
-	auto sB = engine.getSystem<EntitySystemMockB>();
+	auto sA = (EntitySystemMockA *) engine.getSystem<EntitySystemMockA>();
+	auto sB = (EntitySystemMockB *) engine.getSystem<EntitySystemMockB>();
 
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
@@ -193,11 +189,11 @@ TEST_F(EngineTest, AddAndRemoveSystemShared) {
 	ASSERT_TRUE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_TRUE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
 
-	auto aptr = std::make_shared<EntitySystemMockA>(systemA);
-	auto bptr = std::make_shared<EntitySystemMockB>(systemB);
+	engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
-	engine.addSystem(aptr);
-	engine.addSystem(bptr);
+	auto aptr = engine.getSystem<EntitySystemMockA>();
+	auto bptr = engine.getSystem<EntitySystemMockB>();
 
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
@@ -214,10 +210,10 @@ TEST_F(EngineTest, AddAndRemoveSystemShared) {
 }
 
 TEST_F(EngineTest, SystemUpdate) {
-	auto aptr = std::make_shared<EntitySystemMockA>();
-	auto bptr = std::make_shared<EntitySystemMockB>();
-	engine.addSystem(aptr);
-	engine.addSystem(bptr);
+	auto aptr = (EntitySystemMockA*) engine.addSystem(
+			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto bptr = (EntitySystemMockB*) engine.addSystem(
+			std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
 	const int numUpdates = 10;
 
@@ -247,17 +243,13 @@ TEST_F(EngineTest, SystemUpdate) {
 TEST_F(EngineTest, SystemUpdateOrder) {
 	auto updates = std::make_shared<std::vector<uint64_t>>();
 
-	EntitySystemMockA system1(updates);
-	EntitySystemMockB system2(updates);
+	auto aptr = (EntitySystemMockA *) engine.addSystem(
+			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto bptr = (EntitySystemMockB *) engine.addSystem(
+			std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
-	system1.priority = 2;
-	system2.priority = 1;
-
-	auto aptr = std::make_shared<EntitySystemMockA>(system1);
-	auto bptr = std::make_shared<EntitySystemMockB>(system2);
-
-	engine.addSystem(aptr);
-	engine.addSystem(bptr);
+	aptr->priority = 2;
+	bptr->priority = 1;
 
 	engine.update(deltaTime);
 
@@ -270,9 +262,8 @@ TEST_F(EngineTest, SystemUpdateOrder) {
 }
 
 TEST_F(EngineTest, IgnoreSystem) {
-	auto aptr = std::make_shared<EntitySystemMockA>(systemA);
-
-	engine.addSystem(aptr);
+	auto aptr = (EntitySystemMockA *) engine.addSystem(
+			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
 	const int numUpdates = 10;
 
 	for (int i = 0; i < numUpdates; i++) {
@@ -286,35 +277,29 @@ TEST_F(EngineTest, IgnoreSystem) {
 
 TEST_F(EngineTest, EntitiesForFamily) {
 	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
-	auto familyEntities = engine.getEntitiesFor(*family);
+	auto familyEntities = engine.getEntitiesFor(family);
 
 	ASSERT_EQ(0, familyEntities->size());
 
-	auto e1 = std::make_shared<Entity>();
-	auto e2 = std::make_shared<Entity>();
-	auto e3 = std::make_shared<Entity>();
-	auto e4 = std::make_shared<Entity>();
+	auto e1 = engine.addEntity();
+	auto e2 = engine.addEntity();
+	auto e3 = engine.addEntity();
+	auto e4 = engine.addEntity();
 
 	e1->add<ComponentA>().add<ComponentB>();
 	e2->add<ComponentA>().add<ComponentC>();
 	e3->add<ComponentA>().add<ComponentB>().add<ComponentC>();
 	e4->add<ComponentA>().add<ComponentB>().add<ComponentC>();
 
-	engine.addEntity(e1);
-	engine.addEntity(e2);
-	engine.addEntity(e3);
-	engine.addEntity(e4);
-
 	ASSERT_EQ(3, familyEntities->size());
 
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
-	std::for_each(familyEntities->begin(), familyEntities->end(),
-			[&](std::shared_ptr<ashley::Entity> found) {
-				if(found == e1) e1Found = true;
-				else if(found == e2) e2Found = true;
-				else if(found == e3) e3Found = true;
-				else if(found == e4) e4Found = true;});
+	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
+		if(found == e1) e1Found = true;
+		else if(found == e2) e2Found = true;
+		else if(found == e3) e3Found = true;
+		else if(found == e4) e4Found = true;});
 
 	ASSERT_EQ(e1Found, true);
 	ASSERT_EQ(e2Found, false);
@@ -323,59 +308,53 @@ TEST_F(EngineTest, EntitiesForFamily) {
 }
 
 TEST_F(EngineTest, EntityForFamilyWithRemoval) {
-	auto e = std::make_shared<Entity>();
-
+	auto e = engine.addEntity();
 	e->add<ComponentA>();
-
-	engine.addEntity(e);
 	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(ComponentA) }));
 
 	ASSERT_EQ(entities->size(), 1);
 	ASSERT_TRUE(
 			std::find_if(entities->begin(), entities->end(),
-					[&](std::shared_ptr<Entity> &found) {return found == e;})
-					!= entities->end());
+					[&](Entity *&found) {return found == e;}) != entities->end());
 
 	engine.removeEntity(e);
 
 	ASSERT_EQ(0, entities->size());
 	ASSERT_FALSE(
 			std::find_if(entities->begin(), entities->end(),
-					[&](std::shared_ptr<Entity> found) {return found == e;})
-					!= entities->end());
+					[&](Entity *&found) {return found == e;}) != entities->end());
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
-	auto familyEntities = engine.getEntitiesFor(*family);
+	auto familyEntities = engine.getEntitiesFor(family);
 
 	ASSERT_EQ(0, familyEntities->size());
 
-	auto e1 = std::make_shared<Entity>();
-	auto e2 = std::make_shared<Entity>();
-	auto e3 = std::make_shared<Entity>();
-	auto e4 = std::make_shared<Entity>();
+	auto e1u = std::unique_ptr<Entity>(new Entity());
+	auto e2u = std::unique_ptr<Entity>(new Entity());
+	auto e3u = std::unique_ptr<Entity>(new Entity());
+	auto e4u = std::unique_ptr<Entity>(new Entity());
 
-	e1->add<ComponentA>().add<ComponentB>();
-	e2->add<ComponentA>().add<ComponentC>();
-	e3->add<ComponentA>().add<ComponentB>().add<ComponentC>();
-	e4->add<ComponentA>().add<ComponentB>().add<ComponentC>();
+	e1u->add<ComponentA>().add<ComponentB>();
+	e2u->add<ComponentA>().add<ComponentC>();
+	e3u->add<ComponentA>().add<ComponentB>().add<ComponentC>();
+	e4u->add<ComponentA>().add<ComponentB>().add<ComponentC>();
 
-	engine.addEntity(e1);
-	engine.addEntity(e2);
-	engine.addEntity(e3);
-	engine.addEntity(e4);
+	auto e1 = engine.addEntity(std::move(e1u));
+	auto e2 = engine.addEntity(std::move(e2u));
+	auto e3 = engine.addEntity(std::move(e3u));
+	auto e4 = engine.addEntity(std::move(e4u));
 
 	ASSERT_EQ(3, familyEntities->size());
 
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
-	std::for_each(familyEntities->begin(), familyEntities->end(),
-			[&](std::shared_ptr<ashley::Entity> &found) {
-				if(found == e1) e1Found = true;
-				else if(found == e2) e2Found = true;
-				else if(found == e3) e3Found = true;
-				else if(found == e4) e4Found = true;});
+	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
+		if(found == e1) e1Found = true;
+		else if(found == e2) e2Found = true;
+		else if(found == e3) e3Found = true;
+		else if(found == e4) e4Found = true;});
 
 	ASSERT_EQ(e1Found, true);
 	ASSERT_EQ(e2Found, false);
@@ -387,12 +366,11 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 
 	e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
-	std::for_each(familyEntities->begin(), familyEntities->end(),
-			[&](std::shared_ptr<ashley::Entity> &found) {
-				if(found == e1) e1Found = true;
-				else if(found == e2) e2Found = true;
-				else if(found == e3) e3Found = true;
-				else if(found == e4) e4Found = true;});
+	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
+		if(found == e1) e1Found = true;
+		else if(found == e2) e2Found = true;
+		else if(found == e3) e3Found = true;
+		else if(found == e4) e4Found = true;});
 
 	EXPECT_EQ(e1Found, false);
 	EXPECT_EQ(e2Found, false);
@@ -409,11 +387,11 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
 
 	auto entsWithB = engine.getEntitiesFor(Family::getFor( { typeid(ComponentB) }));
 
-	auto e1 = std::make_shared<Entity>();
-	auto e2 = std::make_shared<Entity>();
+	auto e1u = std::unique_ptr<Entity>(new Entity());
+	auto e2u = std::unique_ptr<Entity>(new Entity());
 
-	engine.addEntity(e1);
-	engine.addEntity(e2);
+	auto e1 = engine.addEntity(std::move(e1u));
+	auto e2 = engine.addEntity(std::move(e2u));
 
 	e1->add<ComponentA>();
 
@@ -432,13 +410,12 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
 TEST_F(EngineTest, GetSystems) {
 	auto sys = engine.getSystems();
 
-	ASSERT_EQ(sys->size(), 0);
+	ASSERT_EQ(sys.size(), 0);
 
-	auto aptr = std::make_shared<EntitySystemMockA>();
-	auto bptr = std::make_shared<EntitySystemMockB>();
+	engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
-	engine.addSystem(aptr);
-	engine.addSystem(bptr);
+	sys = engine.getSystems();
 
-	ASSERT_EQ(sys->size(), 2);
+	ASSERT_EQ(sys.size(), 2);
 }

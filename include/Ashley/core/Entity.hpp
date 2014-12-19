@@ -82,7 +82,7 @@ public:
 	 * @return This Entity for easy chaining
 	 */
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
-		auto mapPtr = std::unique_ptr<C>(new C(args...));
+		auto mapPtr = std::unique_ptr<Component>(new C(args...));
 
 		if (operationHandler != nullptr) {
 			operationHandler->add(this, mapPtr);
@@ -107,21 +107,21 @@ public:
 	 * @return the removed {@link Component} or nullptr if not found, or if the removal has been delayed
 	 * 		   (e.g. when we're already in update() and need to wait to the end)
 	 */
-	std::unique_ptr<Component> remove(const Component *component);
+	std::unique_ptr<Component> remove(Component * const component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
 	 * don't need an instance, just the type.</p>
 	 * @return A shared_ptr to the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
 	 */
-	template<typename C> std::unique_ptr<C> remove() {
-		auto typeIndex = std::type_index(typeid(C));
-		auto typeID = ashley::ComponentType::getIndexFor<C>();
+	template<typename C> std::unique_ptr<Component> remove() {
+		const auto typeIndex = std::type_index(typeid(C));
+		const auto typeID = ashley::ComponentType::getIndexFor<C>();
 
 		if (componentBits[typeID] == true) {
 			return remove(typeIndex);
 		} else {
-			return nullptr;
+			return std::unique_ptr<C>();
 		}
 	}
 

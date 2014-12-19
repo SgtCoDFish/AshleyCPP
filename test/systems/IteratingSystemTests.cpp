@@ -58,10 +58,10 @@ protected:
 	Engine engine;
 
 	Family *family = nullptr;
-	ashley::entity_ptr e;
+	Entity *e = nullptr;
 
 	IteratingSystemTest() :
-			family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })), e{nullptr} {
+			family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })), e { nullptr } {
 	}
 };
 
@@ -75,7 +75,7 @@ public:
 
 	uint64_t numUpdates;
 
-	void processEntity(std::shared_ptr<ashley::Entity> &entity, float deltaTime) override {
+	void processEntity(Entity * const &entity, float deltaTime) override {
 		++numUpdates;
 	}
 };
@@ -107,7 +107,7 @@ public:
 					ComponentMapper<IndexComponent>::getMapper()) {
 	}
 
-	void processEntity(std::shared_ptr<Entity> &entity, float deltaTime) override {
+	void processEntity(Entity * const &entity, float deltaTime) override {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
@@ -144,7 +144,7 @@ public:
 		this->engine = nullptr;
 	}
 
-	void processEntity(std::shared_ptr<Entity> &entity, float deltaTime) override {
+	void processEntity(Entity * const &entity, float deltaTime) override {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
@@ -158,10 +158,8 @@ public:
 }
 
 TEST_F(IteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
-	auto mockSystem = std::make_shared<IteratingSystemMock>(family);
-
-	engine.addSystem(mockSystem);
-	engine.addEntity(e);
+	auto mockSystem = engine.addSystem<IteratingSystemMock>(family);
+	auto e = engine.addEntity();
 
 	e->add<ComponentA>();
 	engine.update(delta);
@@ -192,17 +190,17 @@ TEST_F(IteratingSystemTest, EntityRemovalWhileIterating) {
 			typeid(IndexComponent) }));
 	auto sm = ComponentMapper<SpyComponent>::getMapper();
 
-	engine.addSystem(std::make_shared<IteratingRemovalMock>(10));
+	engine.addSystem<IteratingRemovalMock>(10);
 
 	constexpr int numEntities = 10;
 
 	for (int i = 0; i < numEntities; i++) {
-		auto e = std::make_shared<Entity>();
+		auto e = std::unique_ptr<Entity>(new Entity());
 
 		e->add<SpyComponent>();
 		e->add<IndexComponent>(i + 1);
 
-		engine.addEntity(e);
+		engine.addEntity(std::move(e));
 	}
 
 	engine.update(delta);
@@ -223,24 +221,24 @@ TEST_F(IteratingSystemTest, ComponentRemovalWhileIterating) {
 			typeid(IndexComponent) }));
 	auto sm = ComponentMapper<SpyComponent>::getMapper();
 
-	engine.addSystem(std::make_shared<IteratingComponentRemovalMock>(10));
+	engine.addSystem<IteratingComponentRemovalMock>(10);
 
 	constexpr int numEntities = 10;
 
 	for (int i = 0; i < numEntities; i++) {
-		auto e = std::make_shared<Entity>();
+		auto e = std::unique_ptr<Entity>(new Entity());
 
 		e->add<SpyComponent>();
-		e->add<IndexComponent>(i+1);
+		e->add<IndexComponent>(i + 1);
 
-		engine.addEntity(e);
+		engine.addEntity(std::move(e));
 	}
 
 	engine.update(delta);
 
 	ASSERT_EQ(numEntities / 2, entities->size());
 
-	for(unsigned int i = 0; i < entities->size(); i++) {
+	for (unsigned int i = 0; i < entities->size(); i++) {
 		auto e = entities->at(i);
 
 		ASSERT_EQ(1, sm.get(e)->updates);

@@ -45,7 +45,7 @@ ashley::Entity &ashley::Entity::add(std::unique_ptr<Component> &&component) {
 	return *this;
 }
 
-std::unique_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIndex) {
+std::unique_ptr<ashley::Component> ashley::Entity::remove(const std::type_index typeIndex) {
 	try {
 		return removeImpl(typeIndex);
 	} catch (std::out_of_range &oor) {
@@ -54,7 +54,7 @@ std::unique_ptr<ashley::Component> ashley::Entity::remove(std::type_index typeIn
 
 }
 
-std::unique_ptr<ashley::Component> ashley::Entity::remove(const Component *component) {
+std::unique_ptr<ashley::Component> ashley::Entity::remove(Component * const component) {
 	return remove(component->identify());
 }
 

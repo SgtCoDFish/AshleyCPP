@@ -19,16 +19,12 @@
 
 #include <vector>
 
-#include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/EntitySystem.hpp"
 
 namespace ashley {
 class Entity;
 class Engine;
 class Family;
-class IteratingSystem;
-
-using iterating_system_ptr = ashley_ptr_type<IteratingSystem>;
 
 /**
  * <p>A simple EntitySystem that iterates over each entity and calls processEntity() for each entity every time
