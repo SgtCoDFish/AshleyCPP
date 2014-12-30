@@ -47,7 +47,7 @@ public:
 	 * @param interval The amount of time, in seconds, that the system waits before it
 	 * executes {@link IntervalSystem#updateInterval}.
 	 */
-	IntervalSystem(float interval);
+	explicit IntervalSystem(float interval);
 
 	/**
 	 * <p>Creates an {@link IntervalSystem} with the given priority and the given interval.

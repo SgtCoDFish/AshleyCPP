@@ -75,7 +75,7 @@ public:
 
 private:
 	const ashley::ComponentType componentType;
-	ComponentMapper(std::type_index componentClass) :
+	explicit ComponentMapper(std::type_index componentClass) :
 			componentType(ashley::ComponentType::getFor(componentClass)) {
 	}
 };

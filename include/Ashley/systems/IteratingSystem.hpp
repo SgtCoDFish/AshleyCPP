@@ -40,7 +40,7 @@ public:
 	 * Instantiates a system that will iterate over the entities described by the Family, with the default priority.
 	 * @param family The family of entities iterated over in this System
 	 */
-	IteratingSystem(Family *family) :
+	explicit IteratingSystem(Family *family) :
 			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 

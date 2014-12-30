@@ -64,7 +64,7 @@ public:
 	 * @param priority The priority to execute this system with (lower means higher priority).
 	 */
 
-	EntitySystem(uint64_t priority) :
+	explicit EntitySystem(uint64_t priority) :
 			processing(true), priority(priority) {
 	}
 
