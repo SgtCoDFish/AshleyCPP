@@ -129,7 +129,7 @@ void ashley::Engine::removeSystem(EntitySystem * const system) {
 	}
 }
 
-ashley::EntitySystem * const ashley::Engine::getSystem(std::type_index systemType) const {
+ashley::EntitySystem * ashley::Engine::getSystem(std::type_index systemType) const {
 	auto ret = systemsByClass.find(systemType);
 	return (ret != systemsByClass.end() ? (*ret).second : nullptr);
 }

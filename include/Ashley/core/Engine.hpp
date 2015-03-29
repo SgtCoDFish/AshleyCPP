@@ -137,7 +137,7 @@ public:
 	 * <p>To avoid a typecast, use the templated, argument-less version.</p>
 	 * @return A naked pointer to the system if it exists in the {@link Engine} or nullptr otherwise.
 	 */
-	EntitySystem * const getSystem(std::type_index systemType) const;
+	EntitySystem * getSystem(std::type_index systemType) const;
 
 	/**
 	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to template magic.</p>
