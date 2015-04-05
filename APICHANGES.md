@@ -34,6 +34,9 @@ This file contains all the API changes between this C++ port and the original Ja
   Two entities compare equal if they have the same index number.
   - Relational comparison operators `<, <=, >, >=`  
   Defined based on index number.
+  - `toggleComponentOperationHandler()`   
+  Allows power users to temporarily interfere with how components are added or removed from Entities by changing the 
+  attached component operation handler. Should be used with extreme caution.
   
 - EntitySystem
   - `virtual std::type_index identify() const;`  
