@@ -113,16 +113,19 @@ public:
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
 	 * don't need an instance, just the type.</p>
-	 * @return A the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component.
+	 * @return A the removed {@link Component}, or a null shared_ptr if the Entity did not contain such a component or the component hasn't been removed yet (usually because an operation handler is attached).
 	 */
-	template<typename C> std::unique_ptr<Component> remove() {
-		const auto typeIndex = std::type_index(typeid(C));
+	template<typename C> std::unique_ptr<C> remove() {
 		const auto typeID = ashley::ComponentType::getIndexFor<C>();
 
 		if (componentBits[typeID] == true) {
-			return remove(typeIndex);
+			const auto typeIndex = std::type_index(typeid(C));
+
+			std::unique_ptr<Component> c = remove(typeIndex);
+
+			return std::unique_ptr<C>(static_cast<C*>(c.release()));
 		} else {
-			return std::unique_ptr<Component>(nullptr);
+			return std::unique_ptr<C>(nullptr);
 		}
 	}
 
@@ -186,6 +189,31 @@ public:
 		return familyBits;
 	}
 
+	/**
+	 * Turn off/back on the component operation handler. This may have correctness implications;
+	 * you should only use this method if you know what the operation handler does and why.
+	 *
+	 * Note that if no operation handler is in use when this is used, confusing behaviour may result.
+	 * Use with extreme caution.
+	 *
+	 * @return true if the handler was turned off, false if it was turned back on from its old state.
+	 */
+	inline bool toggleComponentOperationHandler() {
+		if (operationHandlerTemp == nullptr) {
+			// toggle off
+			operationHandlerTemp = operationHandler;
+			operationHandler = nullptr;
+
+			return true;
+		} else {
+			// toggle back on
+			operationHandler = operationHandlerTemp;
+			operationHandlerTemp = nullptr;
+
+			return false;
+		}
+	}
+
 	bool operator==(const ashley::Entity &other) const {
 		return this->index == other.index;
 	}
@@ -219,7 +247,7 @@ private:
 	ashley::BitsType componentBits;
 	ashley::BitsType familyBits;
 
-	ComponentOperationHandler *operationHandler = nullptr;
+	ComponentOperationHandler *operationHandler = nullptr, *operationHandlerTemp = nullptr;
 
 	void addInternal(std::unique_ptr<Component> &component);
 
