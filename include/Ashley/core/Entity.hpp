@@ -36,6 +36,10 @@ namespace ashley {
  * Simple containers of {@link Component}s that hold data. The component's data
  * is then processed by {@link EntitySystem}s.
  *
+ * Adding and removing components may not happen the second that the respective
+ * functions are called, depending on whether or not a component operation
+ * handler is in effect.
+ *
  * <em>Java author: Stefan Bachmann</em>
  * @author Ashley Davis (SgtCoDFish)
  */
@@ -195,6 +199,8 @@ public:
 	 *
 	 * Note that if no operation handler is in use when this is used, confusing behaviour may result.
 	 * Use with extreme caution.
+	 *
+	 * * This function is <em>experimental</em> and its name could change, or it might be removed. *
 	 *
 	 * @return true if the handler was turned off, false if it was turned back on from its old state.
 	 */
