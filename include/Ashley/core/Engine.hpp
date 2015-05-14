@@ -178,8 +178,8 @@ public:
 	 */
 	void update(float deltaTime);
 
-	static bool systemPriorityComparator(std::unique_ptr<EntitySystem> &one,
-			std::unique_ptr<EntitySystem> &other);
+	static bool systemPriorityComparator(const std::unique_ptr<EntitySystem> &one,
+			const std::unique_ptr<EntitySystem> &other);
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
