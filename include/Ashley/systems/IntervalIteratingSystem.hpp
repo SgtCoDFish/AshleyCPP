@@ -69,6 +69,10 @@ public:
 	void addedToEngine(Engine &engine) override;
 	void removedFromEngine(Engine &engine) override;
 
+    Family *getFamily() const {
+        return family;
+    }
+
 protected:
 	void updateInterval() override;
 

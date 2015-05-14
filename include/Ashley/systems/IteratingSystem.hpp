@@ -78,6 +78,10 @@ public:
 	 */
 	virtual bool checkProcessing() override;
 
+    Family *getFamily() const {
+        return family;
+    }
+
 protected:
 	/**
 	 * The family used by this IteratingSystem to retrieve its {@link Entity}s.
