@@ -23,13 +23,13 @@ do the following:
 
     mkdir build
     cd build
-    cmake -G "<your platform here>" ..
+    cmake ..
 
 and then proceed to build in your preferred environment. For example using makefiles on Unix:
 
-    cmake -G "Unix Makefiles"
+    cmake ..
     make # builds the release (libAshleyCPP) and debug (libAshleyCPP-d) libraries
-    make AshleyCPPTest # for building the test suite executable
+    make AshleyCPPTest # for building the test suite executable, requires gtest and pthreads
 
 
 ### Usage Notes and API Changes
@@ -73,13 +73,14 @@ Ticked classes have both their implementation and tests complete.
   - [x] IteratingSystem
   - [x] IntervalSystem
   - [x] IntervalIteratingSystem
+  - [ ] SortedIteratingSystem
 - Util
   - [x] ObjectPool
   - [x] Poolable
   
 *NB:*
 - Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
-- PooledEngine may be done in future, but is left out for now.
+- Currently implements as far as Ashley commit [#a276fe45](https://github.com/libgdx/ashley/commit/a276fe45c81d450f305ce1b5b0bd0fe837207a70).
 
 ### License
 
