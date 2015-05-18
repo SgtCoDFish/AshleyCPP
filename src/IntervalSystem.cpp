@@ -27,7 +27,7 @@ ashley::IntervalSystem::IntervalSystem(float interval, uint64_t priority) :
 void ashley::IntervalSystem::update(float deltaTime) {
 	accumulator += deltaTime;
 
-	if (accumulator >= interval) {
+	while (accumulator >= interval) {
 		accumulator -= interval;
 		updateInterval();
 	}

@@ -190,8 +190,8 @@ void ashley::Engine::update(float deltaTime) {
 	updating = false;
 }
 
-bool ashley::Engine::systemPriorityComparator(std::unique_ptr<EntitySystem> &one,
-		std::unique_ptr<EntitySystem> &other) {
+bool ashley::Engine::systemPriorityComparator(const std::unique_ptr<EntitySystem> &one,
+		const std::unique_ptr<EntitySystem> &other) {
 	return (*one) < (*other);
 }
 
