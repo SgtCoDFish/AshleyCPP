@@ -82,6 +82,10 @@ Ticked classes have both their implementation and tests complete.
 - Bag and ImmutableArray will not be implemented, there are better native C++ choices without me reinventing the wheel.
 - Currently implements as far as Ashley commit [#a276fe45](https://github.com/libgdx/ashley/commit/a276fe45c81d450f305ce1b5b0bd0fe837207a70).
 
+Features to be implemented:
+
+- Refactor entity ids, using a C++11 constexpr compile time hash and a templated Component class to prevent using a virtual method and vtable. Will lead to smaller components and better cache coherency.
+
 ### License
 
 AshleyCPP has the same license as the original, as shown here:
