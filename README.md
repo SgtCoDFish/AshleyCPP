@@ -16,7 +16,7 @@ on GitHub should compile and function properly and should be usable for making p
 
 ### Building
 
-AshleyCPP uses the CMake build system and comes with three build targets; debug, release and test.
+AshleyCPP uses the CMake build system and comes with three build targets; the debug library, "AshleyCPP-d", the release library "AshleyCPP" and the imaginatively named executable "AshleyCPPTest". The test program has a hard dependency on Google Test.
 
 To build the library from source, install a relatively recent version of CMake, navigate to a copy of the source and
 do the following:
@@ -25,12 +25,7 @@ do the following:
     cd build
     cmake ..
 
-and then proceed to build in your preferred environment. For example using makefiles on Unix:
-
-    cmake ..
-    make # builds the release (libAshleyCPP) and debug (libAshleyCPP-d) libraries
-    make AshleyCPPTest # for building the test suite executable, requires gtest and pthreads
-
+and proceed as normal for your environment. If you don't care about the tests, you can run `cmake -DEXCLUDE_TESTS=TRUE ..` and the dependency on GTest will be removed, just giving you the libraries.
 
 ### Usage Notes and API Changes
 While AshleyCPP strives to match the exported public API of the Java original, differences in the languages mean that
