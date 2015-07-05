@@ -25,8 +25,6 @@
 // Ensures a valid type is returned when a call is made to the various getFor() functions, and that this type is the same in the various functions.
 // Note that this covers both the validComponentType and sameComponentType tests in the Java version
 TEST(ComponentTypeTest, ValidComponentTypes) {
-	auto pos = ashley::test::PositionComponent(5, 2);
-
 	auto type1 = ashley::ComponentType::getFor(typeid(ashley::test::PositionComponent)); // std::type_info
 	auto type2 = ashley::ComponentType::getFor(
 			std::type_index(typeid(ashley::test::PositionComponent))); // std::type_index
@@ -38,8 +36,6 @@ TEST(ComponentTypeTest, ValidComponentTypes) {
 
 // Ensures a valid and consistent index is returned when a call is made to the various getIndexFor() functions
 TEST(ComponentTypeTest, ValidComponentIndexTypes) {
-	auto pos = ashley::test::PositionComponent(5, 2);
-
 	auto id1 = ashley::ComponentType::getIndexFor(typeid(ashley::test::PositionComponent));
 	auto id2 = ashley::ComponentType::getIndexFor(
 			std::type_index(typeid(ashley::test::PositionComponent)));

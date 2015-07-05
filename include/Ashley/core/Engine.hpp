@@ -250,7 +250,7 @@ private:
 		virtual ~EngineOperationHandler() {
 		}
 
-		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &component)
+		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex)
 				override;
 		virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex)
 				override;

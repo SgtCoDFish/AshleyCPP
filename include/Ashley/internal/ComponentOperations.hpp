@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef COMPONENTOPERATIONS_HPP_
-#define COMPONENTOPERATIONS_HPP_
+#ifndef ACPP_COMPONENTOPERATIONS_HPP_
+#define ACPP_COMPONENTOPERATIONS_HPP_
 
 #include <memory>
 
@@ -35,7 +35,7 @@ public:
 	virtual ~ComponentOperationHandler() {
 	}
 
-	virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &component) = 0;
+	virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex) = 0;
 	virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex) = 0;
 };
 
@@ -62,11 +62,14 @@ struct ComponentOperation : public ashley::Poolable {
 	virtual ~ComponentOperation() {
 	}
 
-	inline void makeAdd(ashley::Entity *entity, std::unique_ptr<Component> &component) {
+	// TODO: Remove use of "new" here
+
+	inline void makeAdd(ashley::Entity *entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex) {
 		this->type = Type::ADD;
 
 		this->entity = entity;
 		this->component = std::move(component);
+		this->typeIndex = std::unique_ptr<std::type_index>(new std::type_index(typeIndex));
 	}
 
 	inline void makeRemove(ashley::Entity *entity, const std::type_index typeIndex) {

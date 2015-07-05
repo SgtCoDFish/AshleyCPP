@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2014 See AUTHORS file.
+ * Copyright 2014, 2015 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,27 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef COMPONENT_HPP_
-#define COMPONENT_HPP_
+#ifndef INCLUDE_ASHLEY_INTERNAL_HELPER_HPP_
+#define INCLUDE_ASHLEY_INTERNAL_HELPER_HPP_
 
 #include <typeinfo>
 #include <typeindex>
+#include <type_traits>
 
-#include "Ashley/AshleyConstants.hpp"
+#include "Ashley/core/Component.hpp"
 
 namespace ashley {
+namespace internal {
 
-/**
- * Base class for all Components. A Component is intended as a data holder and provides data to be processed
- * in an {@link EntitySystem}.
- *
- * <em>Java author: Stefan Bachmann</em>
- * @author Ashley Davis (SgtCoDFish)
- */
-class Component {
-public:
-	explicit Component() {
-	}
-
-	~Component() = default;
-	Component(const Component &other) = default;
-	Component(Component &&other) = default;
-	Component& operator=(const Component &other) = default;
-	Component& operator=(Component &&other) = default;
-};
+template<typename C> const char *get_friendly_type_name() {
+	return std::type_index(typeid(C)).name();
 }
 
-#endif /* COMPONENT_HPP_ */
+template<typename C> inline void verify_component_type() {
+	static_assert(std::is_base_of<ashley::Component, C>(), "Component verification failed.");
+}
+
+}
+}
+
+#endif /* INCLUDE_ASHLEY_INTERNAL_HELPER_HPP_ */

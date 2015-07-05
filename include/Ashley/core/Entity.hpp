@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2014 See AUTHORS file.
+ * Copyright 2014, 2015 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ENTITY_HPP_
-#define ENTITY_HPP_
+#ifndef ACPP_ENTITY_HPP_
+#define ACPP_ENTITY_HPP_
 
 #include <bitset>
 #include <cstdint>
@@ -23,12 +23,14 @@
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
+#include <type_traits>
 
 #include "Ashley/AshleyConstants.hpp"
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/ComponentType.hpp"
-#include "Ashley/internal/ComponentOperations.hpp"
 #include "Ashley/signals/Signal.hpp"
+#include "Ashley/internal/ComponentOperations.hpp"
+#include "Ashley/internal/Helper.hpp"
 
 namespace ashley {
 
@@ -77,7 +79,19 @@ public:
 	 * @param component the component to add.
 	 * @return this {@link Entity} for chaining.
 	 */
-	Entity &add(std::unique_ptr<Component> &&component);
+	template<typename C> Entity &add(std::unique_ptr<C> &&component) {
+		internal::verify_component_type<C>();
+
+		auto typeIndex = std::type_index(typeid(C));
+
+		if (operationHandler != nullptr) {
+			operationHandler->add(this, std::move(component), typeIndex);
+		} else {
+			addInternal(std::move(component), typeIndex);
+		}
+
+		return *this;
+	}
 
 	/**
 	 * <p>Constructs a new object of type C (subclassing ashley::Component) using <em>args...</em> for construction.</p>
@@ -87,15 +101,20 @@ public:
 	 * @return This {@link Entity} for easy chaining
 	 */
 	template<typename C, typename ...Args> Entity &add(Args&&... args) {
-		auto mapPtr = std::unique_ptr<Component>(new C(args...));
+		internal::verify_component_type<C>();
 
-		if (operationHandler != nullptr) {
-			operationHandler->add(this, mapPtr);
+		const auto typeIndex = std::type_index(typeid(C));
+		auto component = std::unique_ptr<Component>(new C(args...));
+
+		if(operationHandler != nullptr) {
+			operationHandler->add(this, std::move(component), typeIndex);
 		} else {
-			addInternal(mapPtr);
+			addInternal(std::move(component), typeIndex);
 		}
 
 		return *this;
+
+//		return add<C>(std::unique_ptr<C>(new C(args...)));
 	}
 
 	/**
@@ -105,14 +124,6 @@ public:
 	 * found or if the removal has been delayed (e.g. when we're already in update() and need to wait to the end)
 	 */
 	std::unique_ptr<Component> remove(const std::type_index typeIndex);
-
-	/**
-	 * <p>Removes the given {@link Component}, if it's found attached to this {@link Entity}.
-	 * @param component the {@link Component} to remove.
-	 * @return the removed {@link Component}'s unique_ptr if the component was removed straight away; or nullptr if not
-	 * found or if the removal has been delayed (e.g. when we're already in update() and need to wait to the end)
-	 */
-	std::unique_ptr<Component> remove(Component * const component);
 
 	/**
 	 * <p>Removes the {@link Component} of the specified type. Since there is only ever one component of one type, we
@@ -160,6 +171,8 @@ public:
 	 * no such component.
 	 */
 	template<typename C> C* getComponent() {
+		internal::verify_component_type<C>();
+
 		auto type = std::type_index(typeid(C));
 		auto id = ashley::ComponentType::getIndexFor(type);
 
@@ -255,7 +268,7 @@ private:
 
 	ComponentOperationHandler *operationHandler = nullptr, *operationHandlerTemp = nullptr;
 
-	void addInternal(std::unique_ptr<Component> &component);
+	void addInternal(std::unique_ptr<Component> &&component, std::type_index type);
 
 	std::unique_ptr<Component> removeImpl(std::type_index typeIndex);
 

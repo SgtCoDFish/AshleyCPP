@@ -238,7 +238,7 @@ void ashley::Engine::processComponentOperations() {
 
 		switch (operation->type) {
 		case ComponentOperation::Type::ADD: {
-			operation->entity->addInternal(operation->component);
+			operation->entity->addInternal(std::move(operation->component), *(operation->typeIndex));
 			break;
 		}
 
@@ -247,9 +247,9 @@ void ashley::Engine::processComponentOperations() {
 			break;
 		}
 
-		default: {
-			throw std::bad_function_call();
-			return;
+		case ComponentOperation::Type::NONE: {
+			assert(false);
+			break;
 		}
 		}
 
@@ -327,15 +327,14 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 }
 
 void ashley::Engine::EngineOperationHandler::add(ashley::Entity * const entity,
-		std::unique_ptr<Component> &component) {
+		std::unique_ptr<Component> &&component, const std::type_index typeIndex) {
 	if (engine->updating) {
 		auto operation = engine->operationPool.obtain();
-		operation->makeAdd(entity, component);
+		operation->makeAdd(entity, std::move(component), typeIndex);
 		engine->operationVector.push_back(operation);
 	} else {
-		entity->addInternal(component);
+		entity->addInternal(std::move(component), typeIndex);
 	}
-
 }
 
 void ashley::Engine::EngineOperationHandler::remove(ashley::Entity * const entity,

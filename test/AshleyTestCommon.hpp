@@ -33,11 +33,11 @@ public:
 	int64_t x;
 	int64_t y;
 
-	PositionComponent() :
+	explicit PositionComponent() :
 			PositionComponent(0, 0) {
 	}
 
-	PositionComponent(int64_t x, int64_t y) :
+	explicit PositionComponent(int64_t x, int64_t y) :
 			x(x), y(y) {
 	}
 };
@@ -50,11 +50,11 @@ public:
 	int64_t x;
 	int64_t y;
 
-	VelocityComponent() :
+	explicit VelocityComponent() :
 			VelocityComponent(0, 0) {
 	}
 
-	VelocityComponent(int64_t x, int64_t y) :
+	explicit VelocityComponent(int64_t x, int64_t y) :
 			x(x), y(y) {
 	}
 };

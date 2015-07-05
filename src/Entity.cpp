@@ -35,27 +35,12 @@ ashley::Entity::Entity() :
 		index(nextIndex++) {
 }
 
-ashley::Entity &ashley::Entity::add(std::unique_ptr<Component> &&component) {
-	if (operationHandler != nullptr) {
-		operationHandler->add(this, component);
-	} else {
-		addInternal(component);
-	}
-
-	return *this;
-}
-
 std::unique_ptr<ashley::Component> ashley::Entity::remove(const std::type_index typeIndex) {
 	try {
 		return removeImpl(typeIndex);
 	} catch (std::out_of_range &oor) {
 		return std::unique_ptr<Component> { nullptr };
 	}
-
-}
-
-std::unique_ptr<ashley::Component> ashley::Entity::remove(Component * const component) {
-	return remove(component->identify());
 }
 
 void ashley::Entity::removeAll() {
@@ -79,8 +64,7 @@ const ashley::BitsType &ashley::Entity::getComponentBits() const {
 	return componentBits;
 }
 
-void ashley::Entity::addInternal(std::unique_ptr<Component> &component) {
-	auto type = component->identify();
+void ashley::Entity::addInternal(std::unique_ptr<Component> &&component, std::type_index type) {
 	auto typeID = ashley::ComponentType::getIndexFor(type);
 
 	if (componentBits[typeID]) {
