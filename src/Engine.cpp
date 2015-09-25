@@ -99,7 +99,7 @@ void ashley::Engine::removeAllEntities() {
 }
 
 ashley::EntitySystem *ashley::Engine::addSystem(std::unique_ptr<EntitySystem> &&system) {
-	const auto systemIndex = std::type_index(typeid(*system));
+	const auto systemIndex = std::type_index(typeid(typename std::unique_ptr<EntitySystem>::element_type));
 
 	auto it = systemsByClass.find(systemIndex);
 
