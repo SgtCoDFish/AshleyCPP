@@ -69,14 +69,14 @@ public:
 	void addedToEngine(Engine &engine) override;
 	void removedFromEngine(Engine &engine) override;
 
-    Family *getFamily() const {
-        return family;
-    }
+	Family *getFamily() const {
+		return family;
+	}
 
 protected:
 	void updateInterval() override;
 
-	virtual void processEntity(Entity *const &entity) = 0;
+	virtual void processEntity(Entity * const &entity) = 0;
 };
 
 }

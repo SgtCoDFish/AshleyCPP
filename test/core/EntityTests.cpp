@@ -44,7 +44,7 @@ protected:
 		onlyPosition.add<ashley::test::PositionComponent>(initialXPos, initialYPos);
 		onlyVelocity.add<ashley::test::VelocityComponent>(initialXVel, initialXVel);
 		positionAndVelocity.add<ashley::test::PositionComponent>(initialXPos, initialYPos).add<
-				ashley::test::VelocityComponent>(initialXVel, initialYVel);
+		        ashley::test::VelocityComponent>(initialXVel, initialYVel);
 	}
 
 	virtual void TearDown() {
@@ -71,7 +71,7 @@ public:
 	uint64_t counter;
 
 	EntityListenerMock() :
-			counter(0) {
+			        counter(0) {
 	}
 
 	void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
@@ -102,8 +102,7 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 	ashley::test::assertValidComponentAndBitSize(positionAndVelocity, 2);
 
 	auto bits = onlyPosition.getComponentBits();
-	auto positionIndex = ashley::ComponentType::getIndexFor(
-			std::type_index(typeid(ashley::test::PositionComponent)));
+	auto positionIndex = ashley::ComponentType::getIndexFor(std::type_index(typeid(ashley::test::PositionComponent)));
 
 	for (unsigned int i = 0; i < bits.size(); i++) {
 		ASSERT_EQ(i == (positionIndex), bits[i]);
@@ -163,11 +162,9 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 
 	auto bits = positionAndVelocity.getComponentBits();
 
-	auto pIndex = ashley::ComponentType::getIndexFor(
-			std::type_index(typeid(ashley::test::PositionComponent)));
+	auto pIndex = ashley::ComponentType::getIndexFor(std::type_index(typeid(ashley::test::PositionComponent)));
 
-	auto vIndex = ashley::ComponentType::getIndexFor(
-			std::type_index(typeid(ashley::test::VelocityComponent)));
+	auto vIndex = ashley::ComponentType::getIndexFor(std::type_index(typeid(ashley::test::VelocityComponent)));
 
 	for (unsigned int i = 0; i < bits.count(); i++) {
 		ASSERT_EQ(i == pIndex || i == vIndex, bits[i])<< "Invalid bits";
@@ -186,28 +183,20 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 
 // Ensure the hasComponent<>() and getComponent<>() functions work correctly.
 TEST_F(EntityTest, HasAndGetComponent) {
-	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>())
-			<< "hasComponent failed.";
-	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>())
-			<< "hasComponent failed.";
-	EXPECT_TRUE(onlyPosition.hasComponent<ashley::test::PositionComponent>())
-			<< "hasComponent failed.";
-	EXPECT_TRUE(onlyVelocity.hasComponent<ashley::test::VelocityComponent>())
-			<< "hasComponent failed.";
+	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::PositionComponent>()) << "hasComponent failed.";
+	EXPECT_TRUE(positionAndVelocity.hasComponent<ashley::test::VelocityComponent>()) << "hasComponent failed.";
+	EXPECT_TRUE(onlyPosition.hasComponent<ashley::test::PositionComponent>()) << "hasComponent failed.";
+	EXPECT_TRUE(onlyVelocity.hasComponent<ashley::test::VelocityComponent>()) << "hasComponent failed.";
 
-	EXPECT_FALSE(onlyPosition.hasComponent<ashley::test::VelocityComponent>())
-			<< "hasComponent failed.";
-	EXPECT_FALSE(onlyVelocity.hasComponent<ashley::test::PositionComponent>())
-			<< "hasComponent failed.";
+	EXPECT_FALSE(onlyPosition.hasComponent<ashley::test::VelocityComponent>()) << "hasComponent failed.";
+	EXPECT_FALSE(onlyVelocity.hasComponent<ashley::test::PositionComponent>()) << "hasComponent failed.";
 
-	EXPECT_FALSE((onlyPosition.getComponent<ashley::test::PositionComponent>()) == nullptr)
-			<< "getComponent failed.";
-	EXPECT_FALSE(onlyVelocity.getComponent<ashley::test::VelocityComponent>() == nullptr)
-			<< "getComponent failed.";
+	EXPECT_FALSE((onlyPosition.getComponent<ashley::test::PositionComponent>()) == nullptr) << "getComponent failed.";
+	EXPECT_FALSE(onlyVelocity.getComponent<ashley::test::VelocityComponent>() == nullptr) << "getComponent failed.";
 	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::PositionComponent>() == nullptr)
-			<< "getComponent failed.";
+	        << "getComponent failed.";
 	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::VelocityComponent>()== nullptr)
-			<< "getComponent failed.";
+	        << "getComponent failed.";
 
 	EXPECT_TRUE(onlyPosition.getComponent<ashley::test::VelocityComponent>() == nullptr);
 	EXPECT_TRUE(onlyVelocity.getComponent<ashley::test::PositionComponent>() == nullptr);

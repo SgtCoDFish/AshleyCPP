@@ -32,7 +32,7 @@
 uint64_t ashley::Entity::nextIndex = 0;
 
 ashley::Entity::Entity() :
-		index(nextIndex++) {
+		        index(nextIndex++) {
 }
 
 std::unique_ptr<ashley::Component> ashley::Entity::remove(const std::type_index typeIndex) {

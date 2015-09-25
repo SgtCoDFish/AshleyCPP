@@ -29,7 +29,7 @@ public:
 	int64_t numUpdates = 0;
 
 	IntervalSystemSpy() :
-			ashley::IntervalSystem(deltaTime * 2.0f) {
+			        ashley::IntervalSystem(deltaTime * 2.0f) {
 	}
 
 protected:
@@ -50,8 +50,8 @@ protected:
 }
 
 TEST_F(IntervalSystemTest, IntervalSystem) {
-	for(int i = 1; i <= 10; ++i) {
+	for (int i = 1; i <= 10; ++i) {
 		engine.update(deltaTime);
-		ASSERT_EQ(i/2, intervalSystemSpy->numUpdates);
+		ASSERT_EQ(i / 2, intervalSystemSpy->numUpdates);
 	}
 }

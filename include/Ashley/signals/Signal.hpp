@@ -59,7 +59,7 @@ public:
 	 */
 	void remove(Listener<T> * listener) {
 		auto it = std::find_if(listeners.begin(), listeners.end(),
-				[&](ashley::Listener<T> *&found) {return listener == found;});
+		        [&](ashley::Listener<T> *&found) {return listener == found;});
 
 		if (it != listeners.end()) {
 			listeners.erase(it);

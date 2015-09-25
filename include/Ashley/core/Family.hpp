@@ -73,8 +73,7 @@ public:
 	 * @param exclude entities cannot contain any of the components in the set. See {@link ComponentType#getBitsFor}.
 	 * @return The family
 	 */
-	static Family *getFor(ashley::BitsType all, ashley::BitsType one,
-			ashley::BitsType exclude);
+	static Family *getFor(ashley::BitsType all, ashley::BitsType one, ashley::BitsType exclude);
 
 	/**
 	 * @return This family's unique index
@@ -92,9 +91,9 @@ public:
 	 * <p>Note that use_getFor_not_constructor is a private struct defined in Family; this means you cannot call this constructor and shouldn't try to.</p>
 	 * <p>Use the various getFor methods to retrieve Family instances, not this.</p>
 	 */
-	explicit Family(const Family::use_getFor_not_constructor&, ashley::BitsType all,
-			ashley::BitsType one, ashley::BitsType exclude) :
-			Family(all, one, exclude) {
+	explicit Family(const Family::use_getFor_not_constructor&, ashley::BitsType all, ashley::BitsType one,
+	        ashley::BitsType exclude) :
+			        Family(all, one, exclude) {
 	}
 
 	/**
@@ -126,11 +125,13 @@ private:
 	uint64_t index;
 
 	Family(ashley::BitsType all, ashley::BitsType one, ashley::BitsType exclude) :
-			all(all), one(one), exclude(exclude), index(familyIndex++) {
+			        all(all),
+			        one(one),
+			        exclude(exclude),
+			        index(familyIndex++) {
 	}
 
-	static FamilyHashType getFamilyHash(ashley::BitsType all, ashley::BitsType one,
-			ashley::BitsType exclude);
+	static FamilyHashType getFamilyHash(ashley::BitsType all, ashley::BitsType one, ashley::BitsType exclude);
 
 	// friend to allow hash function to be calculated
 	friend struct std::hash<ashley::Family>;

@@ -179,7 +179,7 @@ public:
 	void update(float deltaTime);
 
 	static bool systemPriorityComparator(const std::unique_ptr<EntitySystem> &one,
-			const std::unique_ptr<EntitySystem> &other);
+	        const std::unique_ptr<EntitySystem> &other);
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
@@ -215,11 +215,10 @@ private:
 	class AddedListener : public ashley::Listener<Entity> {
 	public:
 		AddedListener(Engine * const engine) :
-				engine(engine) {
+				        engine(engine) {
 		}
 
-		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object)
-				override {
+		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
 			engine->updateFamilyMembership(*object);
 		}
 
@@ -230,11 +229,10 @@ private:
 	class RemovedListener : public ashley::Listener<Entity> {
 	public:
 		RemovedListener(Engine * const engine) :
-				engine(engine) {
+				        engine(engine) {
 		}
 
-		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object)
-				override {
+		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
 			engine->updateFamilyMembership(*object);
 		}
 
@@ -245,15 +243,14 @@ private:
 	class EngineOperationHandler : public ashley::ComponentOperationHandler {
 	public:
 		EngineOperationHandler(Engine *engine) :
-				engine(engine) {
+				        engine(engine) {
 		}
 		virtual ~EngineOperationHandler() {
 		}
 
-		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex)
-				override;
-		virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex)
-				override;
+		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component,
+		        const std::type_index typeIndex) override;
+		virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex) override;
 
 	private:
 		Engine *engine = nullptr;

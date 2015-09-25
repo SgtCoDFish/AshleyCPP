@@ -35,7 +35,8 @@ public:
 	virtual ~ComponentOperationHandler() {
 	}
 
-	virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex) = 0;
+	virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component,
+	        const std::type_index typeIndex) = 0;
 	virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex) = 0;
 };
 
@@ -56,7 +57,8 @@ struct ComponentOperation : public ashley::Poolable {
 	std::unique_ptr<Component> component = nullptr;
 
 	ComponentOperation() :
-			type(Type::NONE), typeIndex{std::unique_ptr<std::type_index>(nullptr)} {
+			        type(Type::NONE),
+			        typeIndex { std::unique_ptr<std::type_index>(nullptr) } {
 	}
 
 	virtual ~ComponentOperation() {
@@ -64,7 +66,8 @@ struct ComponentOperation : public ashley::Poolable {
 
 	// TODO: Remove use of "new" here
 
-	inline void makeAdd(ashley::Entity *entity, std::unique_ptr<Component> &&component, const std::type_index typeIndex) {
+	inline void makeAdd(ashley::Entity *entity, std::unique_ptr<Component> &&component,
+	        const std::type_index typeIndex) {
 		this->type = Type::ADD;
 
 		this->entity = entity;

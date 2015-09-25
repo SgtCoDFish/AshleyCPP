@@ -41,7 +41,7 @@ public:
 	 * @param family The family of entities iterated over in this System
 	 */
 	explicit IteratingSystem(Family *family) :
-			IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
+			        IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
 	}
 
 	/**
@@ -51,7 +51,9 @@ public:
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
 	IteratingSystem(Family *family, uint64_t priority) :
-			EntitySystem(priority), family(family), entities() {
+			        EntitySystem(priority),
+			        family(family),
+			        entities() {
 	}
 
 	virtual ~IteratingSystem() = default;
@@ -78,9 +80,9 @@ public:
 	 */
 	virtual bool checkProcessing() override;
 
-    Family *getFamily() const {
-        return family;
-    }
+	Family *getFamily() const {
+		return family;
+	}
 
 protected:
 	/**

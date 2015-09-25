@@ -40,13 +40,13 @@ private:
 
 public:
 	IntervalIteratingSystemSpy() :
-			ashley::IntervalIteratingSystem(
-					ashley::Family::getFor( { typeid(IntervalComponentSpy) }), deltaTime * 2.0f), im(
-					ashley::ComponentMapper<IntervalComponentSpy>::getMapper()) {
+			        ashley::IntervalIteratingSystem(ashley::Family::getFor( { typeid(IntervalComponentSpy) }),
+			                deltaTime * 2.0f),
+			        im(ashley::ComponentMapper<IntervalComponentSpy>::getMapper()) {
 	}
 
 protected:
-	void processEntity(ashley::Entity *const &entity) {
+	void processEntity(ashley::Entity * const &entity) {
 		im.get(entity)->numUpdates++;
 	}
 };
@@ -65,8 +65,7 @@ protected:
 }
 
 TEST_F(IntervalIteratingSystemTest, IntervalIteratingSystem) {
-	auto entities = engine.getEntitiesFor(
-			ashley::Family::getFor( { typeid(IntervalComponentSpy) }));
+	auto entities = engine.getEntitiesFor(ashley::Family::getFor( { typeid(IntervalComponentSpy) }));
 	auto im = ashley::ComponentMapper<IntervalComponentSpy>::getMapper();
 
 	for (int i = 0; i < 10; ++i) {

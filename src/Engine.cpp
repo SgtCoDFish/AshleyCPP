@@ -31,7 +31,9 @@
 #include "Ashley/internal/ComponentOperations.hpp"
 
 ashley::Engine::Engine() :
-		notifying(false), updating(false), operationPool(100) {
+		        notifying(false),
+		        updating(false),
+		        operationPool(100) {
 	componentAddedListener = std::unique_ptr<AddedListener>(new AddedListener(this));
 	componentRemovedListener = std::unique_ptr<RemovedListener>(new RemovedListener(this));
 
@@ -120,7 +122,7 @@ void ashley::Engine::removeSystem(std::type_index systemType) {
 
 void ashley::Engine::removeSystem(EntitySystem * const system) {
 	auto ptr = std::find_if(systems.begin(), systems.end(),
-			[&](std::unique_ptr<ashley::EntitySystem> &found) {return found.get() == system;});
+	        [&](std::unique_ptr<ashley::EntitySystem> &found) {return found.get() == system;});
 
 	if (ptr != systems.end()) {
 		systemsByClass.erase(system->identify());
@@ -169,7 +171,7 @@ void ashley::Engine::addEntityListener(ashley::EntityListener *listener) {
 
 void ashley::Engine::removeEntityListener(ashley::EntityListener *listener) {
 	auto it = std::find_if(listeners.begin(), listeners.end(),
-			[&](ashley::EntityListener *found) {return found == listener;});
+	        [&](ashley::EntityListener *found) {return found == listener;});
 
 	if (it != listeners.end()) {
 		listeners.erase(it);
@@ -191,15 +193,14 @@ void ashley::Engine::update(float deltaTime) {
 }
 
 bool ashley::Engine::systemPriorityComparator(const std::unique_ptr<EntitySystem> &one,
-		const std::unique_ptr<EntitySystem> &other) {
+        const std::unique_ptr<EntitySystem> &other) {
 	return (*one) < (*other);
 }
 
 void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 	// note that this requires that the entity has already been added to the entities vector.
-	auto it =
-			std::find_if(entities.begin(), entities.end(),
-					[&](std::unique_ptr<ashley::Entity> &ptr) {return ptr->getIndex() == entity.getIndex();});
+	auto it = std::find_if(entities.begin(), entities.end(),
+	        [&](std::unique_ptr<ashley::Entity> &ptr) {return ptr->getIndex() == entity.getIndex();});
 
 	if (it == entities.end()) {
 		// not the end of the world if we had a bad call, probably smells of things getting destroyed incorrectly.
@@ -219,8 +220,7 @@ void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 			vec.push_back(entPtr.get());
 			entPtr->getFamilyBits()[family.getIndex()] = true;
 		} else if (belongsToFamily && !matches) {
-			auto familyIt = std::find_if(vec.begin(), vec.end(),
-					[&](Entity * const &found) {return *found == entity;});
+			auto familyIt = std::find_if(vec.begin(), vec.end(), [&](Entity * const &found) {return *found == entity;});
 			entPtr->getFamilyBits()[family.getIndex()] = false;
 
 			if (familyIt != vec.end()) {
@@ -262,12 +262,10 @@ void ashley::Engine::processComponentOperations() {
 void ashley::Engine::removePendingListeners() {
 	// read as:
 	// for each element in listeners, remove if the same element is found somewhere in removalPendingListeners
-	auto it =
-			std::remove_if(listeners.begin(), listeners.end(),
-					[&](ashley::EntityListener *listenerEntry) {
-						return std::find_if(removalPendingListeners.begin(), removalPendingListeners.end(),
-								[&](ashley::EntityListener *l) {return listenerEntry == l;}) != removalPendingListeners.end();
-					});
+	auto it = std::remove_if(listeners.begin(), listeners.end(), [&](ashley::EntityListener *listenerEntry) {
+		return std::find_if(removalPendingListeners.begin(), removalPendingListeners.end(),
+				[&](ashley::EntityListener *l) {return listenerEntry == l;}) != removalPendingListeners.end();
+	});
 	listeners.erase(it, listeners.end());
 
 	removalPendingListeners.clear();
@@ -285,7 +283,7 @@ void ashley::Engine::removePendingEntities() {
 
 void ashley::Engine::removeEntityInternal(Entity * const entity) {
 	auto it = std::find_if(entities.begin(), entities.end(),
-			[&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
+	        [&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
 
 	if (it == entities.end()) {
 		throw std::bad_function_call();
@@ -299,8 +297,7 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 			auto &vec = entry.second;
 
 			if (family.matches(*entity)) {
-				auto familyIt = std::find_if(vec.begin(), vec.end(),
-						[&](Entity *const &ptr) {return ptr == entity;});
+				auto familyIt = std::find_if(vec.begin(), vec.end(), [&](Entity *const &ptr) {return ptr == entity;});
 
 				if (familyIt != vec.end()) {
 					vec.erase(familyIt);
@@ -326,8 +323,8 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 	removePendingListeners();
 }
 
-void ashley::Engine::EngineOperationHandler::add(ashley::Entity * const entity,
-		std::unique_ptr<Component> &&component, const std::type_index typeIndex) {
+void ashley::Engine::EngineOperationHandler::add(ashley::Entity * const entity, std::unique_ptr<Component> &&component,
+        const std::type_index typeIndex) {
 	if (engine->updating) {
 		auto operation = engine->operationPool.obtain();
 		operation->makeAdd(entity, std::move(component), typeIndex);
@@ -337,8 +334,7 @@ void ashley::Engine::EngineOperationHandler::add(ashley::Entity * const entity,
 	}
 }
 
-void ashley::Engine::EngineOperationHandler::remove(ashley::Entity * const entity,
-		std::type_index typeIndex) {
+void ashley::Engine::EngineOperationHandler::remove(ashley::Entity * const entity, std::type_index typeIndex) {
 	if (engine->updating) {
 		auto operation = engine->operationPool.obtain();
 		operation->makeRemove(entity, typeIndex);

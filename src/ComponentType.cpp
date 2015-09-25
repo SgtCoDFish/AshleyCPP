@@ -30,7 +30,7 @@ uint64_t ashley::ComponentType::typeIndex = 0;
 std::unordered_map<std::type_index, ashley::ComponentType> ashley::ComponentType::componentTypes;
 
 ashley::ComponentType::ComponentType() :
-		index(typeIndex++) {
+		        index(typeIndex++) {
 }
 
 ashley::ComponentType& ashley::ComponentType::getFor(std::type_index index) {
@@ -42,11 +42,10 @@ uint64_t ashley::ComponentType::getIndexFor(std::type_index index) {
 	return ashley::ComponentType::getFor(index).getIndex();
 }
 
-ashley::BitsType ashley::ComponentType::getBitsFor(
-		std::initializer_list<std::type_index> components) {
+ashley::BitsType ashley::ComponentType::getBitsFor(std::initializer_list<std::type_index> components) {
 	ashley::BitsType retVal;
 	std::for_each(components.begin(), components.end(),
-			[&](std::type_index i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
+	        [&](std::type_index i) {retVal[ashley::ComponentType::getIndexFor(i)] = true;});
 
 	return retVal;
 }

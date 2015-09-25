@@ -30,10 +30,10 @@ protected:
 	virtual ~ComponentMapperTest() {
 	}
 
-	ashley::ComponentMapper<ashley::test::PositionComponent> positionMapper =
-			ashley::ComponentMapper<ashley::test::PositionComponent>::getMapper();
-	ashley::ComponentMapper<ashley::test::VelocityComponent> velocityMapper =
-			ashley::ComponentMapper<ashley::test::VelocityComponent>::getMapper();
+	ashley::ComponentMapper<ashley::test::PositionComponent> positionMapper = ashley::ComponentMapper<
+	        ashley::test::PositionComponent>::getMapper();
+	ashley::ComponentMapper<ashley::test::VelocityComponent> velocityMapper = ashley::ComponentMapper<
+	        ashley::test::VelocityComponent>::getMapper();
 };
 
 class FooComponent : public ashley::Component {

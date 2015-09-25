@@ -67,15 +67,18 @@ protected:
 	Family *family4 = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
 	Family *family5 = Family::getFor( { typeid(ComponentA), typeid(ComponentC) });
 	Family *family6 = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
-	Family *family7 = Family::getFor( { typeid(ComponentA), typeid(ComponentB),
-			typeid(ComponentC) });
-	Family *family8 = Family::getFor(
-			ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
-			ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
-			ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
+	Family *family7 = Family::getFor( { typeid(ComponentA), typeid(ComponentB), typeid(ComponentC) });
+	Family *family8 = Family::getFor(ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
+	        ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
+	        ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
 
 	FamilyTest() :
-			a(), b(), c(), d(), e(), f() {
+			        a(),
+			        b(),
+			        c(),
+			        d(),
+			        e(),
+			        f() {
 	}
 
 	virtual ~FamilyTest() {
@@ -102,8 +105,8 @@ TEST_F(FamilyTest, SameFamily) {
 	auto familyB = Family::getFor( { typeid(ComponentB) });
 
 	auto familyLong = Family::getFor(ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
-			ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
-			ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
+	        ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
+	        ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
 
 	ASSERT_TRUE(familyA == family1);
 	ASSERT_FALSE(familyA == family2);
@@ -123,17 +126,15 @@ TEST_F(FamilyTest, SameFamily) {
 	ASSERT_TRUE(familyCA == family5);
 	ASSERT_TRUE(familyCB == family6);
 
-	auto familyCBA = Family::getFor(
-			{ typeid(ComponentC), typeid(ComponentB), typeid(ComponentA) });
+	auto familyCBA = Family::getFor( { typeid(ComponentC), typeid(ComponentB), typeid(ComponentA) });
 	ASSERT_TRUE(familyCBA == family7);
 }
 
 // Ensure that different invocations produce different families, including with different orders of components.
 TEST_F(FamilyTest, DifferentFamily) {
-	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC),
-			typeid(ComponentD) }), ashley::ComponentType::getBitsFor( { typeid(ComponentE),
-			typeid(ComponentF) }), ashley::ComponentType::getBitsFor( { typeid(ComponentA),
-			typeid(ComponentB) }));
+	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC), typeid(ComponentD) }),
+	        ashley::ComponentType::getBitsFor( { typeid(ComponentE), typeid(ComponentF) }),
+	        ashley::ComponentType::getBitsFor( { typeid(ComponentA), typeid(ComponentB) }));
 
 	ASSERT_FALSE(family1 == family2);
 	ASSERT_FALSE(family1 == family3);
@@ -224,10 +225,9 @@ TEST_F(FamilyTest, FamilyFiltering) {
 	 * None: E, F
 	 * Same as java family2 in this test
 	 */
-	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC),
-			typeid(ComponentD) }), ashley::ComponentType::getBitsFor( { typeid(ComponentA),
-			typeid(ComponentB) }), ashley::ComponentType::getBitsFor( { typeid(ComponentE),
-			typeid(ComponentF) }));
+	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC), typeid(ComponentD) }),
+	        ashley::ComponentType::getBitsFor( { typeid(ComponentA), typeid(ComponentB) }),
+	        ashley::ComponentType::getBitsFor( { typeid(ComponentE), typeid(ComponentF) }));
 
 	/* family8 has:
 	 * All: A, B

@@ -54,7 +54,7 @@ private:
 
 public:
 	explicit ObjectPool(int64_t startEntities = 100) :
-			peakEntities(0) {
+			        peakEntities(0) {
 		if (startEntities < 1) {
 			throw std::invalid_argument("startEntities must be greater than or equal to 1!");
 		}

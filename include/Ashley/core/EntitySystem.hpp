@@ -14,7 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
 
-
 #ifndef ENTITYSYSTEM_HPP_
 #define ENTITYSYSTEM_HPP_
 
@@ -56,7 +55,7 @@ public:
 	 * Default constructor that will initialise an EntitySystem with priority 0.
 	 */
 	EntitySystem() :
-			EntitySystem(DEFAULT_PRIORITY) {
+			        EntitySystem(DEFAULT_PRIORITY) {
 	}
 
 	/**
@@ -65,7 +64,8 @@ public:
 	 */
 
 	explicit EntitySystem(uint64_t priority) :
-			processing(true), priority(priority) {
+			        processing(true),
+			        priority(priority) {
 	}
 
 	/**

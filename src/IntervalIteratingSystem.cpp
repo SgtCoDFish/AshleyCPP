@@ -19,12 +19,12 @@
 #include "Ashley/systems/IntervalIteratingSystem.hpp"
 
 ashley::IntervalIteratingSystem::IntervalIteratingSystem(Family *family, float interval) :
-		IntervalIteratingSystem(family, interval, DEFAULT_PRIORITY) {
+		        IntervalIteratingSystem(family, interval, DEFAULT_PRIORITY) {
 }
 
-ashley::IntervalIteratingSystem::IntervalIteratingSystem(Family *family, float interval,
-		uint64_t priority) :
-		IntervalSystem(interval, priority), family(family) {
+ashley::IntervalIteratingSystem::IntervalIteratingSystem(Family *family, float interval, uint64_t priority) :
+		        IntervalSystem(interval, priority),
+		        family(family) {
 }
 
 void ashley::IntervalIteratingSystem::addedToEngine(ashley::Engine &engine) {

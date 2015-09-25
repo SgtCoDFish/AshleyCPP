@@ -33,7 +33,7 @@ class Dummy {
 class ListenerMock : public Listener<Dummy> {
 public:
 	ListenerMock() :
-			count(0) {
+			        count(0) {
 	}
 	virtual ~ListenerMock() {
 	}
@@ -52,7 +52,9 @@ protected:
 	std::unique_ptr<ListenerMock> listener;
 
 	SignalTest() :
-			dummy(), signal(), listener{new ListenerMock()} {
+			        dummy(),
+			        signal(),
+			        listener { new ListenerMock() } {
 	}
 	virtual ~SignalTest() {
 	}
@@ -62,7 +64,7 @@ protected:
 // Check that basic signal/listener functionality works.
 TEST_F(SignalTest, AddListenerAndDispatch) {
 	signal.add(listener.get());
-	auto dynList = (ListenerMock *)(listener.get());
+	auto dynList = (ListenerMock *) (listener.get());
 
 	for (int i = 0; i < 10; i++) {
 		ASSERT_EQ(i, dynList->count);
@@ -90,13 +92,13 @@ TEST_F(SignalTest, AddListenersAndDispatch) {
 
 	for (int i = 0; i < numDispatches; i++) {
 		for (auto &p : listeners) {
-			ASSERT_EQ(i, ((ListenerMock *)(p))->count);
+			ASSERT_EQ(i, ((ListenerMock * )(p))->count);
 		}
 
 		signal.dispatch(&dummy);
 
 		for (auto &p : listeners) {
-			ASSERT_EQ(i + 1, ((ListenerMock *)(p))->count);
+			ASSERT_EQ(i + 1, ((ListenerMock * )(p))->count);
 		}
 	}
 }

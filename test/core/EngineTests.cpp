@@ -73,11 +73,12 @@ public:
 	uint64_t removedCalls = { 0 };
 
 	EntitySystemMock() :
-			EntitySystemMock(nullptr) {
+			        EntitySystemMock(nullptr) {
 	}
 
 	EntitySystemMock(std::shared_ptr<std::vector<uint64_t>> nUpdates) :
-			EntitySystem(EntitySystem::DEFAULT_PRIORITY), updates(nUpdates) {
+			        EntitySystem(EntitySystem::DEFAULT_PRIORITY),
+			        updates(nUpdates) {
 	}
 
 	void update(float deltaTime) override {
@@ -99,22 +100,22 @@ public:
 class EntitySystemMockA : public EntitySystemMock {
 public:
 	EntitySystemMockA() :
-			EntitySystemMock() {
+			        EntitySystemMock() {
 	}
 
 	EntitySystemMockA(std::shared_ptr<std::vector<uint64_t>> ptr) :
-			EntitySystemMock(ptr) {
+			        EntitySystemMock(ptr) {
 	}
 };
 
 class EntitySystemMockB : public EntitySystemMock {
 public:
 	EntitySystemMockB() :
-			EntitySystemMock() {
+			        EntitySystemMock() {
 	}
 
 	EntitySystemMockB(std::shared_ptr<std::vector<uint64_t>> ptr) :
-			EntitySystemMock(ptr) {
+			        EntitySystemMock(ptr) {
 	}
 };
 
@@ -210,10 +211,8 @@ TEST_F(EngineTest, AddAndRemoveSystemShared) {
 }
 
 TEST_F(EngineTest, SystemUpdate) {
-	auto aptr = (EntitySystemMockA*) engine.addSystem(
-			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
-	auto bptr = (EntitySystemMockB*) engine.addSystem(
-			std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
+	auto aptr = (EntitySystemMockA*) engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto bptr = (EntitySystemMockB*) engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
 	const int numUpdates = 10;
 
@@ -243,10 +242,8 @@ TEST_F(EngineTest, SystemUpdate) {
 TEST_F(EngineTest, SystemUpdateOrder) {
 	auto updates = std::make_shared<std::vector<uint64_t>>();
 
-	auto aptr = (EntitySystemMockA *) engine.addSystem(
-			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
-	auto bptr = (EntitySystemMockB *) engine.addSystem(
-			std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
+	auto aptr = (EntitySystemMockA *) engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto bptr = (EntitySystemMockB *) engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
 	aptr->priority = 2;
 	bptr->priority = 1;
@@ -262,8 +259,7 @@ TEST_F(EngineTest, SystemUpdateOrder) {
 }
 
 TEST_F(EngineTest, IgnoreSystem) {
-	auto aptr = (EntitySystemMockA *) engine.addSystem(
-			std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto aptr = (EntitySystemMockA *) engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
 	const int numUpdates = 10;
 
 	for (int i = 0; i < numUpdates; i++) {
@@ -314,15 +310,15 @@ TEST_F(EngineTest, EntityForFamilyWithRemoval) {
 
 	ASSERT_EQ(entities->size(), 1);
 	ASSERT_TRUE(
-			std::find_if(entities->begin(), entities->end(),
-					[&](Entity *&found) {return found == e;}) != entities->end());
+	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
+	                != entities->end());
 
 	engine.removeEntity(e);
 
 	ASSERT_EQ(0, entities->size());
 	ASSERT_FALSE(
-			std::find_if(entities->begin(), entities->end(),
-					[&](Entity *&found) {return found == e;}) != entities->end());
+	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
+	                != entities->end());
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
@@ -380,10 +376,9 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
-	auto entsWithAOnly = engine.getEntitiesFor(Family::getFor(ComponentType::getBitsFor( {
-			typeid(ComponentA) }), // must have A
+	auto entsWithAOnly = engine.getEntitiesFor(Family::getFor(ComponentType::getBitsFor( { typeid(ComponentA) }), // must have A
 	ashley::BitsType(), // ignore
-			ComponentType::getBitsFor( { typeid(ComponentB) }))); // must not have B
+	        ComponentType::getBitsFor( { typeid(ComponentB) }))); // must not have B
 
 	auto entsWithB = engine.getEntitiesFor(Family::getFor( { typeid(ComponentB) }));
 

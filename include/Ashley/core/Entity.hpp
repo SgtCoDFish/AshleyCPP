@@ -106,7 +106,7 @@ public:
 		const auto typeIndex = std::type_index(typeid(C));
 		auto component = std::unique_ptr<Component>(new C(args...));
 
-		if(operationHandler != nullptr) {
+		if (operationHandler != nullptr) {
 			operationHandler->add(this, std::move(component), typeIndex);
 		} else {
 			addInternal(std::move(component), typeIndex);
