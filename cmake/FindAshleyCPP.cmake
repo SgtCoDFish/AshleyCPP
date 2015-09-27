@@ -3,7 +3,7 @@
 # AshleyCPP_LIBRARY
 # AshleyCPP_FOUND
 
-find_path(AshleyCPP_INCLUDE_DIR NAMES AshleyCPP/AshleyCPPCommon.hpp
+find_path(AshleyCPP_INCLUDE_DIR NAMES Ashley/AshleyCore.hpp
           DOC "The AshleyCPP include directory"
 )
 
