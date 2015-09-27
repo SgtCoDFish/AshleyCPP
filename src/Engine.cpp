@@ -100,13 +100,7 @@ void ashley::Engine::removeAllEntities() {
 }
 
 ashley::EntitySystem *ashley::Engine::addSystem(std::unique_ptr<EntitySystem> &&system) {
-#ifdef _MSC_VER 
-	// WARNING: Dereferencing here could have side effects depending on the type of pointer used
-	// Unfortunately, Visual Studio has problems with C++11 still.
 	const auto systemIndex = std::type_index(typeid(*system));
-#else
-	const auto systemIndex = std::type_index(typeid(typename std::unique_ptr<EntitySystem>::element_type));
-#endif
 
 	auto it = systemsByClass.find(systemIndex);
 
