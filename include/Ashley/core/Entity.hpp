@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ACPP_ENTITY_HPP_
-#define ACPP_ENTITY_HPP_
+#ifndef ACPP_CORE_ENTITY_HPP_
+#define ACPP_CORE_ENTITY_HPP_
 
 #include <bitset>
 #include <cstdint>
@@ -46,8 +46,6 @@ namespace ashley {
  * @author Ashley Davis (SgtCoDFish)
  */
 class Entity {
-	friend class Engine;
-
 public:
 	/** A flag that can be used to bit mask this entity. Up to the user to manage. */
 	uint64_t flags = 0;
@@ -64,9 +62,11 @@ public:
 	Entity();
 
 	~Entity() = default;
-	Entity(const Entity &other) = default;
+
+	// Owns resources so remove copy constructors.
 	Entity(Entity &&other) = default;
-	Entity& operator=(const Entity &other) = default;
+	Entity(const Entity &other) = delete;
+	Entity& operator=(const Entity &other) = delete;
 	Entity& operator=(Entity &&other) = default;
 
 	/**
@@ -280,6 +280,7 @@ private:
 	std::unique_ptr<Component> removeInternal(std::type_index typeIndex);
 
 	friend class ComponentOperationHandler;
+	friend class Engine;
 };
 
 }

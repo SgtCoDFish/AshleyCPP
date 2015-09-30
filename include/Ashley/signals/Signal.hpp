@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2014 See AUTHORS file.
+ * Copyright 2014, 2015 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef SIGNAL_HPP_
-#define SIGNAL_HPP_
+#ifndef ACPP_SIGNALS_SIGNAL_HPP_
+#define ACPP_SIGNALS_SIGNAL_HPP_
 
 #include <vector>
 #include <algorithm>

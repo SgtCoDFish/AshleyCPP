@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2014 See AUTHORS file.
+ * Copyright 2014, 2015 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef ENTITYLISTENER_HPP_
-#define ENTITYLISTENER_HPP_
+#ifndef ACPP_CORE_ENTITYLISTENER_HPP_
+#define ACPP_CORE_ENTITYLISTENER_HPP_
 
 #include "Ashley/AshleyConstants.hpp"
 

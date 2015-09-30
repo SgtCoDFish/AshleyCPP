@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2014 See AUTHORS file.
+ * Copyright 2014, 2015 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef OBJECTPOOLS_HPP_
-#define OBJECTPOOLS_HPP_
+#ifndef ACPP_UTIL_OBJECTPOOLS_HPP_
+#define ACPP_UTIL_OBJECTPOOLS_HPP_
 
 #include <stack>
 #include <utility>
