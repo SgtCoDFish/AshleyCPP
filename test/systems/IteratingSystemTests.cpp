@@ -69,7 +69,7 @@ protected:
 class IteratingSystemMock : public IteratingSystem {
 public:
 	IteratingSystemMock(Family *family) :
-			        IteratingSystem(family),
+			        IteratingSystem(family, 0),
 			        numUpdates(0) {
 	}
 	virtual ~IteratingSystemMock() {
@@ -77,7 +77,7 @@ public:
 
 	uint64_t numUpdates;
 
-	void processEntity(Entity * const &entity, float deltaTime) override {
+	void processEntity(Entity * const entity, float deltaTime) override final {
 		++numUpdates;
 	}
 };
@@ -102,14 +102,14 @@ private:
 	ComponentMapper<IndexComponent> im;
 
 public:
-	IteratingComponentRemovalMock(int priority = 0) :
+	IteratingComponentRemovalMock(int64_t priority = 0) :
 			        IteratingSystem(ashley::Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }),
 			                priority),
 			        sm(ComponentMapper<SpyComponent>::getMapper()),
 			        im(ComponentMapper<IndexComponent>::getMapper()) {
 	}
 
-	void processEntity(Entity * const &entity, float deltaTime) override {
+	void processEntity(Entity * const entity, float deltaTime) override final {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
@@ -129,7 +129,7 @@ private:
 	ComponentMapper<IndexComponent> im;
 
 public:
-	IteratingRemovalMock(int priority = 0) :
+	IteratingRemovalMock(int64_t priority = 0) :
 			        IteratingSystem(ashley::Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }),
 			                priority),
 			        sm(ComponentMapper<SpyComponent>::getMapper()),
@@ -146,7 +146,7 @@ public:
 		this->engine = nullptr;
 	}
 
-	void processEntity(Entity * const &entity, float deltaTime) override {
+	void processEntity(Entity * const entity, float deltaTime) override final {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {

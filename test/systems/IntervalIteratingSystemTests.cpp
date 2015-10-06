@@ -41,12 +41,12 @@ private:
 public:
 	IntervalIteratingSystemSpy() :
 			        ashley::IntervalIteratingSystem(ashley::Family::getFor( { typeid(IntervalComponentSpy) }),
-			                deltaTime * 2.0f),
+			                deltaTime * 2.0f, 0),
 			        im(ashley::ComponentMapper<IntervalComponentSpy>::getMapper()) {
 	}
 
 protected:
-	void processEntity(ashley::Entity * const &entity) {
+	void processEntity(ashley::Entity * const entity) override final {
 		im.get(entity)->numUpdates++;
 	}
 };

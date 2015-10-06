@@ -35,12 +35,15 @@ class Engine;
  * @author Ashley Davis (SgtCoDFish)
  */
 class EntitySystem {
-private:
-	bool processing;
-
 public:
-	/** The default priority when calling the empty constructor */
-	static const constexpr uint64_t DEFAULT_PRIORITY = 0;
+	/**
+	 * Initialises the EntitySystem with the priority specified.
+	 * @param priority The priority to execute this system with (lower means higher priority).
+	 */
+	explicit EntitySystem(int64_t priority) :
+			        priority(priority),
+			        processing(true) {
+	}
 
 	virtual ~EntitySystem() = default;
 	EntitySystem(const EntitySystem &other) = default;
@@ -48,25 +51,7 @@ public:
 	EntitySystem& operator=(const EntitySystem &other) = default;
 	EntitySystem& operator=(EntitySystem &&other) = default;
 
-	/** Use this to set the priority of the system. Lower means it'll get executed first. */
-	uint64_t priority = DEFAULT_PRIORITY;
-
-	/**
-	 * Default constructor that will initialise an EntitySystem with priority 0.
-	 */
-	EntitySystem() :
-			        EntitySystem(DEFAULT_PRIORITY) {
-	}
-
-	/**
-	 * Initialises the EntitySystem with the priority specified.
-	 * @param priority The priority to execute this system with (lower means higher priority).
-	 */
-
-	explicit EntitySystem(uint64_t priority) :
-			        processing(true),
-			        priority(priority) {
-	}
+	int64_t priority;
 
 	/**
 	 * Called when this EntitySystem is added to an {@link Engine}.
@@ -162,6 +147,8 @@ public:
 	inline bool operator>=(ashley::EntitySystem &other) const {
 		return this->priority >= other.priority;
 	}
+private:
+	bool processing;
 };
 }
 

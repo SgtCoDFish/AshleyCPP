@@ -35,27 +35,7 @@ class Family;
  * @author Ashley Davis (SgtCoDFish)
  */
 class IntervalIteratingSystem : public ashley::IntervalSystem {
-private:
-	Family *family = nullptr;
-	std::vector<Entity *> *entities = nullptr;
-
 public:
-
-	virtual ~IntervalIteratingSystem() = default;
-	IntervalIteratingSystem(const IntervalIteratingSystem &other) = default;
-	IntervalIteratingSystem(IntervalIteratingSystem &&other) = default;
-	IntervalIteratingSystem& operator=(const IntervalIteratingSystem &other) = default;
-	IntervalIteratingSystem& operator=(IntervalIteratingSystem &&other) = default;
-
-	/**
-	 * <p>Creates an {@link IntervalIteratingSystem} which iterates over the {@link Entity}s
-	 * matching <em>family</em>
-	 * @param family the {@link Family} to match with.
-	 * @param interval the interval, in seconds, after which {@link IntervalIteratingSystem#processEntity}
-	 * will be called for each matched {@link Entity}.
-	 */
-	IntervalIteratingSystem(Family *family, float interval);
-
 	/**
 	 * <p>Creates an {@link IntervalIteratingSystem} which iterates over the {@link Entity}s
 	 * matching <em>family</em>
@@ -64,7 +44,13 @@ public:
 	 * will be called for each matched {@link Entity}.
 	 * @param priority the system's priority; lower priorities execute first.
 	 */
-	IntervalIteratingSystem(Family *family, float interval, uint64_t priority);
+	IntervalIteratingSystem(Family *family, float interval, int64_t priority);
+
+	virtual ~IntervalIteratingSystem() = default;
+	IntervalIteratingSystem(const IntervalIteratingSystem &other) = default;
+	IntervalIteratingSystem(IntervalIteratingSystem &&other) = default;
+	IntervalIteratingSystem& operator=(const IntervalIteratingSystem &other) = default;
+	IntervalIteratingSystem& operator=(IntervalIteratingSystem &&other) = default;
 
 	void addedToEngine(Engine &engine) override;
 	void removedFromEngine(Engine &engine) override;
@@ -76,7 +62,11 @@ public:
 protected:
 	void updateInterval() override;
 
-	virtual void processEntity(Entity * const &entity) = 0;
+	virtual void processEntity(Entity * const entity) = 0;
+
+private:
+	Family *family = nullptr;
+	std::vector<Entity *> *entities = nullptr;
 };
 
 }

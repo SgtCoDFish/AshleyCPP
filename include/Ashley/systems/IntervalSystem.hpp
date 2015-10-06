@@ -31,38 +31,36 @@ namespace ashley {
  * @author Ashley Davis (SgtCoDFish)
  */
 class IntervalSystem : public ashley::EntitySystem {
-private:
-	float interval;
-	float accumulator;
-
 public:
-	virtual ~IntervalSystem() = default;
-	IntervalSystem(const IntervalSystem &other) = default;
-	IntervalSystem(IntervalSystem &&other) = default;
-	IntervalSystem& operator=(const IntervalSystem &other) = default;
-	IntervalSystem& operator=(IntervalSystem &&other) = default;
-
-	/**
-	 * <p>Creates an {@link IntervalSystem} with a default priority and the given interval.
-	 * @param interval The amount of time, in seconds, that the system waits before it
-	 * executes {@link IntervalSystem#updateInterval}.
-	 */
-	explicit IntervalSystem(float interval);
-
 	/**
 	 * <p>Creates an {@link IntervalSystem} with the given priority and the given interval.
 	 * @param interval The amount of time, in seconds, that the system waits before it
 	 * executes {@link IntervalSystem#updateInterval}.
 	 * @param priority The system's priority; lower priorities execute first.
 	 */
-	IntervalSystem(float interval, uint64_t priority);
+	IntervalSystem(float interval, int64_t priority);
+
+	virtual ~IntervalSystem() = default;
+	IntervalSystem(const IntervalSystem &other) = default;
+	IntervalSystem(IntervalSystem &&other) = default;
+	IntervalSystem& operator=(const IntervalSystem &other) = default;
+	IntervalSystem& operator=(IntervalSystem &&other) = default;
 
 	void update(float deltaTime) override;
+
+	float getInterval() const {
+		return interval;
+	}
+
 protected:
 	/**
 	 * <p>Should be overridden with the processing logic for the system.</p>
 	 */
 	virtual void updateInterval() = 0;
+
+private:
+	float interval;
+	float accumulator;
 };
 
 }

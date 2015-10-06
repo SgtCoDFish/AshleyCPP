@@ -64,9 +64,6 @@ public:
 };
 
 class EntitySystemMock : public EntitySystem {
-private:
-	std::shared_ptr<std::vector<uint64_t>> updates;
-
 public:
 	uint64_t updateCalls = { 0 };
 	uint64_t addedCalls = { 0 };
@@ -77,7 +74,7 @@ public:
 	}
 
 	EntitySystemMock(std::shared_ptr<std::vector<uint64_t>> nUpdates) :
-			        EntitySystem(EntitySystem::DEFAULT_PRIORITY),
+			        EntitySystem(0),
 			        updates(nUpdates) {
 	}
 
@@ -95,6 +92,9 @@ public:
 	void removedFromEngine(Engine &engine) override {
 		++removedCalls;
 	}
+
+private:
+	std::shared_ptr<std::vector<uint64_t>> updates;
 };
 
 class EntitySystemMockA : public EntitySystemMock {

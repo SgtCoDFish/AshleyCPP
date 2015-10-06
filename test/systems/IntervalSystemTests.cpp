@@ -29,7 +29,7 @@ public:
 	int64_t numUpdates = 0;
 
 	IntervalSystemSpy() :
-			        ashley::IntervalSystem(deltaTime * 2.0f) {
+			        ashley::IntervalSystem(deltaTime * 2.0f, 0) {
 	}
 
 protected:

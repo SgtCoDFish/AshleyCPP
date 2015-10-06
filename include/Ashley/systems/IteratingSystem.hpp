@@ -37,20 +37,12 @@ class Family;
 class IteratingSystem : public ashley::EntitySystem {
 public:
 	/**
-	 * Instantiates a system that will iterate over the entities described by the Family, with the default priority.
-	 * @param family The family of entities iterated over in this System
-	 */
-	explicit IteratingSystem(Family *family) :
-			        IteratingSystem(family, ashley::EntitySystem::DEFAULT_PRIORITY) {
-	}
-
-	/**
 	 * Instantiates a system that will iterate over the entities described by the Family, with a
 	 * specific priority.
 	 * @param family The family of entities iterated over in this System
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
-	IteratingSystem(Family *family, uint64_t priority) :
+	IteratingSystem(Family *family, int64_t priority) :
 			        EntitySystem(priority),
 			        family(family),
 			        entities() {
@@ -73,7 +65,7 @@ public:
 	 * @param entity The current Entity being processed
 	 * @param deltaTime The delta in time between the last and current frame
 	 */
-	virtual void processEntity(Entity * const &entity, float deltaTime) = 0;
+	virtual void processEntity(Entity * const entity, float deltaTime) = 0;
 
 	/**
 	 * @return true if there is at least 1 {@link Entity} matching the family for this system.

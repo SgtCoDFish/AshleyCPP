@@ -16,14 +16,10 @@
 
 #include "Ashley/systems/IntervalSystem.hpp"
 
-ashley::IntervalSystem::IntervalSystem(float interval) :
-		        IntervalSystem(interval, ashley::EntitySystem::DEFAULT_PRIORITY) {
-}
-
-ashley::IntervalSystem::IntervalSystem(float interval, uint64_t priority) :
-		        ashley::EntitySystem(priority),
-		        interval(interval),
-		        accumulator(0) {
+ashley::IntervalSystem::IntervalSystem(float interval_, int64_t priority) :
+		        EntitySystem(priority),
+		        interval { interval_ },
+		        accumulator { 0.0f } {
 }
 
 void ashley::IntervalSystem::update(float deltaTime) {
