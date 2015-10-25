@@ -19,5 +19,11 @@ doc/
 /include/gtest/*
 /include/gtest
 
+build-msvc/*
+build-msvc
 
+build-clang/*
+build-clang
 
+build-gcc/*
+build-gcc

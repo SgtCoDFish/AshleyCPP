@@ -10,18 +10,27 @@ set(VERSION_PATCH 0)
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 message("Conifguring AshleyCPP version ${VERSION}.")
 
-if(MSVC)
-	set(dialect "")
-	set(warnings "")
-	set(flags "/GR /EHsc")
-	set(ASHLEY_DEBUG_FLAGS "/Od /Gs")
-	set(ASHLEY_RELEASE_FLAGS "/Ox ")
+if( DEFINED WIN32 )
+	if( MSVC )
+		set(dialect "")
+		set(warnings "")
+		set(flags "/GR /EHsc")
+		set(ASHLEY_DEBUG_FLAGS "/Od /Gs")
+		set(ASHLEY_RELEASE_FLAGS "/Ox ")
 
-	#/Od: Disable optimisation
-	#/Ox: Enable all optimisations
-	#/Gx: Check buffer security
-	#/EHsc: Enables c++ exceptions
-	#/GR: Enables RTTI
+		#/Od: Disable optimisation
+		#/Ox: Enable all optimisations
+		#/Gx: Check buffer security
+		#/EHsc: Enables c++ exceptions
+		#/GR: Enables RTTI
+	else () 
+		# MinGW
+		set(dialect "-std=c++0x")
+		set(warnings "-Wall -Wextra -Wno-unused-parameter")
+		set(flags "-mwindows")
+		set(ASHLEY_DEBUG_FLAGS "-O0 -g3")
+		set(ASHLEY_RELEASE_FLAGS "-O3 -g0")
+	endif() 
 else()
 	set(dialect "-std=c++0x")
 	set(warnings "-Wall -Wextra -Wno-unused-parameter")
