@@ -8,7 +8,15 @@ set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-message("Conifguring AshleyCPP version ${VERSION}.")
+message("Conifguring ${CMAKE_PROJECT_NAME} version ${VERSION}.")
+
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+	message("Building release library.")
+	set (ASHLEY_DEBUG FALSE)
+else ()
+	message("Building debug library.")
+	set (ASHLEY_DEBUG TRUE)
+endif ()
 
 if( DEFINED WIN32 )
 	if( MSVC )
@@ -39,36 +47,44 @@ else()
 	set(ASHLEY_RELEASE_FLAGS "-O3 -g0")
 endif()
 
-set(CMAKE_CXX_COMPILER_ARG1 "-std=c++0x")
-set(CMAKE_CXX_FLAGS_BASE "${warnings} ${flags} ${debug_flags}")
+set(CMAKE_CXX_FLAGS_BASE "${dialect} ${warnings} ${flags}")
 
 include_directories(include test)
 
 file(GLOB_RECURSE ASHLEY_CPP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB ASHLEY_CPP_HEADERS ${PROJECT_SOURCE_DIR}/include/*.hpp)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_DEBUG_FLAGS}")
-add_library(AshleyCPP-d ${ASHLEY_CPP_SOURCES})
+set(ASHLEY_LIB_NAME ${CMAKE_PROJECT_NAME})
+
+if ( ASHLEY_DEBUG ) 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_DEBUG_FLAGS}")
+	set(ASHLEY_LIB_NAME "${ASHLEY_LIB_NAME}-d")
+else ()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_RELEASE_FLAGS}")
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_RELEASE_FLAGS}")
-add_library(AshleyCPP ${ASHLEY_CPP_SOURCES})
+add_library(${ASHLEY_LIB_NAME} ${ASHLEY_CPP_SOURCES})
 
 if (NOT EXCLUDE_TESTS)
 	find_package(GTest REQUIRED)
 	
 	file (GLOB_RECURSE ASHLEY_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/*.cpp) 
 	
-	set(ASHLEY_TEST_FLAGS "-pthread")
+	if ( NOT MSVC )
+		set(ASHLEY_TEST_FLAGS "-pthread")
+	else ()
+		set(ASHLEY_TEST_FLAGS "")
+	endif ()
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_DEBUG_FLAGS} ${ASHLEY_TEST_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASHLEY_TEST_FLAGS}")
 	
 	include_directories(${GTEST_INCLUDE_DIRS})
 	
 	add_executable(AshleyCPPTest ${ASHLEY_TEST_SOURCES})
-	target_link_libraries(AshleyCPPTest AshleyCPP-d ${GTEST_BOTH_LIBRARIES})
+	target_link_libraries(AshleyCPPTest ${ASHLEY_LIB_NAME} ${GTEST_BOTH_LIBRARIES})
 endif (NOT EXCLUDE_TESTS)
 
-install (TARGETS AshleyCPP-d DESTINATION lib)
-install (TARGETS AshleyCPP DESTINATION lib)
+install (TARGETS ${ASHLEY_LIB_NAME} DESTINATION lib)
 install (DIRECTORY ${PROJECT_SOURCE_DIR}/include/Ashley DESTINATION include)
 
