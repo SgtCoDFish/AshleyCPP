@@ -8,6 +8,7 @@ Debug/
 Release/
 TestOut/
 build/
+build-debug/
 doc/
 /Debug/*
 /Release/*
