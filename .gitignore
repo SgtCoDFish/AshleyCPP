@@ -22,6 +22,9 @@ doc/
 build-msvc/*
 build-msvc
 
+build-msvcdebug/*
+build-msvcdebug
+
 build-clang/*
 build-clang
 
