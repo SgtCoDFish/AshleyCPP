@@ -47,7 +47,7 @@ else()
 	set(ASHLEY_RELEASE_FLAGS "-O3 -g0")
 endif()
 
-set(CMAKE_CXX_FLAGS_BASE "${dialect} ${warnings} ${flags}")
+set(CMAKE_CXX_FLAGS_BASE "${CMAKE_CXX_FLAGS_BASE} ${dialect} ${warnings} ${flags}")
 
 include_directories(include test)
 
