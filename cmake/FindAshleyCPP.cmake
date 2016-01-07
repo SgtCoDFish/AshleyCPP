@@ -22,7 +22,7 @@ else()
 endif()
 
 if (AshleyCPP_DEBUG_LIBRARY AND AshleyCPP_LIBRARY)
-    message("Found AshleyCPP:\n\tDebug   (${APG_DEBUG_LIBRARY})\n\tRelease (${AshleyCPP_LIBRARY})")
+    message("Found AshleyCPP:\n\tDebug   (${AshleyCPP_DEBUG_LIBRARY})\n\tRelease (${AshleyCPP_LIBRARY})")
     find_package_handle_standard_args(AshleyCPP DEFAULT_MSG AshleyCPP_DEBUG_LIBRARY AshleyCPP_LIBRARY AshleyCPP_INCLUDE_DIR)
     mark_as_advanced(AshleyCPP_INCLUDE_DIR AshleyCPP_DEBUG_LIBRARY AshleyCPP_LIBRARY)
 elseif (AshleyCPP_DEBUG_LIBRARY)
