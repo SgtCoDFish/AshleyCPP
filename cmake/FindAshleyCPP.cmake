@@ -3,6 +3,8 @@
 # AshleyCPP_LIBRARY
 # AshleyCPP_FOUND
 
+include(FindPackageHandleStandardArgs)
+
 find_path(AshleyCPP_INCLUDE_DIR NAMES Ashley/Ashley.hpp
           DOC "The AshleyCPP include directory"
 )
