@@ -17,17 +17,16 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.6
           packages:
             - clang-3.6
       env: COMPILER=clang++-3.6
 
-  before_install:
-    - sudo apt-get update -qq
+before_install:
+- sudo apt-get update -qq
 
-  script:
-    - mkdir build
-    - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release
-    - make
-    - ./AshleyCPPTest
+script:
+- mkdir build
+- cd build
+- cmake -DCMAKE_BUILD_TYPE=Release ..
+- make -j4
+- ./AshleyCPPTest
