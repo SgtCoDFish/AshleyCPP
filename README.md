@@ -1,6 +1,8 @@
 AshleyCPP - C++11 ECS Framework
 ===============================
 
+[![Build Status](https://travis-ci.org/SgtCoDFish/AshleyCPP.svg?branch=master)](https://travis-ci.org/SgtCoDFish/AshleyCPP)
+
 AshleyCPP is a lightweight, cross-platform and easy to use Entity framework for C++11 based on the Java entity framework
 [Ashley](https://github.com/libgdx/ashley/), targeted towards game development. It contains all the classes you need to 
 get started making a game using a pure, ECS-oriented style.
