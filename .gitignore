@@ -4,6 +4,7 @@
 .README*
 *.o
 *.a
+*.swp
 Debug/
 Release/
 TestOut/
