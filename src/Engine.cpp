@@ -290,10 +290,10 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 	        [&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
 
 	if (it == entities.end()) {
-		throw std::bad_function_call();
-	} else {
-		entities.erase(it);
+		return;
 	}
+
+	entities.erase(it);
 
 	if (!entity->getFamilyBits().none()) {
 		for (auto &entry : families) {

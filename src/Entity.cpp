@@ -36,11 +36,7 @@ ashley::Entity::Entity() :
 }
 
 std::unique_ptr<ashley::Component> ashley::Entity::remove(const std::type_index typeIndex) {
-	try {
-		return removeImpl(typeIndex);
-	} catch (std::out_of_range &oor) {
-		return std::unique_ptr<Component> { nullptr };
-	}
+	return removeImpl(typeIndex);
 }
 
 void ashley::Entity::removeAll() {
@@ -89,6 +85,7 @@ std::unique_ptr<ashley::Component> ashley::Entity::removeImpl(std::type_index ty
 
 std::unique_ptr<ashley::Component> ashley::Entity::removeInternal(std::type_index typeIndex) {
 	const auto id = ashley::ComponentType::getIndexFor(typeIndex);
+	assert(id >= 0 && id < componentBits.size() && "invalid component index; you might have too many component types");
 
 	std::unique_ptr<ashley::Component> ret { nullptr };
 

@@ -32,11 +32,10 @@ ashley::Family *ashley::Family::getFor(std::initializer_list<std::type_index> li
 }
 
 ashley::Family *ashley::Family::getFor(ashley::BitsType all, ashley::BitsType one, ashley::BitsType exclude) {
-	auto hash = ashley::Family::getFamilyHash(all, one, exclude);
+	const auto hash = ashley::Family::getFamilyHash(all, one, exclude);
 
-	try {
-		families.at(hash);
-	} catch (std::out_of_range &oor) {
+	const auto it = families.find(hash);
+	if(it == families.end()) {
 		families[hash] = std::unique_ptr<ashley::Family>(new Family(constructorHider_, all, one, exclude));
 	}
 

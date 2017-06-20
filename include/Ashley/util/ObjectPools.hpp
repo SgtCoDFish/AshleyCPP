@@ -17,6 +17,8 @@
 #ifndef ACPP_UTIL_OBJECTPOOLS_HPP_
 #define ACPP_UTIL_OBJECTPOOLS_HPP_
 
+#include <cassert>
+
 #include <stack>
 #include <utility>
 
@@ -55,9 +57,7 @@ private:
 public:
 	explicit ObjectPool(int64_t startEntities = 100) :
 			        peakEntities(0) {
-		if (startEntities < 1) {
-			throw std::invalid_argument("startEntities must be greater than or equal to 1!");
-		}
+		assert(startEntities >= 1 && "startEntities must be >= 1");
 
 		for (int i = 0; i < startEntities; i++) {
 			createObject();
