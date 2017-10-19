@@ -23,7 +23,9 @@
 #include "Ashley/core/Family.hpp"
 #include "Ashley/core/Entity.hpp"
 #include "Ashley/core/ComponentMapper.hpp"
+
 #include "Ashley/systems/IteratingSystem.hpp"
+
 #include "AshleyTestCommon.hpp"
 
 #include "gtest/gtest.h"
