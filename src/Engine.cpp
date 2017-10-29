@@ -111,7 +111,7 @@ ashley::EntitySystem *ashley::Engine::addSystem(std::unique_ptr<EntitySystem> &&
 		systems.emplace_back(std::move(system));
 
 		systemsByClass.emplace(systemIndex, systems.back().get());
-		systems.back()->addedToEngine(*this);
+		systems.back()->addedToEngineInternal(*this);
 
 		std::sort(systems.begin(), systems.end(), Engine::systemPriorityComparator);
 	}
@@ -130,7 +130,7 @@ void ashley::Engine::removeSystem(EntitySystem * const system) {
 
 	if (ptr != systems.end()) {
 		systemsByClass.erase(system->identify());
-		system->removedFromEngine(*this);
+		system->removedFromEngineInternal(*this);
 		systems.erase(ptr);
 	}
 }

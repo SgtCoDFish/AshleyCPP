@@ -125,8 +125,6 @@ public:
 
 class IteratingRemovalMock : public IteratingSystem {
 private:
-	Engine *engine = nullptr;
-
 	ComponentMapper<SpyComponent> sm;
 	ComponentMapper<IndexComponent> im;
 
@@ -140,19 +138,17 @@ public:
 
 	void addedToEngine(Engine &engine) override {
 		IteratingSystem::addedToEngine(engine);
-		this->engine = &engine;
 	}
 
 	void removedFromEngine(Engine &engine) override {
 		IteratingSystem::removedFromEngine(engine);
-		this->engine = nullptr;
 	}
 
 	void processEntity(Entity * const entity, float deltaTime) override final {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
-			engine->removeEntity(entity);
+			getEngine()->removeEntity(entity);
 		} else {
 			sm.get(entity)->updates++;
 		}

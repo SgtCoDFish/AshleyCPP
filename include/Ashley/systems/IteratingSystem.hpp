@@ -89,4 +89,4 @@ protected:
 };
 }
 
-#endif /* ITERATINGSYSTEM_HPP_ */
+#endif
