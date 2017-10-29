@@ -49,7 +49,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS_BASE "${CMAKE_CXX_FLAGS_BASE} ${dialect} ${warnings} ${flags}")
 
-include_directories(include test)
+include_directories("include")
 
 file(GLOB_RECURSE ASHLEY_CPP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB ASHLEY_CPP_HEADERS ${PROJECT_SOURCE_DIR}/include/*.hpp)
@@ -67,26 +67,24 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_BASE} ${ASHLEY_RELEASE_FLAGS}")
 add_library(${ASHLEY_LIB_NAME} ${ASHLEY_CPP_SOURCES})
 
 if (NOT EXCLUDE_TESTS)
-	find_package(GTest)
-	
-	if( NOT GTEST_FOUND )
-	    message ("Skipping tests; GTest was not found")
+	if ( NOT MSVC )
+		set(ASHLEY_TEST_FLAGS "-pthread")
 	else ()
-    	file (GLOB_RECURSE ASHLEY_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/*.cpp) 
-    	
-    	if ( NOT MSVC )
-    		set(ASHLEY_TEST_FLAGS "-pthread")
-    	else ()
-    		set(ASHLEY_TEST_FLAGS "")
-    	endif ()
-    	
-    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASHLEY_TEST_FLAGS}")
-    	
-    	include_directories(${GTEST_INCLUDE_DIRS})
-    	
-    	add_executable(AshleyCPPTest ${ASHLEY_TEST_SOURCES})
-    	target_link_libraries(AshleyCPPTest ${ASHLEY_LIB_NAME} ${GTEST_BOTH_LIBRARIES})
-    endif()
+		set(ASHLEY_TEST_FLAGS "")
+	endif ()
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASHLEY_TEST_FLAGS}")
+
+	add_subdirectory("test")
+
+	include_directories("test" "test/googletest/include")
+	file (GLOB_RECURSE ASHLEY_TEST_SOURCES
+		${PROJECT_SOURCE_DIR}/test/core/*.cpp
+		${PROJECT_SOURCE_DIR}/test/signals/*.cpp
+		${PROJECT_SOURCE_DIR}/test/systems/*.cpp)
+
+	add_executable(AshleyCPPTest ${ASHLEY_TEST_SOURCES})
+	target_link_libraries(AshleyCPPTest ${ASHLEY_LIB_NAME} gtest_main gtest)
 endif (NOT EXCLUDE_TESTS)
 
 install (TARGETS ${ASHLEY_LIB_NAME} DESTINATION lib)
