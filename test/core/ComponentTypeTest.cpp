@@ -24,7 +24,7 @@
 
 // Ensures that we don't waste any memory by having a vtable on Components; that is, tests that a Component has a size of 1 (the minimum)
 TEST(ComponentTypeTest, MinSizeComponents) {
-	ASSERT_EQ(sizeof(ashley::Component), 1);
+	ASSERT_EQ(sizeof(ashley::Component), 1u);
 }
 
 // Ensures a valid type is returned when a call is made to the various getFor() functions, and that this type is the same in the various functions.

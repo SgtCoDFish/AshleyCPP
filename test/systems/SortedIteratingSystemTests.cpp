@@ -110,25 +110,25 @@ TEST_F(SortedIteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
 	e->add<OrderedComponent>("A", 0);
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 0);
+	ASSERT_EQ(mockSystem->numUpdates, 0u);
 
 	e->add<ComponentB>();
 	mockSystem->expectedNames.emplace_back("A");
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 1);
+	ASSERT_EQ(mockSystem->numUpdates, 1u);
 
 	e->add<ComponentC>();
 	mockSystem->expectedNames.emplace_back("A");
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 2);
+	ASSERT_EQ(mockSystem->numUpdates, 2u);
 
 	e->remove<OrderedComponent>();
 	e->add<ComponentC>();
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 2);
+	ASSERT_EQ(mockSystem->numUpdates, 2u);
 }
 
 TEST_F(SortedIteratingSystemTest, EntityOrdering) {

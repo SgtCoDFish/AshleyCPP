@@ -65,9 +65,9 @@ public:
 
 class EntitySystemMock : public EntitySystem {
 public:
-	uint64_t updateCalls = { 0 };
-	uint64_t addedCalls = { 0 };
-	uint64_t removedCalls = { 0 };
+	int64_t updateCalls = { 0 };
+	int64_t addedCalls = { 0 };
+	int64_t removedCalls = { 0 };
 
 	EntitySystemMock() :
 			        EntitySystemMock(nullptr) {
@@ -142,22 +142,22 @@ protected:
 TEST_F(EngineTest, AddAndRemoveEntities) {
 	engine.addEntity();
 
-	ASSERT_EQ(1, listenerA.addedCount);
-	ASSERT_EQ(1, listenerB.addedCount);
+	ASSERT_EQ(1u, listenerA.addedCount);
+	ASSERT_EQ(1u, listenerB.addedCount);
 
 	engine.removeEntityListener(&listenerB);
 
 	engine.addEntity();
 
-	ASSERT_EQ(2, listenerA.addedCount);
-	ASSERT_EQ(1, listenerB.addedCount);
+	ASSERT_EQ(2u, listenerA.addedCount);
+	ASSERT_EQ(1u, listenerB.addedCount);
 
 	engine.addEntityListener(&listenerB);
 
 	engine.removeAllEntities(); // calls removeEntity(shared_ptr) on each added entity
 
-	ASSERT_EQ(2, listenerA.removedCount);
-	ASSERT_EQ(2, listenerB.removedCount);
+	ASSERT_EQ(2u, listenerA.removedCount);
+	ASSERT_EQ(2u, listenerB.removedCount);
 }
 
 // Test the addSystem(EntitySystem*) getSystem() and removeSystem(typeID) methods
@@ -173,8 +173,8 @@ TEST_F(EngineTest, AddGetAndRemoveSystem) {
 
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
-	ASSERT_EQ(1, sA->addedCalls);
-	ASSERT_EQ(1, sB->addedCalls);
+	ASSERT_EQ(1u, sA->addedCalls);
+	ASSERT_EQ(1u, sB->addedCalls);
 
 	engine.removeSystem(typeid(EntitySystemMockA));
 	engine.removeSystem(typeid(EntitySystemMockB));
@@ -275,7 +275,7 @@ TEST_F(EngineTest, EntitiesForFamily) {
 	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
 	auto familyEntities = engine.getEntitiesFor(family);
 
-	ASSERT_EQ(0, familyEntities->size());
+	ASSERT_EQ(0u, familyEntities->size());
 
 	auto e1 = engine.addEntity();
 	auto e2 = engine.addEntity();
@@ -287,7 +287,7 @@ TEST_F(EngineTest, EntitiesForFamily) {
 	e3->add<ComponentA>().add<ComponentB>().add<ComponentC>();
 	e4->add<ComponentA>().add<ComponentB>().add<ComponentC>();
 
-	ASSERT_EQ(3, familyEntities->size());
+	ASSERT_EQ(3u, familyEntities->size());
 
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
@@ -308,14 +308,14 @@ TEST_F(EngineTest, EntityForFamilyWithRemoval) {
 	e->add<ComponentA>();
 	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(ComponentA) }));
 
-	ASSERT_EQ(entities->size(), 1);
+	ASSERT_EQ(1u, entities->size());
 	ASSERT_TRUE(
 	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
 	                != entities->end());
 
 	engine.removeEntity(e);
 
-	ASSERT_EQ(0, entities->size());
+	ASSERT_EQ(0u, entities->size());
 	ASSERT_FALSE(
 	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
 	                != entities->end());
@@ -325,7 +325,7 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
 	auto familyEntities = engine.getEntitiesFor(family);
 
-	ASSERT_EQ(0, familyEntities->size());
+	ASSERT_EQ(0u, familyEntities->size());
 
 	auto e1u = std::unique_ptr<Entity>(new Entity());
 	auto e2u = std::unique_ptr<Entity>(new Entity());
@@ -342,7 +342,7 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	auto e3 = engine.addEntity(std::move(e3u));
 	auto e4 = engine.addEntity(std::move(e4u));
 
-	ASSERT_EQ(3, familyEntities->size());
+	ASSERT_EQ(3u, familyEntities->size());
 
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
@@ -372,7 +372,7 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	EXPECT_EQ(e2Found, false);
 	EXPECT_EQ(e3Found, false);
 	EXPECT_EQ(e4Found, true);
-	ASSERT_EQ(1, familyEntities->size());
+	ASSERT_EQ(1u, familyEntities->size());
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
@@ -393,24 +393,24 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
 	e2->add<ComponentA>();
 	e2->add<ComponentB>();
 
-	ASSERT_EQ(1, entsWithAOnly->size());
-	ASSERT_EQ(1, entsWithB->size());
+	ASSERT_EQ(1u, entsWithAOnly->size());
+	ASSERT_EQ(1u, entsWithB->size());
 
 	e2->remove<ComponentB>();
 
-	ASSERT_EQ(2, entsWithAOnly->size());
-	ASSERT_EQ(0, entsWithB->size());
+	ASSERT_EQ(2u, entsWithAOnly->size());
+	ASSERT_EQ(0u, entsWithB->size());
 }
 
 TEST_F(EngineTest, GetSystems) {
 	auto sys = engine.getSystems();
 
-	ASSERT_EQ(sys.size(), 0);
+	ASSERT_EQ(sys.size(), 0u);
 
 	engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
 	engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
 	sys = engine.getSystems();
 
-	ASSERT_EQ(sys.size(), 2);
+	ASSERT_EQ(sys.size(), 2u);
 }

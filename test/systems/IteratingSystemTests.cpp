@@ -168,23 +168,23 @@ TEST_F(IteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
 	e->add<ComponentA>();
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 0);
+	ASSERT_EQ(mockSystem->numUpdates, 0u);
 
 	e->add<ComponentB>();
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 1);
+	ASSERT_EQ(mockSystem->numUpdates, 1u);
 
 	e->add<ComponentC>();
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 2);
+	ASSERT_EQ(mockSystem->numUpdates, 2u);
 
 	e->remove<ComponentA>();
 	e->add<ComponentC>();
 	engine.update(delta);
 
-	ASSERT_EQ(mockSystem->numUpdates, 2);
+	ASSERT_EQ(mockSystem->numUpdates, 2u);
 }
 
 TEST_F(IteratingSystemTest, EntityRemovalWhileIterating) {
@@ -195,9 +195,9 @@ TEST_F(IteratingSystemTest, EntityRemovalWhileIterating) {
 
 	engine.addSystem<IteratingRemovalMock>(10);
 
-	constexpr int numEntities = 10;
+	constexpr uint64_t numEntities = 10u;
 
-	for (int i = 0; i < numEntities; i++) {
+	for (uint64_t i = 0u; i < numEntities; i++) {
 		auto e = std::unique_ptr<Entity>(new Entity());
 
 		e->add<SpyComponent>();
@@ -225,9 +225,9 @@ TEST_F(IteratingSystemTest, ComponentRemovalWhileIterating) {
 
 	engine.addSystem<IteratingComponentRemovalMock>(10);
 
-	constexpr int numEntities = 10;
+	constexpr uint64_t numEntities = 10u;
 
-	for (int i = 0; i < numEntities; i++) {
+	for (uint64_t i = 0u; i < numEntities; i++) {
 		auto e = std::unique_ptr<Entity>(new Entity());
 
 		e->add<SpyComponent>();
