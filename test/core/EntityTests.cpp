@@ -248,26 +248,26 @@ TEST_F(EntityTest, ComponentListener) {
 	e.componentAdded.add(dynAdd);
 	e.componentRemoved.add(dynRem);
 
-	ASSERT_EQ(0, dynAdd->counter);
-	ASSERT_EQ(0, dynRem->counter);
+	ASSERT_EQ(0u, dynAdd->counter);
+	ASSERT_EQ(0u, dynRem->counter);
 
 	e.add<ashley::test::PositionComponent>(5, 2);
 
-	ASSERT_EQ(1, dynAdd->counter);
-	ASSERT_EQ(0, dynRem->counter);
+	ASSERT_EQ(1u, dynAdd->counter);
+	ASSERT_EQ(0u, dynRem->counter);
 
 	e.remove<ashley::test::PositionComponent>();
 
-	ASSERT_EQ(1, dynAdd->counter);
-	ASSERT_EQ(1, dynRem->counter);
+	ASSERT_EQ(1u, dynAdd->counter);
+	ASSERT_EQ(1u, dynRem->counter);
 
 	e.add<ashley::test::VelocityComponent>(5, 222);
 
-	ASSERT_EQ(2, dynAdd->counter);
-	ASSERT_EQ(1, dynRem->counter);
+	ASSERT_EQ(2u, dynAdd->counter);
+	ASSERT_EQ(1u, dynRem->counter);
 
 	e.remove<ashley::test::VelocityComponent>();
 
-	ASSERT_EQ(2, dynAdd->counter);
-	ASSERT_EQ(2, dynRem->counter);
+	ASSERT_EQ(2u, dynAdd->counter);
+	ASSERT_EQ(2u, dynRem->counter);
 }
