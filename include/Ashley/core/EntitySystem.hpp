@@ -80,6 +80,10 @@ public:
 		return processing;
 	}
 
+	Engine *getEngine() const {
+		return engine;
+	}
+
 	/**
 	 * <p>Switches this {@link EntitySystem}'s processing on or off.
 	 * @param processing the state of processing for this system.
@@ -149,7 +153,22 @@ public:
 	}
 private:
 	bool processing;
+
+	Engine * engine = nullptr;
+
+	void addedToEngineInternal(Engine &engine) {
+		this->engine = &engine;
+		addedToEngine(engine);
+	}
+
+	void removedFromEngineInternal(Engine &engine) {
+		this->engine = nullptr;
+		removedFromEngine(engine);
+	}
+
+	friend Engine;
 };
+
 }
 
-#endif /* ENTITYSYSTEM_HPP_ */
+#endif
