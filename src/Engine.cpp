@@ -287,13 +287,15 @@ void ashley::Engine::removePendingEntities() {
 
 void ashley::Engine::removeEntityInternal(Entity * const entity) {
 	auto it = std::find_if(entities.begin(), entities.end(),
-	        [&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
+						   [&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
 
 	if (it == entities.end()) {
 		return;
 	}
 
-	entities.erase(it);
+	entity->componentAdded.remove(componentAddedListener.get());
+	entity->componentRemoved.remove(componentRemovedListener.get());
+	entity->operationHandler = nullptr;
 
 	if (!entity->getFamilyBits().none()) {
 		for (auto &entry : families) {
@@ -312,9 +314,6 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 		}
 	}
 
-	entity->componentAdded.remove(componentAddedListener.get());
-	entity->componentRemoved.remove(componentRemovedListener.get());
-	entity->operationHandler = nullptr;
 
 	notifying = true;
 
@@ -325,6 +324,8 @@ void ashley::Engine::removeEntityInternal(Entity * const entity) {
 	notifying = false;
 
 	removePendingListeners();
+
+	entities.erase(it);
 }
 
 void ashley::Engine::EngineOperationHandler::add(ashley::Entity * const entity, std::unique_ptr<Component> &&component,
