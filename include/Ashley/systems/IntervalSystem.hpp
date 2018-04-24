@@ -52,6 +52,10 @@ public:
 		return interval;
 	}
 
+	void setInterval(float interval) {
+		this->interval = interval;
+	}
+
 protected:
 	/**
 	 * <p>Should be overridden with the processing logic for the system.</p>
