@@ -1,33 +1,13 @@
-/*******************************************************************************
- * Copyright 2017 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <string>
 #include <list>
 #include <utility>
 
 #include "Ashley/core/Engine.hpp"
-#include "Ashley/core/Component.hpp"
-#include "Ashley/core/Family.hpp"
 #include "Ashley/core/ComponentMapper.hpp"
 
 #include "Ashley/systems/SortedIteratingSystem.hpp"
 
 #include "AshleyTestCommon.hpp"
-
-#include "gtest/gtest.h"
 
 using ashley::Engine;
 using ashley::Entity;
@@ -36,25 +16,24 @@ using ashley::Family;
 using ashley::ComponentMapper;
 using ashley::SortedIteratingSystem;
 
-class ComponentB : public Component {
+class ComponentB final : public Component {
 
 };
 
-class ComponentC : public Component {
+class ComponentC final : public Component {
 
 };
 
-class OrderedComponent : public ashley::Component {
+class OrderedComponent final : public ashley::Component {
 public:
-	std::string name { "" };
+	std::string name{""};
 	int zLayer = 0;
 
-	OrderedComponent() {
-	}
+	OrderedComponent() = default;
 
 	OrderedComponent(std::string &&name, int zLayer) :
-		name { std::move(name) },
-		zLayer { zLayer } {
+			name{std::move(name)},
+			zLayer{zLayer} {
 	}
 };
 
@@ -72,15 +51,15 @@ public:
 	uint64_t numUpdates = 0;
 
 	explicit SortedIteratingSystemMock(Family *family) :
-		SortedIteratingSystem(family, zComparator, 0) {
+			SortedIteratingSystem(family, zComparator, 0) {
 	}
 
-	void update(float deltaTime) override final {
+	void update(float deltaTime) override{
 		SortedIteratingSystem::update(deltaTime);
 		ASSERT_TRUE(expectedNames.empty());
 	}
 
-	void processEntity(Entity * const entity, float deltaTime) override final {
+	void processEntity(Entity *entity, float deltaTime) override {
 		++numUpdates;
 		const auto z = zMapper.get(entity);
 
@@ -97,13 +76,13 @@ protected:
 	const ComponentMapper<OrderedComponent> zMapper = ComponentMapper<OrderedComponent>::getMapper();
 	Engine engine;
 
-	Family *sortFamily { Family::getFor( { typeid(OrderedComponent) }) };
+	Family *sortFamily{Family::getFor({typeid(OrderedComponent)})};
 
 	const float delta = 1.0f;
 };
 
 TEST_F(SortedIteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
-	const auto family = Family::getFor( { typeid(OrderedComponent), typeid(ComponentB) });
+	const auto family = Family::getFor({typeid(OrderedComponent), typeid(ComponentB)});
 	auto mockSystem = engine.addSystem<SortedIteratingSystemMock>(family);
 	auto e = engine.addEntity();
 

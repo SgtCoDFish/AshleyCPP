@@ -1,19 +1,3 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <cstdint>
 
 #include <vector>
@@ -23,31 +7,24 @@
 #include <memory>
 
 #include "Ashley/core/Entity.hpp"
-#include "Ashley/core/ComponentType.hpp"
-
-#include "Ashley/signals/Signal.hpp"
-#include "Ashley/signals/Listener.hpp"
 
 #include "AshleyTestCommon.hpp"
-
-#include "gtest/gtest.h"
 
 namespace {
 class EntityTest : public ::testing::Test {
 protected:
-	EntityTest() {
-	}
-	virtual ~EntityTest() {
-	}
+	EntityTest() = default;
 
-	virtual void SetUp() {
+	~EntityTest() override = default;
+
+	void SetUp() override {
 		onlyPosition.add<ashley::test::PositionComponent>(initialXPos, initialYPos);
 		onlyVelocity.add<ashley::test::VelocityComponent>(initialXVel, initialXVel);
 		positionAndVelocity.add<ashley::test::PositionComponent>(initialXPos, initialYPos).add<
-		        ashley::test::VelocityComponent>(initialXVel, initialYVel);
+				ashley::test::VelocityComponent>(initialXVel, initialYVel);
 	}
 
-	virtual void TearDown() {
+	void TearDown() override {
 		emptyEntity.removeAll();
 		onlyPosition.removeAll();
 		onlyVelocity.removeAll();
@@ -66,15 +43,15 @@ protected:
 };
 }
 
-class EntityListenerMock : public ashley::Listener<ashley::Entity> {
+class EntityListenerMock final : public ashley::Listener<ashley::Entity> {
 public:
 	uint64_t counter;
 
 	EntityListenerMock() :
-			        counter(0) {
+			counter(0) {
 	}
 
-	void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
+	void receive(ashley::Signal<ashley::Entity> *signal, ashley::Entity *object) override {
 		++counter;
 	}
 };
@@ -86,7 +63,7 @@ TEST_F(EntityTest, UniqueIndex) {
 
 	for (int i = 0; i < numEntities; i++) {
 		ashley::Entity e;
-		ASSERT_FALSE(ids[(e.getIndex())] == 1)<< "Non-unique entity ID generated: " << e.getIndex() << ".";
+		ASSERT_FALSE(ids[(e.getIndex())] == 1) << "Non-unique entity ID generated: " << e.getIndex() << ".";
 	}
 }
 
@@ -116,7 +93,7 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 	bits = onlyPosition.getComponentBits();
 
 	for (unsigned int i = 0; i < bits.size(); i++) {
-		ASSERT_EQ(0, bits[i])<< "i = " << i << ".";
+		ASSERT_EQ(0, bits[i]) << "i = " << i << ".";
 	}
 
 	positionAndVelocity.remove<ashley::test::VelocityComponent>();
@@ -126,7 +103,7 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 
 	bits = positionAndVelocity.getComponentBits();
 	for (unsigned int i = 0; i < bits.size(); i++) {
-		ASSERT_EQ(i == positionIndex, bits[i])<< "i = " << i << ".";
+		ASSERT_EQ(i == positionIndex, bits[i]) << "i = " << i << ".";
 	}
 
 	positionAndVelocity.remove<ashley::test::PositionComponent>();
@@ -136,7 +113,7 @@ TEST_F(EntityTest, AddAndRemoveComponents) {
 
 	bits = positionAndVelocity.getComponentBits();
 	for (unsigned int i = 0; i < bits.size(); i++) {
-		ASSERT_EQ(0, bits[i])<< "i = " << i << ".";
+		ASSERT_EQ(0, bits[i]) << "i = " << i << ".";
 	}
 }
 
@@ -167,7 +144,7 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 	auto vIndex = ashley::ComponentType::getIndexFor(std::type_index(typeid(ashley::test::VelocityComponent)));
 
 	for (unsigned int i = 0; i < bits.count(); i++) {
-		ASSERT_EQ(i == pIndex || i == vIndex, bits[i])<< "Invalid bits";
+		ASSERT_EQ(i == pIndex || i == vIndex, bits[i]) << "Invalid bits";
 	}
 
 	positionAndVelocity.removeAll();
@@ -177,7 +154,7 @@ TEST_F(EntityTest, AddAndRemoveAllComponents) {
 	bits = positionAndVelocity.getComponentBits();
 
 	for (unsigned int i = 0; i < bits.count(); i++) {
-		ASSERT_EQ(0, bits[i])<< "Invalid bits";
+		ASSERT_EQ(0, bits[i]) << "Invalid bits";
 	}
 }
 
@@ -194,9 +171,9 @@ TEST_F(EntityTest, HasAndGetComponent) {
 	EXPECT_FALSE((onlyPosition.getComponent<ashley::test::PositionComponent>()) == nullptr) << "getComponent failed.";
 	EXPECT_FALSE(onlyVelocity.getComponent<ashley::test::VelocityComponent>() == nullptr) << "getComponent failed.";
 	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::PositionComponent>() == nullptr)
-	        << "getComponent failed.";
-	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::VelocityComponent>()== nullptr)
-	        << "getComponent failed.";
+						<< "getComponent failed.";
+	EXPECT_FALSE(positionAndVelocity.getComponent<ashley::test::VelocityComponent>() == nullptr)
+						<< "getComponent failed.";
 
 	EXPECT_TRUE(onlyPosition.getComponent<ashley::test::VelocityComponent>() == nullptr);
 	EXPECT_TRUE(onlyVelocity.getComponent<ashley::test::PositionComponent>() == nullptr);
@@ -242,11 +219,11 @@ TEST_F(EntityTest, AddSameComponent) {
 // Ensure the component listener signals work as intended
 TEST_F(EntityTest, ComponentListener) {
 	ashley::Entity e;
-	EntityListenerMock *dynAdd = new EntityListenerMock();
-	EntityListenerMock *dynRem = new EntityListenerMock();
+	auto dynAdd = std::unique_ptr<EntityListenerMock>(new EntityListenerMock());
+	auto dynRem = std::unique_ptr<EntityListenerMock>(new EntityListenerMock());
 
-	e.componentAdded.add(dynAdd);
-	e.componentRemoved.add(dynRem);
+	e.componentAdded.add(dynAdd.get());
+	e.componentRemoved.add(dynRem.get());
 
 	ASSERT_EQ(0u, dynAdd->counter);
 	ASSERT_EQ(0u, dynRem->counter);

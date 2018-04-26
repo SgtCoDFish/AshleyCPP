@@ -1,35 +1,12 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <cstdint>
 
 #include <vector>
 #include <unordered_map>
 #include <functional>
-#include <typeinfo>
 #include <typeindex>
 #include <memory>
 
 #include "Ashley/core/Engine.hpp"
-#include "Ashley/core/Entity.hpp"
-#include "Ashley/core/EntityListener.hpp"
-#include "Ashley/core/EntitySystem.hpp"
-#include "Ashley/core/Component.hpp"
-#include "Ashley/core/ComponentType.hpp"
-#include "Ashley/core/Family.hpp"
 
 #include "gtest/gtest.h"
 
@@ -44,38 +21,40 @@ using ashley::Family;
 namespace {
 class ComponentA : public Component {
 };
+
 class ComponentB : public Component {
 };
+
 class ComponentC : public Component {
 };
 
-class EntityListenerMock : public EntityListener {
+class EntityListenerMock final : public EntityListener {
 public:
 	uint64_t addedCount = 0;
 	uint64_t removedCount = 0;
 
-	virtual void entityAdded(Entity &entity) override {
+	void entityAdded(Entity &entity) override {
 		++addedCount;
 	}
 
-	virtual void entityRemoved(Entity &entity) override {
+	void entityRemoved(Entity &entity) override {
 		++removedCount;
 	}
 };
 
 class EntitySystemMock : public EntitySystem {
 public:
-	int64_t updateCalls = { 0 };
-	int64_t addedCalls = { 0 };
-	int64_t removedCalls = { 0 };
+	int64_t updateCalls = {0};
+	int64_t addedCalls = {0};
+	int64_t removedCalls = {0};
 
 	EntitySystemMock() :
-			        EntitySystemMock(nullptr) {
+			EntitySystemMock(nullptr) {
 	}
 
-	EntitySystemMock(std::shared_ptr<std::vector<uint64_t>> nUpdates) :
-			        EntitySystem(0),
-			        updates(nUpdates) {
+	explicit EntitySystemMock(std::shared_ptr<std::vector<uint64_t>> nUpdates) :
+			EntitySystem(0),
+			updates(std::move(nUpdates)) {
 	}
 
 	void update(float deltaTime) override {
@@ -97,25 +76,21 @@ private:
 	std::shared_ptr<std::vector<uint64_t>> updates;
 };
 
-class EntitySystemMockA : public EntitySystemMock {
+class EntitySystemMockA final : public EntitySystemMock {
 public:
-	EntitySystemMockA() :
-			        EntitySystemMock() {
-	}
+	EntitySystemMockA() = default;
 
-	EntitySystemMockA(std::shared_ptr<std::vector<uint64_t>> ptr) :
-			        EntitySystemMock(ptr) {
+	explicit EntitySystemMockA(std::shared_ptr<std::vector<uint64_t>> ptr) :
+			EntitySystemMock(ptr) {
 	}
 };
 
-class EntitySystemMockB : public EntitySystemMock {
+class EntitySystemMockB final : public EntitySystemMock {
 public:
-	EntitySystemMockB() :
-			        EntitySystemMock() {
-	}
+	EntitySystemMockB() = default;
 
-	EntitySystemMockB(std::shared_ptr<std::vector<uint64_t>> ptr) :
-			        EntitySystemMock(ptr) {
+	explicit EntitySystemMockB(std::shared_ptr<std::vector<uint64_t>> ptr) :
+			EntitySystemMock(ptr) {
 	}
 };
 
@@ -168,8 +143,8 @@ TEST_F(EngineTest, AddGetAndRemoveSystem) {
 	engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
 	engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
-	auto sA = (EntitySystemMockA *) engine.getSystem<EntitySystemMockA>();
-	auto sB = (EntitySystemMockB *) engine.getSystem<EntitySystemMockB>();
+	auto sA = engine.getSystem<EntitySystemMockA>();
+	auto sB = engine.getSystem<EntitySystemMockB>();
 
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockA)) == nullptr);
 	ASSERT_FALSE(engine.getSystem(typeid(EntitySystemMockB)) == nullptr);
@@ -211,8 +186,8 @@ TEST_F(EngineTest, AddAndRemoveSystemShared) {
 }
 
 TEST_F(EngineTest, SystemUpdate) {
-	auto aptr = (EntitySystemMockA*) engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
-	auto bptr = (EntitySystemMockB*) engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
+	auto aptr = (EntitySystemMockA *) engine.addSystem(std::unique_ptr<EntitySystemMockA>(new EntitySystemMockA()));
+	auto bptr = (EntitySystemMockB *) engine.addSystem(std::unique_ptr<EntitySystemMockB>(new EntitySystemMockB()));
 
 	const int numUpdates = 10;
 
@@ -272,7 +247,7 @@ TEST_F(EngineTest, IgnoreSystem) {
 }
 
 TEST_F(EngineTest, EntitiesForFamily) {
-	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
+	auto family = Family::getFor({typeid(ComponentA), typeid(ComponentB)});
 	auto familyEntities = engine.getEntitiesFor(family);
 
 	ASSERT_EQ(0u, familyEntities->size());
@@ -292,10 +267,11 @@ TEST_F(EngineTest, EntitiesForFamily) {
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
 	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
-		if(found == e1) e1Found = true;
-		else if(found == e2) e2Found = true;
-		else if(found == e3) e3Found = true;
-		else if(found == e4) e4Found = true;});
+		if (found == e1) e1Found = true;
+		else if (found == e2) e2Found = true;
+		else if (found == e3) e3Found = true;
+		else if (found == e4) e4Found = true;
+	});
 
 	ASSERT_EQ(e1Found, true);
 	ASSERT_EQ(e2Found, false);
@@ -306,23 +282,23 @@ TEST_F(EngineTest, EntitiesForFamily) {
 TEST_F(EngineTest, EntityForFamilyWithRemoval) {
 	auto e = engine.addEntity();
 	e->add<ComponentA>();
-	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(ComponentA) }));
+	auto entities = engine.getEntitiesFor(Family::getFor({typeid(ComponentA)}));
 
 	ASSERT_EQ(1u, entities->size());
 	ASSERT_TRUE(
-	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
-	                != entities->end());
+			std::find_if(entities->begin(), entities->end(), [&](Entity *&found) { return found == e; })
+			!= entities->end());
 
 	engine.removeEntity(e);
 
 	ASSERT_EQ(0u, entities->size());
 	ASSERT_FALSE(
-	        std::find_if(entities->begin(), entities->end(), [&](Entity *&found) {return found == e;})
-	                != entities->end());
+			std::find_if(entities->begin(), entities->end(), [&](Entity *&found) { return found == e; })
+			!= entities->end());
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
-	auto family = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
+	auto family = Family::getFor({typeid(ComponentA), typeid(ComponentB)});
 	auto familyEntities = engine.getEntitiesFor(family);
 
 	ASSERT_EQ(0u, familyEntities->size());
@@ -347,10 +323,11 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	bool e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
 	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
-		if(found == e1) e1Found = true;
-		else if(found == e2) e2Found = true;
-		else if(found == e3) e3Found = true;
-		else if(found == e4) e4Found = true;});
+		if (found == e1) e1Found = true;
+		else if (found == e2) e2Found = true;
+		else if (found == e3) e3Found = true;
+		else if (found == e4) e4Found = true;
+	});
 
 	ASSERT_EQ(e1Found, true);
 	ASSERT_EQ(e2Found, false);
@@ -363,10 +340,11 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 	e1Found = false, e2Found = false, e3Found = false, e4Found = false;
 
 	std::for_each(familyEntities->begin(), familyEntities->end(), [&](Entity *&found) {
-		if(found == e1) e1Found = true;
-		else if(found == e2) e2Found = true;
-		else if(found == e3) e3Found = true;
-		else if(found == e4) e4Found = true;});
+		if (found == e1) e1Found = true;
+		else if (found == e2) e2Found = true;
+		else if (found == e3) e3Found = true;
+		else if (found == e4) e4Found = true;
+	});
 
 	EXPECT_EQ(e1Found, false);
 	EXPECT_EQ(e2Found, false);
@@ -376,11 +354,12 @@ TEST_F(EngineTest, EntitiesForFamilyWithRemoval) {
 }
 
 TEST_F(EngineTest, EntitiesForFamilyWithRemovalAndFiltering) {
-	auto entsWithAOnly = engine.getEntitiesFor(Family::getFor(ComponentType::getBitsFor( { typeid(ComponentA) }), // must have A
-	ashley::BitsType(), // ignore
-	        ComponentType::getBitsFor( { typeid(ComponentB) }))); // must not have B
+	auto entsWithAOnly = engine.getEntitiesFor(
+			Family::getFor(ComponentType::getBitsFor({typeid(ComponentA)}), // must have A
+						   ashley::BitsType(), // ignore
+						   ComponentType::getBitsFor({typeid(ComponentB)}))); // must not have B
 
-	auto entsWithB = engine.getEntitiesFor(Family::getFor( { typeid(ComponentB) }));
+	auto entsWithB = engine.getEntitiesFor(Family::getFor({typeid(ComponentB)}));
 
 	auto e1u = std::unique_ptr<Entity>(new Entity());
 	auto e2u = std::unique_ptr<Entity>(new Entity());

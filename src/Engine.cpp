@@ -1,35 +1,12 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <cassert>
 
 #include <vector>
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
-#include <typeinfo>
 #include <typeindex>
-#include <functional>
 
 #include "Ashley/core/Engine.hpp"
-#include "Ashley/core/Entity.hpp"
-#include "Ashley/core/EntityListener.hpp"
-#include "Ashley/core/EntitySystem.hpp"
-#include "Ashley/core/Family.hpp"
-#include "Ashley/internal/ComponentOperations.hpp"
 
 ashley::Engine::Engine() :
 		        notifying(false),
@@ -94,7 +71,7 @@ void ashley::Engine::removeEntity(Entity * const ptr) {
 }
 
 void ashley::Engine::removeAllEntities() {
-	while (entities.size() > 0) {
+	while (!entities.empty()) {
 		removeEntity(entities.front().get());
 	}
 }
@@ -235,9 +212,9 @@ void ashley::Engine::updateFamilyMembership(ashley::Entity &entity) {
 }
 
 void ashley::Engine::processComponentOperations() {
-	const int numOperations = operationVector.size();
+	const auto numOperations = operationVector.size();
 
-	for (int i = 0; i < numOperations; i++) {
+	for (size_t i = 0u; i < numOperations; i++) {
 		auto operation = operationVector[i];
 
 		switch (operation->type) {
@@ -276,16 +253,16 @@ void ashley::Engine::removePendingListeners() {
 }
 
 void ashley::Engine::removePendingEntities() {
-	const int numPending = pendingRemovalEntities.size();
+	const auto numPending = pendingRemovalEntities.size();
 
-	for (int i = 0; i < numPending; i++) {
+	for (size_t i = 0u; i < numPending; i++) {
 		removeEntityInternal(pendingRemovalEntities[i]);
 	}
 
 	pendingRemovalEntities.clear();
 }
 
-void ashley::Engine::removeEntityInternal(Entity * const entity) {
+void ashley::Engine::removeEntityInternal(Entity * entity) {
 	auto it = std::find_if(entities.begin(), entities.end(),
 						   [&](std::unique_ptr<Entity> &ptr) {return ptr.get() == entity;});
 

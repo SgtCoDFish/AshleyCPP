@@ -36,8 +36,11 @@
 
 namespace ashley {
 class Component;
+
 class EntitySystem;
+
 class Entity;
+
 class Family;
 
 /**
@@ -65,12 +68,16 @@ class Family;
 class Engine {
 public:
 	Engine();
+
 	~Engine();
 
 	Engine(const Engine &other) = delete;
+
 	Engine(Engine &&other) = default;
-	Engine& operator=(const Engine &other) = delete;
-	Engine& operator=(Engine &&other) = default;
+
+	Engine &operator=(const Engine &other) = delete;
+
+	Engine &operator=(Engine &&other) = default;
 
 	/**
 	 * <p>Adds an std::unique_ptr to an {@link Entity} to this {@link Engine} via moving.
@@ -93,7 +100,7 @@ public:
 	 *
 	 * <p>Note that the {@link Entity} (and therefore all attached {@link Component}s) will be destroyed.</p>
 	 */
-	void removeEntity(Entity * const ptr);
+	void removeEntity(Entity *const ptr);
 
 	/**
 	 * Removes all entities registered with this Engine.
@@ -114,7 +121,8 @@ public:
 	 * @param args arguments forwarded to the constructor of the system.
 	 * @return a naked (safe-to-use) pointer to the created system.
 	 */
-	template<typename ES, typename ...Args> ES *addSystem(Args&&... args) {
+	template<typename ES, typename ...Args>
+	ES *addSystem(Args &&... args) {
 		return (ES *) addSystem(std::unique_ptr<ES>(new ES(args...)));
 	}
 
@@ -123,7 +131,7 @@ public:
 	 * <p>Note that the system might be (is likely to be) immediately destroyed upon calling this function, and thus
 	 * any state contained in the system will be lost.</p>
 	 */
-	void removeSystem(EntitySystem * const system);
+	void removeSystem(EntitySystem *const system);
 
 	/**
 	 * <p>Removes the system associated with the given type from this {@link Engine}.</p>
@@ -137,16 +145,17 @@ public:
 	 * <p>To avoid a typecast, use the templated, argument-less version.</p>
 	 * @return A naked pointer to the system if it exists in the {@link Engine} or nullptr otherwise.
 	 */
-	EntitySystem * getSystem(std::type_index systemType) const;
+	EntitySystem *getSystem(std::type_index systemType) const;
 
 	/**
 	 * <p>Quick {@link EntitySystem} retrieval. Doesn't require type-casts thanks to template magic.</p>
 	 * @return A naked pointer to the system if it exists in the {@link Engine} or nullptr otherwise.
 	 */
-	template<typename ES> ES *getSystem() {
+	template<typename ES>
+	ES *getSystem() {
 		// duplicates some code with the type_index version, but faster this way.
 		auto ret = systemsByClass.find(typeid(ES));
-		return (ES*) (ret != systemsByClass.end() ? (*ret).second : nullptr);
+		return (ES *) (ret != systemsByClass.end() ? (*ret).second : nullptr);
 	}
 
 	/**
@@ -160,7 +169,7 @@ public:
 	 * specified {@link Family}.</p>
 	 * @return a (possibly empty) vector of naked {@link Entity} pointers.
 	 */
-	std::vector<Entity *> *getEntitiesFor(Family * const family);
+	std::vector<Entity *> *getEntitiesFor(Family *family);
 
 	/**
 	 * Adds an {@link EntityListener}.
@@ -179,7 +188,7 @@ public:
 	void update(float deltaTime);
 
 	static bool systemPriorityComparator(const std::unique_ptr<EntitySystem> &one,
-	        const std::unique_ptr<EntitySystem> &other);
+										 const std::unique_ptr<EntitySystem> &other);
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
@@ -206,19 +215,22 @@ private:
 	void removePendingListeners();
 
 	void removePendingEntities();
-	void removeEntityInternal(Entity * const entity);
+
+	void removeEntityInternal(Entity *entity);
 
 	friend class AddedListener;
+
 	friend class RemovedListener;
+
 	friend class EngineOperationHandler;
 
 	class AddedListener : public ashley::Listener<Entity> {
 	public:
-		AddedListener(Engine * const engine) :
-				        engine(engine) {
+		AddedListener(Engine *engine) :
+				engine(engine) {
 		}
 
-		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
+		virtual void receive(ashley::Signal<ashley::Entity> *signal, ashley::Entity *object) override {
 			engine->updateFamilyMembership(*object);
 		}
 
@@ -228,11 +240,11 @@ private:
 
 	class RemovedListener : public ashley::Listener<Entity> {
 	public:
-		RemovedListener(Engine * const engine) :
-				        engine(engine) {
+		RemovedListener(Engine *engine) :
+				engine(engine) {
 		}
 
-		virtual void receive(ashley::Signal<ashley::Entity> * const signal, ashley::Entity *object) override {
+		virtual void receive(ashley::Signal<ashley::Entity> *signal, ashley::Entity *object) override {
 			engine->updateFamilyMembership(*object);
 		}
 
@@ -243,14 +255,15 @@ private:
 	class EngineOperationHandler : public ashley::ComponentOperationHandler {
 	public:
 		EngineOperationHandler(Engine *engine) :
-				        engine(engine) {
-		}
-		virtual ~EngineOperationHandler() {
+				engine(engine) {
 		}
 
-		virtual void add(ashley::Entity * const entity, std::unique_ptr<Component> &&component,
-		        const std::type_index typeIndex) override;
-		virtual void remove(ashley::Entity * const entity, const std::type_index typeIndex) override;
+		~EngineOperationHandler() override = default;
+
+		void add(ashley::Entity *entity, std::unique_ptr<Component> &&component,
+				 const std::type_index typeIndex) override;
+
+		void remove(ashley::Entity *entity, std::type_index typeIndex) override;
 
 	private:
 		Engine *engine = nullptr;

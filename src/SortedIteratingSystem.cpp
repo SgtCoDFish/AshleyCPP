@@ -1,19 +1,3 @@
-/*******************************************************************************
- * Copyright 2017 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <iterator>
 
 #include "Ashley/core/Engine.hpp"
@@ -25,7 +9,7 @@ void SortedIteratingSystem::addedToEngine(Engine &engine) {
 	IteratingSystem::addedToEngine(engine);
 	sortedEntities.clear();
 
-	if (entities->size() > 0) {
+	if (!entities->empty()) {
 		std::copy(entities->begin(), entities->end(), sortedEntities.begin());
 		forceSort();
 		sort();
@@ -52,7 +36,7 @@ void SortedIteratingSystem::entityRemoved(Entity &entity) {
 void SortedIteratingSystem::update(float deltaTime) {
 	sort();
 	std::for_each(sortedEntities.begin(), sortedEntities.end(),
-	    [&](ashley::Entity *const &found) {processEntity(found, deltaTime);});
+				  [&](ashley::Entity *found) { processEntity(found, deltaTime); });
 }
 
 void SortedIteratingSystem::sort() {

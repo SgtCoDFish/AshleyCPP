@@ -1,26 +1,8 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <typeinfo>
 #include <typeindex>
 #include <memory>
 
 #include "Ashley/core/Entity.hpp"
-#include "Ashley/core/Component.hpp"
-#include "Ashley/core/ComponentType.hpp"
 #include "Ashley/core/Family.hpp"
 
 #include "gtest/gtest.h"
@@ -28,27 +10,27 @@
 using ashley::Family;
 
 namespace {
-class ComponentA : public ashley::Component {
+class ComponentA final : public ashley::Component {
 
 };
 
-class ComponentB : public ashley::Component {
+class ComponentB final : public ashley::Component {
 
 };
 
-class ComponentC : public ashley::Component {
+class ComponentC final : public ashley::Component {
 
 };
 
-class ComponentD : public ashley::Component {
+class ComponentD final : public ashley::Component {
 
 };
 
-class ComponentE : public ashley::Component {
+class ComponentE final : public ashley::Component {
 
 };
 
-class ComponentF : public ashley::Component {
+class ComponentF final : public ashley::Component {
 
 };
 
@@ -61,28 +43,20 @@ protected:
 	ComponentE e;
 	ComponentF f;
 
-	Family *family1 = Family::getFor( { typeid(ComponentA) });
-	Family *family2 = Family::getFor( { typeid(ComponentB) });
-	Family *family3 = Family::getFor( { typeid(ComponentC) });
-	Family *family4 = Family::getFor( { typeid(ComponentA), typeid(ComponentB) });
-	Family *family5 = Family::getFor( { typeid(ComponentA), typeid(ComponentC) });
-	Family *family6 = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
-	Family *family7 = Family::getFor( { typeid(ComponentA), typeid(ComponentB), typeid(ComponentC) });
+	Family *family1 = Family::getFor({typeid(ComponentA)});
+	Family *family2 = Family::getFor({typeid(ComponentB)});
+	Family *family3 = Family::getFor({typeid(ComponentC)});
+	Family *family4 = Family::getFor({typeid(ComponentA), typeid(ComponentB)});
+	Family *family5 = Family::getFor({typeid(ComponentA), typeid(ComponentC)});
+	Family *family6 = Family::getFor({typeid(ComponentB), typeid(ComponentC)});
+	Family *family7 = Family::getFor({typeid(ComponentA), typeid(ComponentB), typeid(ComponentC)});
 	Family *family8 = Family::getFor(ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
-	        ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
-	        ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
+									 ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
+									 ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
 
-	FamilyTest() :
-			        a(),
-			        b(),
-			        c(),
-			        d(),
-			        e(),
-			        f() {
-	}
+	FamilyTest() = default;
 
-	virtual ~FamilyTest() {
-	}
+	~FamilyTest() override = default;
 
 };
 }
@@ -101,12 +75,12 @@ TEST_F(FamilyTest, ValidFamily) {
 
 // Ensure that equal invocations produce equal families, including with different orders of components.
 TEST_F(FamilyTest, SameFamily) {
-	auto familyA = Family::getFor( { typeid(ComponentA) });
-	auto familyB = Family::getFor( { typeid(ComponentB) });
+	auto familyA = Family::getFor({typeid(ComponentA)});
+	auto familyB = Family::getFor({typeid(ComponentB)});
 
 	auto familyLong = Family::getFor(ashley::ComponentType::getBitsFor<ComponentA, ComponentB>(),
-	        ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
-	        ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
+									 ashley::ComponentType::getBitsFor<ComponentC, ComponentD>(),
+									 ashley::ComponentType::getBitsFor<ComponentE, ComponentF>());
 
 	ASSERT_TRUE(familyA == family1);
 	ASSERT_FALSE(familyA == family2);
@@ -118,23 +92,23 @@ TEST_F(FamilyTest, SameFamily) {
 	ASSERT_FALSE(family8 == familyA);
 	ASSERT_FALSE(family8 == familyB);
 
-	auto familyBA = Family::getFor( { typeid(ComponentB), typeid(ComponentA) });
-	auto familyCA = Family::getFor( { typeid(ComponentC), typeid(ComponentA) });
-	auto familyCB = Family::getFor( { typeid(ComponentB), typeid(ComponentC) });
+	auto familyBA = Family::getFor({typeid(ComponentB), typeid(ComponentA)});
+	auto familyCA = Family::getFor({typeid(ComponentC), typeid(ComponentA)});
+	auto familyCB = Family::getFor({typeid(ComponentB), typeid(ComponentC)});
 
 	ASSERT_TRUE(familyBA == family4);
 	ASSERT_TRUE(familyCA == family5);
 	ASSERT_TRUE(familyCB == family6);
 
-	auto familyCBA = Family::getFor( { typeid(ComponentC), typeid(ComponentB), typeid(ComponentA) });
+	auto familyCBA = Family::getFor({typeid(ComponentC), typeid(ComponentB), typeid(ComponentA)});
 	ASSERT_TRUE(familyCBA == family7);
 }
 
 // Ensure that different invocations produce different families, including with different orders of components.
 TEST_F(FamilyTest, DifferentFamily) {
-	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC), typeid(ComponentD) }),
-	        ashley::ComponentType::getBitsFor( { typeid(ComponentE), typeid(ComponentF) }),
-	        ashley::ComponentType::getBitsFor( { typeid(ComponentA), typeid(ComponentB) }));
+	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor({typeid(ComponentC), typeid(ComponentD)}),
+								   ashley::ComponentType::getBitsFor({typeid(ComponentE), typeid(ComponentF)}),
+								   ashley::ComponentType::getBitsFor({typeid(ComponentA), typeid(ComponentB)}));
 
 	ASSERT_FALSE(family1 == family2);
 	ASSERT_FALSE(family1 == family3);
@@ -225,9 +199,9 @@ TEST_F(FamilyTest, FamilyFiltering) {
 	 * None: E, F
 	 * Same as java family2 in this test
 	 */
-	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor( { typeid(ComponentC), typeid(ComponentD) }),
-	        ashley::ComponentType::getBitsFor( { typeid(ComponentA), typeid(ComponentB) }),
-	        ashley::ComponentType::getBitsFor( { typeid(ComponentE), typeid(ComponentF) }));
+	auto family12 = Family::getFor(ashley::ComponentType::getBitsFor({typeid(ComponentC), typeid(ComponentD)}),
+								   ashley::ComponentType::getBitsFor({typeid(ComponentA), typeid(ComponentB)}),
+								   ashley::ComponentType::getBitsFor({typeid(ComponentE), typeid(ComponentF)}));
 
 	/* family8 has:
 	 * All: A, B

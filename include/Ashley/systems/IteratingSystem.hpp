@@ -1,19 +1,3 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #ifndef ACPP_SYSTEMS_ITERATINGSYSTEM_HPP_
 #define ACPP_SYSTEMS_ITERATINGSYSTEM_HPP_
 
@@ -23,7 +7,9 @@
 
 namespace ashley {
 class Entity;
+
 class Engine;
+
 class Family;
 
 /**
@@ -43,18 +29,23 @@ public:
 	 * @param priority The priority to execute this system with (lower means higher priority)
 	 */
 	IteratingSystem(Family *family, int64_t priority) :
-			        EntitySystem(priority),
-			        family(family),
-			        entities() {
+			EntitySystem(priority),
+			family(family),
+			entities() {
 	}
 
 	virtual ~IteratingSystem() = default;
+
 	IteratingSystem(const IteratingSystem &other) = default;
+
 	IteratingSystem(IteratingSystem &&other) = default;
-	IteratingSystem& operator=(const IteratingSystem &other) = default;
-	IteratingSystem& operator=(IteratingSystem &&other) = default;
+
+	IteratingSystem &operator=(const IteratingSystem &other) = default;
+
+	IteratingSystem &operator=(IteratingSystem &&other) = default;
 
 	virtual void addedToEngine(ashley::Engine &engine) override;
+
 	virtual void removedFromEngine(ashley::Engine &engine) override;
 
 	virtual void update(float deltaTime) override;
@@ -65,7 +56,7 @@ public:
 	 * @param entity The current Entity being processed
 	 * @param deltaTime The delta in time between the last and current frame
 	 */
-	virtual void processEntity(Entity * const entity, float deltaTime) = 0;
+	virtual void processEntity(Entity *entity, float deltaTime) = 0;
 
 	/**
 	 * @return true if there is at least 1 {@link Entity} matching the family for this system.

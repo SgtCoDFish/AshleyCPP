@@ -1,21 +1,4 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <sstream>
-#include <stdexcept>
 
 #include "Ashley/core/Family.hpp"
 #include "Ashley/core/ComponentType.hpp"
@@ -35,7 +18,7 @@ ashley::Family *ashley::Family::getFor(ashley::BitsType all, ashley::BitsType on
 	const auto hash = ashley::Family::getFamilyHash(all, one, exclude);
 
 	const auto it = families.find(hash);
-	if(it == families.end()) {
+	if (it == families.end()) {
 		families[hash] = std::unique_ptr<ashley::Family>(new Family(constructorHider_, all, one, exclude));
 	}
 
@@ -49,16 +32,13 @@ bool ashley::Family::matches(Entity &e) const {
 		return false;
 	}
 
-	if ((all & entityComponentBits) != all || (one.any() && (one & entityComponentBits).none())
-	        || (exclude.any() && (exclude & entityComponentBits).any())) {
-		return false;
-	}
+	return !((all & entityComponentBits) != all || (one.any() && (one & entityComponentBits).none())
+			 || (exclude.any() && (exclude & entityComponentBits).any()));
 
-	return true;
 }
 
 ashley::Family::FamilyHashType ashley::Family::getFamilyHash(ashley::BitsType all, ashley::BitsType one,
-        ashley::BitsType exclude) {
+															 ashley::BitsType exclude) {
 	std::stringstream ss;
 
 	ss << "all:" << all << ",one:" << one << ",exclude:" << exclude;

@@ -1,34 +1,14 @@
-/*******************************************************************************
- * Copyright 2014, 2015 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 #include <cstdint>
 
 #include <memory>
 
 #include "Ashley/core/Component.hpp"
 #include "Ashley/core/Engine.hpp"
-#include "Ashley/core/Family.hpp"
-#include "Ashley/core/Entity.hpp"
 #include "Ashley/core/ComponentMapper.hpp"
 
 #include "Ashley/systems/IteratingSystem.hpp"
 
 #include "AshleyTestCommon.hpp"
-
-#include "gtest/gtest.h"
 
 using ashley::test::PositionComponent;
 using ashley::test::VelocityComponent;
@@ -40,15 +20,15 @@ using ashley::Component;
 using ashley::ComponentMapper;
 using ashley::IteratingSystem;
 
-class ComponentA : public Component {
+class ComponentA final : public Component {
 
 };
 
-class ComponentB : public Component {
+class ComponentB final : public Component {
 
 };
 
-class ComponentC : public Component {
+class ComponentC final : public Component {
 
 };
 
@@ -63,23 +43,23 @@ protected:
 	Entity *e = nullptr;
 
 	IteratingSystemTest() :
-			        family(Family::getFor( { typeid(ComponentA), typeid(ComponentB) })),
-			        e { nullptr } {
+			family(Family::getFor({typeid(ComponentA), typeid(ComponentB)})),
+			e{nullptr} {
 	}
 };
 
-class IteratingSystemMock : public IteratingSystem {
+class IteratingSystemMock final : public IteratingSystem {
 public:
-	IteratingSystemMock(Family *family) :
-			        IteratingSystem(family, 0),
-			        numUpdates(0) {
+	explicit IteratingSystemMock(Family *family) :
+			IteratingSystem(family, 0),
+			numUpdates(0) {
 	}
-	virtual ~IteratingSystemMock() {
-	}
+
+	~IteratingSystemMock() override = default;
 
 	uint64_t numUpdates;
 
-	void processEntity(Entity * const entity, float deltaTime) override final {
+	void processEntity(Entity *entity, float deltaTime) override {
 		++numUpdates;
 	}
 };
@@ -91,8 +71,8 @@ public:
 
 class IndexComponent : public ashley::Component {
 public:
-	IndexComponent(int nindex = 0) :
-			        index(nindex) {
+	explicit IndexComponent(int nindex = 0) :
+			index(nindex) {
 	}
 
 	int64_t index = 0;
@@ -104,14 +84,14 @@ private:
 	ComponentMapper<IndexComponent> im;
 
 public:
-	IteratingComponentRemovalMock(int64_t priority = 0) :
-			        IteratingSystem(ashley::Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }),
-			                priority),
-			        sm(ComponentMapper<SpyComponent>::getMapper()),
-			        im(ComponentMapper<IndexComponent>::getMapper()) {
+	explicit IteratingComponentRemovalMock(int64_t priority = 0) :
+			IteratingSystem(ashley::Family::getFor({typeid(SpyComponent), typeid(IndexComponent)}),
+							priority),
+			sm(ComponentMapper<SpyComponent>::getMapper()),
+			im(ComponentMapper<IndexComponent>::getMapper()) {
 	}
 
-	void processEntity(Entity * const entity, float deltaTime) override final {
+	void processEntity(Entity *entity, float deltaTime) override {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
@@ -129,11 +109,11 @@ private:
 	ComponentMapper<IndexComponent> im;
 
 public:
-	IteratingRemovalMock(int64_t priority = 0) :
-			        IteratingSystem(ashley::Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }),
-			                priority),
-			        sm(ComponentMapper<SpyComponent>::getMapper()),
-			        im(ComponentMapper<IndexComponent>::getMapper()) {
+	explicit IteratingRemovalMock(int64_t priority = 0) :
+			IteratingSystem(ashley::Family::getFor({typeid(SpyComponent), typeid(IndexComponent)}),
+							priority),
+			sm(ComponentMapper<SpyComponent>::getMapper()),
+			im(ComponentMapper<IndexComponent>::getMapper()) {
 	}
 
 	void addedToEngine(Engine &engine) override {
@@ -144,7 +124,7 @@ public:
 		IteratingSystem::removedFromEngine(engine);
 	}
 
-	void processEntity(Entity * const entity, float deltaTime) override final {
+	void processEntity(Entity *entity, float deltaTime) override {
 		auto index = im.get(entity)->index;
 
 		if (index % 2 == 0) {
@@ -186,7 +166,7 @@ TEST_F(IteratingSystemTest, ShouldIterateEntitiesWithCorrectFamily) {
 TEST_F(IteratingSystemTest, EntityRemovalWhileIterating) {
 	// only uses the engine from IteratingSystemTest
 
-	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }));
+	auto entities = engine.getEntitiesFor(Family::getFor({typeid(SpyComponent), typeid(IndexComponent)}));
 	auto sm = ComponentMapper<SpyComponent>::getMapper();
 
 	engine.addSystem<IteratingRemovalMock>(10);
@@ -216,7 +196,7 @@ TEST_F(IteratingSystemTest, EntityRemovalWhileIterating) {
 TEST_F(IteratingSystemTest, ComponentRemovalWhileIterating) {
 	// only uses the engine from IteratingSystemTest
 
-	auto entities = engine.getEntitiesFor(Family::getFor( { typeid(SpyComponent), typeid(IndexComponent) }));
+	auto entities = engine.getEntitiesFor(Family::getFor({typeid(SpyComponent), typeid(IndexComponent)}));
 	auto sm = ComponentMapper<SpyComponent>::getMapper();
 
 	engine.addSystem<IteratingComponentRemovalMock>(10);
